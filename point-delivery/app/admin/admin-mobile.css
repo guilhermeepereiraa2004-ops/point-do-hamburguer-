@@ -1,0 +1,145 @@
+.admin-mobile-nav{display:none}
+.admin-app .admin-search{display:grid;gap:9px;font-size:13px;font-weight:600;color:#495565;margin:18px 0;max-width:540px}
+.admin-app .admin-search input{width:100%;min-width:0;min-height:48px;border:1px solid #d8dee7;border-radius:12px;padding:12px 15px;font-size:16px;color:#303c4b;background:white}
+.admin-search-empty{padding:20px;font-size:14px;color:#596577}
+
+@media(max-width:900px){
+  .admin-app{display:block;min-height:calc(100dvh - 80px)}
+  .admin-app .admin-main{width:100%}
+  .admin-app .admin-sidebar{height:68px;padding:12px 18px}
+  .admin-app .admin-brand-row{height:44px}
+  .admin-app .admin-menu-toggle{width:44px;height:44px}
+  .admin-app .admin-sidebar nav{top:68px;max-height:calc(100dvh - 160px);overflow-y:auto;padding:16px;overscroll-behavior:contain}
+  .admin-app .admin-sidebar nav button{min-height:68px;padding:12px;white-space:normal}
+  .admin-app .admin-nav-copy strong{font-size:14px}
+  .admin-app .admin-nav-copy small{font-size:11px;display:block}
+  .admin-app .admin-menu-backdrop{inset:68px 0 0;height:calc(100dvh - 68px)}
+  .admin-app .admin-topbar{height:auto;min-height:60px;padding:10px 18px;flex-wrap:wrap;gap:8px}
+  .admin-app .admin-topbar>span{font-size:12px}
+  .admin-app .sound-button{min-height:44px;font-size:12px;padding:10px 12px}
+  .admin-app .sound-button svg{width:17px}
+  .admin-app .admin-content{padding:25px 16px 32px;max-width:760px}
+  .admin-app .admin-page-title{margin-bottom:24px}
+  .admin-app .admin-page-title h1{font-size:30px;letter-spacing:-1px}
+  .admin-app .admin-page-title>p{font-size:14px;color:#5c6877;line-height:1.65}
+  .admin-app .admin-page-title .eyebrow{font-size:10px;color:#6d7886}
+  .admin-app .button.primary{min-height:48px;font-size:14px;padding:13px 16px}
+  .admin-app .admin-section-top{display:flex;flex-direction:column;align-items:stretch;gap:14px}
+  .admin-app .admin-section-top h2{font-size:21px;line-height:1.4}
+  .admin-app .admin-section-top select{width:100%;min-height:48px;font-size:16px}
+  .admin-app .management-section-top p,.admin-app .admin-stock-hint{font-size:13px;color:#5f6d7e}
+  .admin-app .management-actions{display:grid;grid-template-columns:1fr;gap:10px}
+  .admin-app .management-actions>.button{justify-content:center}
+  .admin-app .overview-period{font-size:13px;line-height:1.6}
+  .admin-app .overview-period>span{font-size:11px;color:#637083;margin:0;width:100%}
+  .admin-app .overview-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .admin-app .metric-card{padding:18px 14px}
+  .admin-app .metric-card>span{font-size:12px;color:#566475;line-height:1.5;align-items:flex-start;min-height:38px}
+  .admin-app .metric-card>strong{font-size:clamp(23px,5.5vw,31px);letter-spacing:-.8px;margin:15px 0 10px}
+  .admin-app .metric-card>small{font-size:11px;color:#637083;line-height:1.6}
+  .admin-app .metric-card.featured>span{color:#f4eae1}
+  .admin-app .metric-card.featured>small{color:#d6cfc6}
+  .admin-app .finance-metrics .featured{grid-column:1/-1}
+  .admin-app .insight-card{padding:22px}
+  .admin-app .insight-card p,.admin-app .insight-note{font-size:13px;line-height:1.7;color:#5e6c7e}
+  .admin-app .insight-card .eyebrow{font-size:10px;color:#667587}
+  .admin-app .weekday-chart>div{font-size:13px}
+  .admin-app .customer-numbers span{font-size:12px;color:#627083}
+  .admin-app .admin-empty{padding:30px 18px}
+  .admin-app .admin-empty p{font-size:14px;color:#657184;line-height:1.7;margin-block:12px 20px}
+  .admin-app .orders-grid{grid-template-columns:minmax(0,1fr)}
+  .admin-app .order-card{padding:21px;overflow-wrap:anywhere}
+  .admin-app .order-card-heading h3{font-size:22px}
+  .admin-app .status-badge{font-size:12px;padding:9px 10px}
+  .admin-app .order-card>time{font-size:12px;color:#657284}
+  .admin-app .order-card>h4{font-size:19px;color:#36475b}
+  .admin-app .order-card>a{display:inline-flex;align-items:center;min-height:44px;font-size:15px;color:#a34316;text-decoration:underline;text-underline-offset:3px}
+  .admin-app .order-card ul,.admin-app .admin-burger-recipes header{font-size:14px;color:#46586b}
+  .admin-app .admin-burger-recipes header span{font-size:13px}
+  .admin-app .order-address strong{font-size:11px;color:#5c6b7c}
+  .admin-app .order-address p,.admin-app .order-address small{font-size:14px;color:#536476;line-height:1.7}
+  .admin-app .order-card-total>span{font-size:14px;color:#56677b}
+  .admin-app .order-card-total small{font-size:12px;color:#6a788b}
+  .admin-app .order-actions{display:grid;grid-template-columns:1fr;gap:8px}
+  .admin-app .order-actions .button{font-size:14px;justify-content:center}
+  .admin-app .cancel-order{min-height:44px;font-size:13px;color:#a04e40;border:1px solid #efd9d4;border-radius:10px}
+  .admin-app .stock-table tbody tr{padding:18px;gap:10px}
+  .admin-app .stock-table td:nth-child(1) strong{font-size:16px;color:#394c60}
+  .admin-app .stock-table td:nth-child(1) small,.admin-app .stock-table td:nth-child(2){font-size:12px;color:#657589}
+  .admin-app .stock-table td:nth-child(3){font-size:30px;color:#344a61}
+  .admin-app .stock-tag{font-size:11px;padding:7px 9px}
+  .admin-app .stock-actions{display:grid;grid-template-columns:1fr 1fr}
+  .admin-app .stock-table .stock-actions button{min-height:48px;font-size:13px;padding:10px;justify-content:center}
+  .admin-app .table-edit,.admin-app .availability-action{min-height:46px;color:#53677f;font-size:13px}
+  .admin-app .movement-list>div{display:grid;grid-template-columns:1fr auto;font-size:14px;gap:6px 12px;padding:18px 0}
+  .admin-app .movement-list span{min-width:0;overflow-wrap:anywhere}
+  .admin-app .movement-list small,.admin-app .movement-list time{font-size:12px;color:#6c7b8d}
+  .admin-app .movement-list time{grid-column:1/-1}
+  .admin-app .admin-box{padding:22px}
+  .admin-app .admin-box>p{font-size:13px;color:#677589}
+  .admin-app .price-admin-row{font-size:15px;gap:12px;color:#56677c}
+  .admin-app .price-admin-row>b{font-size:16px;color:#364d67}
+  .admin-app .price-admin-row>button{min-width:48px;min-height:48px}
+  .admin-app .price-admin-row>button svg{width:18px;height:18px}
+  .admin-app .management-filters{gap:9px}
+  .admin-app .management-filters button{min-height:44px;font-size:12px;padding:10px 12px;color:#5e6d81}
+  .admin-app .menu-featured-legend{font-size:12px;line-height:1.6}
+  .admin-app .product-featured{width:48px;height:48px}
+  .admin-app .accompaniment-card{padding:21px}
+  .admin-app .accompaniment-card h3{font-size:23px;color:#374c64}
+  .admin-app .accompaniment-card>p{font-size:14px;color:#67778c}
+  .admin-app .accompaniment-category{font-size:10px;color:#6c7a8e}
+  .admin-app .product-placement{font-size:12px;color:#6a798a}
+  .admin-app .accompaniment-values>span{font-size:13px;color:#5d7086}
+  .admin-app .accompaniment-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .admin-app .accompaniment-actions button{min-height:48px;font-size:13px!important;justify-content:center}
+  .admin-app .accompaniment-actions button:last-child{grid-column:1/-1}
+  .admin-app .table-scroll:has(.finance-ledger){border:0;background:transparent;box-shadow:none;overflow:visible}
+  .admin-app .finance-ledger{display:block;width:100%;white-space:normal}
+  .admin-app .finance-ledger thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .admin-app .finance-ledger tbody{display:grid;gap:14px}
+  .admin-app .finance-ledger tr{display:grid;padding:18px;border:1px solid #e0e5ed;border-radius:14px;background:white}
+  .admin-app .finance-ledger td{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;padding:9px 0;border:0;min-width:0!important;font-size:13px;white-space:normal;text-align:right;overflow-wrap:anywhere}
+  .admin-app .finance-ledger td::before{content:attr(data-label);font-size:12px;font-weight:600;color:#66758a;flex-shrink:0;text-align:left}
+  .admin-app .finance-ledger td:nth-child(2){display:block;text-align:left}
+  .admin-app .finance-ledger td:nth-child(2)::before{display:block;margin-bottom:7px}
+  .admin-app .finance-ledger td strong{font-size:15px;color:#3b5069}
+  .admin-app .finance-ledger td small{font-size:12px;color:#687a90}
+  .admin-app .ledger-type{font-size:12px}
+  .admin-app .finance-ledger .empty-table{display:block;font-size:14px!important;padding:20px!important;text-align:center}
+  .admin-app .finance-ledger .empty-table::before{display:none}
+  .admin-app .notice{font-size:14px;gap:12px}
+  .admin-app .notice>button{min-width:44px;min-height:44px}
+  .admin-app .new-order-alert{padding:18px;gap:14px;flex-wrap:wrap}
+  .admin-app .new-order-alert p{font-size:13px}
+  .admin-app .new-order-alert>.button{width:100%;justify-content:center}
+  .admin-app .modal-backdrop{padding:0;align-items:flex-end;overscroll-behavior:contain}
+  .admin-app .management-modal,.admin-app .edit-modal{width:100%;max-width:640px;max-height:90dvh;margin:0 auto;border-radius:22px 22px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom));scroll-padding-block:24px;overscroll-behavior:contain}
+  .admin-app .management-modal>header>button,.admin-app .modal-close{min-width:44px;min-height:44px}
+  .admin-app .management-modal>header h2{font-size:24px;color:#394e67}
+  .admin-app .management-intro,.admin-app .management-modal>p{font-size:14px;color:#67798e;line-height:1.7}
+  .admin-app .management-modal label,.admin-app .edit-modal label{font-size:14px;color:#52667f;line-height:1.6}
+  .admin-app .management-modal input,.admin-app .management-modal select,.admin-app .edit-modal input{min-height:52px;font-size:16px;color:#314a68;border-color:#cfd8e4}
+  .admin-app .management-modal input::placeholder{font-size:14px;color:#7c8ca1}
+  .admin-app .management-form-row{grid-template-columns:1fr;gap:0}
+  .admin-app .management-submit{min-height:52px;margin-top:20px}
+  .admin-app .management-modal form>.button,.admin-app .management-modal>.button{width:100%;justify-content:center;min-height:52px}
+  .admin-app .admin-mobile-nav{position:fixed;inset:auto 0 0;z-index:55;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:7px 6px calc(7px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #dfe4ec;box-shadow:0 -4px 20px #1d30400a}
+  .admin-app .admin-mobile-nav button{min-width:0;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:11px;color:#66758b;font-size:11px;font-weight:600;padding:6px 2px}
+  .admin-app .admin-mobile-nav button[aria-current=page]{background:#fff0e6;color:#bc4717}
+  .admin-mobile-nav button>span{position:relative;display:flex}
+  .admin-mobile-nav b{position:absolute;top:-7px;left:15px;border:2px solid white;background:#d65420;color:white;border-radius:12px;min-width:20px;font-size:9px;padding:2px 4px}
+  .admin-account{position:static;width:auto;justify-content:center;margin:0;padding:18px 16px calc(100px + env(safe-area-inset-bottom));border:0;border-top:1px solid #e3e7ed;border-radius:0;background:#f6f7f9;box-shadow:none;gap:12px}
+  .admin-account a,.admin-account button{min-height:48px;padding:12px 18px;font-size:13px;border:1px solid #dfe5ed;border-radius:10px}
+  .admin-login .own-auth-form label{font-size:14px}
+  .admin-login .own-auth-form input{font-size:16px;min-height:52px}
+}
+@media(max-width:360px){
+  .admin-app .overview-metrics{grid-template-columns:1fr}
+  .admin-app .metric-card>span{min-height:0}
+  .admin-app .stock-table tbody tr{padding:14px}
+  .admin-app .stock-table td:nth-child(1) strong{font-size:14px}
+  .admin-app .stock-table td:nth-child(4){max-width:125px}
+  .admin-app .admin-nav-copy small{display:none}
+  .admin-app .admin-topbar-icon,.admin-app .admin-breadcrumb-divider{display:none}
+}
