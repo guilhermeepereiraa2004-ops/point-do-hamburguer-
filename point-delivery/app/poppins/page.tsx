@@ -1,5 +1,2 @@
-import Home from "../page";
-
-export default function PoppinsComparison() {
-  return <Home fontVariant="poppins"/>;
-}
+import Storefront from "@/components/storefront";
+export default function PoppinsComparison() { return <Storefront fontVariant="poppins"/>; }

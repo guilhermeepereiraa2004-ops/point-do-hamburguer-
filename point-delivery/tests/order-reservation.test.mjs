@@ -1,3 +1,4 @@
+import { postgresFixture } from "./postgres-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -10,6 +11,11 @@ const catalog = { ingredients: [...ingredientNames.map(([id, name, category, uni
 const items = catalog.ingredients.filter(i => selection[i.id]).map(i => ({ id: i.id, name: i.name, quantity: selection[i.id] }));
 const order = (id = crypto.randomUUID(), key = id) => ({ id, idempotencyKey: key, fingerprint: "fixture", code: "TESTE", customer: "TESTE AUTOMATIZADO", phone: "00000000000", address: "Endereço fictício de teste", reference: "Sem entrega", notes: "Não produzir", subtotal: 2000, deliveryFee: 0, total: 2000, createdAt: 1792520000123 });
 async function fixture(t) {
+  if (process.env.TEST_DATABASE === "postgres") {
+    const db = await postgresFixture(t);
+    await db.batch(catalog.ingredients.map(i => db.prepare("INSERT INTO ingredients (id,name,category,unit,stock,max_qty) VALUES (?,?,?,?,?,?)").bind(i.id,i.name,i.category,i.unit,i.stock,i.maxQty)));
+    return db;
+  }
   const mf = new Miniflare({ modules: true, script: 'export default {fetch(){return new Response("test")}}', compatibilityDate: "2026-05-15", d1Databases: ["DB"] });
   t.after(() => mf.dispose());
   const db = await mf.getD1Database("DB");
@@ -77,6 +83,8 @@ test("completion records the historic order value once and cancellation restores
   const db = await fixture(t), completed = order(), canceled = order();
   await reserveOrder(db, completed, items);
   await db.prepare("INSERT INTO prices (count,value) VALUES (10,9999)").run();
+  await db.prepare("UPDATE orders SET status='preparo' WHERE id=?").bind(completed.id).run();
+  await db.prepare("UPDATE orders SET status='entrega' WHERE id=?").bind(completed.id).run();
   for (let n = 0; n < 2; n++) await db.prepare("UPDATE orders SET status='concluido' WHERE id=?").bind(completed.id).run();
   assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM finance").first()).count, 1);
   assert.equal((await db.prepare("SELECT value FROM finance").first()).value, completed.total);

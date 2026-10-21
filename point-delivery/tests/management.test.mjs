@@ -1,3 +1,4 @@
+import { postgresFixture } from "./postgres-fixture.mjs";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -12,6 +13,10 @@ const now = Date.parse("2026-10-20T15:00:00Z");
 const friesMenu = JSON.parse(readFileSync(new URL("../data/fries-menu.json", import.meta.url), "utf8"));
 const beverage = (overrides = {}) => validateAccompaniment({ id: crypto.randomUUID(), extraType: "refrigerante", productName: "Bebida de teste", flavor: "Cola", size: "Lata 350 ml", price: 600, stock: 2, lowStock: 1, maxQty: 4, ...overrides });
 async function fixture(t, beforeFeatured) {
+  if (process.env.TEST_DATABASE === "postgres") {
+    const db = await postgresFixture(t);
+    return db;
+  }
   const mf = new Miniflare({ modules: true, script: 'export default {fetch(){return new Response("test")}}', compatibilityDate: "2026-05-15", d1Databases: ["DB"] });
   t.after(() => mf.dispose());
   const db = await mf.getD1Database("DB");
@@ -123,6 +128,8 @@ test("each beverage size and juice flavor has independent stock, joins the order
   assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id=?").bind(soda.id).first()).stock, 2);
   const saleId = crypto.randomUUID(); await reserveOrder(db, order(saleId, 3400), lines);
   await saveAccompaniment(db, { ...soda, price: 990 }, false);
+  await db.prepare("UPDATE orders SET status='preparo' WHERE id=? AND status='recebido'").bind(saleId).run();
+  await db.prepare("UPDATE orders SET status='entrega' WHERE id=? AND status='preparo'").bind(saleId).run();
   await db.prepare("UPDATE orders SET status='concluido' WHERE id=?").bind(saleId).run();
   assert.equal((await db.prepare("SELECT value FROM finance WHERE order_id=?").bind(saleId).first()).value, 3400);
 });
@@ -174,7 +181,7 @@ test("a product unstarred during reservation blocks a stale cart and rolls the e
   await reserveOrder(db, order(crypto.randomUUID(), 2000), lines);
   assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id=?").bind(product.id).first()).stock, 1);
 });
-test("the additive star migration preserves existing menu products, prices and quantities", async t => {
+test("the additive star migration preserves existing menu products, prices and quantities", { skip: process.env.TEST_DATABASE === "postgres" }, async t => {
   const db = await fixture(t, async raw => {
     await raw.prepare("INSERT INTO ingredients (id,name,category,unit,stock,price,active) VALUES ('legacy','Suco','Complementos','unidade',7,800,0)").run();
     await raw.prepare("INSERT INTO ingredients (id,name,category,unit,stock) VALUES ('carne','Carne','Proteínas','unidade',20)").run();

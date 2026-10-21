@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792552763430,
+      "tag": "0000_postgres_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792552798756,
+      "tag": "0001_inventory_transactions",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792587477367,
+      "tag": "0002_admin_auth",
+      "breakpoints": true
+    }
+  ]
+}

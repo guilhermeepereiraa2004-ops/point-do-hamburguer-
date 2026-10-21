@@ -164,3 +164,7 @@ Aliases e exceções do framework devem ser incluídos no verificador durante a 
 4. Definir administradores autorizados e configurar acesso antes da operação real.
 
 Próxima etapa após aprovação: aplicar iniciar-projeto-agentes nesta decisão, criar fundação, implementar os fluxos de REQUISITOS.md, validar visual e regras de dados e publicar versão privada para revisão. Nesta etapa de proposta não houve criação de Site, instalação, implementação, build ou deploy.
+
+## Decisão vigente — migração solicitada para Vercel em 21/10/2026
+A pedido do usuário, a implantação passa a Next.js 16 no runtime Node da Vercel, com PostgreSQL Neon Free já provisionado na equipe Guilherme Pereira. O backend Cloudflare/Sites anterior foi substituído; regras de domínio e interface preservadas. Banco compartilhado persistente; transações SQL e bloqueios de linha preservam estoque e histórico.
+O usuário recusou Clerk e domínio próprio. Login próprio com Better Auth/username, tabelas de sessão no PostgreSQL, cadastro público desativado e autorização por admin_access. Segredo configurado fora do código, senha inicial forte fora do Git, troca obrigatória e recuperação operacional pelo responsável via CLI. Não há dependência de domínio próprio, serviço de e-mail ou identidade Sites.

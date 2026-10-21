@@ -1,12 +1,16 @@
+import "server-only";
 import { headers } from "next/headers";
-import { env } from "cloudflare:workers";
-import { getChatGPTUser } from "@/app/chatgpt-auth";
+import { getAuth } from "@/lib/auth";
+import { getStore } from "@/db";
+import { adminAccess } from "@/db/admin-access";
+export async function getAdminIdentity() {
+  const session = await getAuth().api.getSession({ headers: await headers() });
+  if (!session) return null;
+  const access = await adminAccess(getStore(),session.user.id);
+  return access ? { user: session.user, ...access } : null;
+}
 export async function isAdmin() {
-  const user = await getChatGPTUser();
-  if (!user) return false;
-  const host = (await headers()).get("host") || "";
-  if (process.env.NODE_ENV !== "production" && /^(localhost|127\.0\.0\.1)(:\d+)?$/.test(host) && user.userId === "local_seedy") return true;
-  const allowed = ((env as unknown as { ADMIN_USER_IDS?: string }).ADMIN_USER_IDS || "").split(",").map(s => s.trim()).filter(Boolean);
-  return allowed.includes(user.userId);
+  const identity = await getAdminIdentity();
+  return Boolean(identity && !identity.mustChangePassword);
 }
 export async function assertAdmin() { if (!await isAdmin()) throw new Error("Acesso administrativo necessário."); }

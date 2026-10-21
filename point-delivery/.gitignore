@@ -54,3 +54,7 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+.env*
+
+/skills-lock.json

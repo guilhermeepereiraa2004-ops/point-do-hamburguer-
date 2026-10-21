@@ -1,7 +1,6 @@
-import { env } from "cloudflare:workers";
-import { getDb } from "@/db";
+import { getDb, getStore } from "@/db";
 import { reserveOrder } from "@/db/order-reservation";
-import { ingredients, prices, settings, orders, orderItems, movements, finance, manualFinance } from "@/db/schema";
+import { ingredients, prices, settings, orders, orderItems, movements, finance, manualFinance } from "@/db/pg-schema";
 import { eq, desc, and, gte, lt } from "drizzle-orm";
 import { buildMonthlyReport, currentMonth } from "@/domain/reporting";
 import { validateAccompaniment, validateManualEntry, type ManualEntry } from "@/domain/management";
@@ -11,7 +10,7 @@ import { canTransition, getStockShortages, InsufficientStockError, validateSelec
 export async function getCatalog(): Promise<Catalog> {
   const db = getDb();
   const [items, tiers, fee] = await Promise.all([db.select().from(ingredients), db.select().from(prices), db.select().from(settings).where(eq(settings.key, "deliveryFee"))]);
-  return { ingredients: items, prices: Object.fromEntries(tiers.map(p => [String(p.count), p.value])), deliveryFee: fee[0]?.value ?? null };
+  return { ingredients: items.map(item => ({ ...item, active: Boolean(item.active), featured: Boolean(item.featured) })), prices: Object.fromEntries(tiers.map(p => [String(p.count), p.value])), deliveryFee: fee[0]?.value ?? null };
 }
 function stringField(value: unknown, label: string, min: number, max: number) {
   if (typeof value !== "string" || value.trim().length < min || value.trim().length > max) throw new Error(`Confira o campo ${label}.`);
@@ -34,7 +33,7 @@ export async function placeOrder(input: Record<string, unknown>) {
   const address = stringField(input.address, "endereço", 8, 300), reference = stringField(input.reference, "referência", 2, 200);
   const notes = stringField(input.notes ?? "", "observações", 0, 500);
   const id = crypto.randomUUID(), code = id.slice(0, 6).toUpperCase(), createdAt = Date.now();
-  const raw = env.DB!;
+  const raw = getStore();
   try {
     await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt }, catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
   } catch {
@@ -66,10 +65,10 @@ export async function updateStatus(id: string, next: Status) {
   if (!statuses.includes(next)) throw new Error("Status inválido.");
   const db = getDb(); const [order] = await db.select().from(orders).where(eq(orders.id, id));
   if (!order || !canTransition(order.status as Status, next)) throw new Error("Esta alteração de status não é permitida.");
-  await env.DB!.prepare("UPDATE orders SET status=? WHERE id=? AND status=?").bind(next, id, order.status).run();
+  await getStore().prepare("UPDATE orders SET status=? WHERE id=? AND status=?").bind(next, id, order.status).run();
 }
 export async function updateCatalog(input: Record<string, unknown>) {
-  const raw = env.DB!;
+  const raw = getStore();
   const kind = input.kind;
   const value = input.value;
   if (kind === "featured") {
