@@ -12,13 +12,14 @@ Sistema web de delivery para uma hamburgueria, com identidade laranja e branca. 
 |---|---|
 | CLI-01 | Layout responsivo, com hero curta e botão que leva ao montador. |
 | CLI-02 | Todos os 15 ingredientes de CARDAPIO.md aparecem com unidade/porção e seletor de quantidade. |
-| CLI-03 | Selecionar pão inicia a montagem visual; cada ingrediente e repetição atualiza as camadas do hambúrguer. Remover desfaz a camada correspondente. |
+| CLI-03 | Primeiro escolher de 1 a 10 hambúrgueres, com um pão incluído automaticamente em cada um. Montar cada lanche em sequência; cada ingrediente e repetição atualiza as camadas. Próximo hambúrguer confirma o atual e avança. Finalizar a última montagem leva aos acompanhamentos antes da entrega. |
 | CLI-04 | Preço e quantidade total acompanham as escolhas; faixas são consultadas na tabela configurada. |
 | CLI-05 | Complementos cadastrados têm quantidade, preço e disponibilidade. |
 | CLI-06 | Resumo mostra composição, quantidades, subtotal, complementos, entrega e total antes de enviar. |
 | CLI-07 | Finalização coleta nome, telefone, endereço e referência; valida no navegador e no servidor. |
 | CLI-08 | Envio bem-sucedido retorna confirmação com identificador e resumo do pedido. Falhas preservam o carrinho. |
 | CLI-09 | Ingredientes sem estoque aparecem indisponíveis; alteração concorrente de disponibilidade é tratada no envio. |
+| CLI-10 | Acompanhamentos exigem decisão explícita: escolher bebidas/porções ou seguir só com os hambúrgueres. A entrega abre após essa etapa. Permitir rever receitas e alterar a quantidade, preservando os lanches restantes e cobrando uma única entrega. |
 
 Não foram solicitados pagamento online, login do cliente, WhatsApp, app de loja, cupons ou rastreamento de entregador.
 
@@ -93,3 +94,5 @@ O financeiro inclui receitas por conclusão e movimentações manuais de caixa. 
 - Teste real da sineta após habilitação, reconexão e reconhecimento.
 
 Evidências de implementação, testes e limites operacionais são mantidas em plan/STATUS.md.
+
+CLI-11 (21/10/2026): permitir repetir a receita do lanche ativo em outros hambúrgueres escolhidos do mesmo pedido, preservando os não marcados e a independência das cópias. Avisar substituição de montagem existente, manter revisão/finalização por lanche e conferir estoque total antes de copiar. Não copiar acompanhamentos nem modificar a tabela de preços.

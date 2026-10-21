@@ -1,0 +1,116 @@
+/* Continuous hero movement stays in CSS, without playback controls or JS timers. */
+.storefront .hero-burger {
+  animation: hero-burger-float 4.8s ease-in-out infinite;
+  transform-origin: 50% 60%;
+}
+.storefront .hero-burger-shadow {
+  position: absolute;
+  width: 62%;
+  height: 5%;
+  left: 21%;
+  bottom: 4%;
+  z-index: -1;
+  border-radius: 50%;
+  background: #69300920;
+  filter: blur(12px);
+  animation: hero-shadow-breathe 4.8s ease-in-out infinite;
+}
+
+/* A generous pressable CTA, with a separate arrow disc. */
+.storefront .price-sticker { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; }
+.storefront .button.primary.hero-cta {
+  position: relative;
+  min-height: 66px;
+  padding: 9px 10px 9px 22px;
+  gap: 25px;
+  border: 1px solid #d34a11;
+  border-radius: 19px;
+  background: linear-gradient(135deg, #e95e1e, #c9420d);
+  box-shadow: 0 5px 0 #9e330c, 0 13px 25px #ca4d172b, inset 0 1px 0 #ffffff30;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -.2px;
+}
+.storefront .hero-cta-label { display: inline-flex; align-items: center; gap: 10px; }
+.storefront .hero-cta-label svg { opacity: .9; }
+.storefront .hero-cta-arrow {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: #fff7e9;
+  color: #c34b18;
+  transition: border-radius .2s, background .2s;
+}
+.storefront .button.primary.hero-cta:hover {
+  background: linear-gradient(135deg, #ef6b28, #cf4812);
+  box-shadow: 0 8px 0 #9e330c, 0 17px 28px #ca4d1733, inset 0 1px 0 #ffffff30;
+  transform: translateY(-3px);
+}
+.storefront .hero-cta:hover .hero-cta-label svg { transform: none; }
+.storefront .hero-cta:hover .hero-cta-arrow { border-radius: 50%; background: #fffefa; }
+.storefront .button.primary.hero-cta:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #9e330c, 0 6px 12px #ca4d1725;
+}
+
+/* An angled, static brand ribbon bridges the hero and the burger studio. */
+.storefront .hero-divider { overflow: hidden; padding: 22px 0 25px; }
+.storefront .hero-divider-ribbon {
+  width: calc(100% + 48px);
+  margin-left: -24px;
+  padding: 21px 0;
+  transform: rotate(-1.5deg);
+  background: #c64a17;
+  box-shadow: 0 6px 0 #ffdfc3;
+}
+.storefront .hero-divider-track {
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.storefront .hero-divider-item { display: inline-flex; align-items: center; gap: 32px; }
+.storefront .hero-divider-word {
+  color: #fff5e5;
+  font-size: clamp(19px, 2.1vw, 29px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -.6px;
+  white-space: nowrap;
+}
+.storefront .hero-divider-word.outline { color: transparent; -webkit-text-stroke: 1px #fff5e5; }
+.storefront .hero-divider-spark { color: #ffd298; font-size: 29px; line-height: 1; }
+
+@keyframes hero-burger-float {
+  0%, 100% { transform: translateY(3px) rotate(-6deg); }
+  50% { transform: translateY(-27px) rotate(-1deg); }
+}
+@keyframes hero-shadow-breathe {
+  0%, 100% { transform: scaleX(1); opacity: .8; }
+  50% { transform: scaleX(.86); opacity: .5; }
+}
+@keyframes hero-burger-drift {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-18px) rotate(-5deg); }
+}
+@media (max-width: 760px) {
+  .storefront .button.primary.hero-cta { min-height: 60px; padding: 8px 9px 8px 18px; gap: 21px; font-size: 12px; border-radius: 17px; }
+  .storefront .hero-cta-arrow { width: 40px; height: 40px; border-radius: 11px; }
+  .storefront .hero-divider { padding: 16px 0 19px; }
+  .storefront .hero-divider-ribbon { padding: 17px 0; transform: rotate(-2deg); }
+  .storefront .hero-divider-track, .storefront .hero-divider-item { gap: 22px; }
+  .storefront .hero-divider-word { font-size: 19px; }
+  .storefront .hero-divider-spark { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .storefront .hero-art .hero-burger,
+  .storefront .hero-art .hero-burger-shadow { animation: none !important; }
+  /* Keep a perceptible vertical drift, without rotation or shadow motion. */
+  .storefront .hero-art .hero-burger { animation: hero-burger-drift 5.5s ease-in-out infinite !important; }
+}
