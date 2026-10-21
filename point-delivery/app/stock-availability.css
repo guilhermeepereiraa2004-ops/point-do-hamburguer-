@@ -1,0 +1,10 @@
+.stock-availability{margin:20px 0;padding:20px;background:#fff5e8;border:1px solid #efc99f;border-radius:14px;color:#654026}
+.stock-availability h3{margin:0 0 8px;font-size:18px;letter-spacing:-.4px}
+.stock-availability p{font-size:12px;line-height:1.6;margin:0 0 14px}
+.stock-availability ul{list-style:none;margin:0;padding:0}
+.stock-availability li{padding:10px 0;border-top:1px solid #eed9c1}
+.stock-availability li strong,.stock-availability li span{display:block}
+.stock-availability li strong{font-size:13px}.stock-availability li span{font-size:11px;line-height:1.6;margin-top:4px}
+.stock-availability button{display:flex;justify-content:space-between;align-items:center;width:100%;padding:13px 15px;margin-top:14px;border:1px solid #bb641f;border-radius:9px;background:#fffaf3;color:#91430e;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
+.stock-availability button:focus-visible{outline:3px solid #fa812f;outline-offset:3px}
+.stock-availability small{display:block;font-size:10px;line-height:1.6;margin-top:10px}

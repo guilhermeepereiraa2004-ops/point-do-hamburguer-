@@ -1,0 +1,9 @@
+.stock-actions{display:flex;align-items:center;gap:8px}
+.availability-action{display:flex;align-items:center;justify-content:center;gap:6px;border:1px solid #d9c5ad;border-radius:7px;padding:8px 10px;min-width:85px;font-size:10px;font-weight:600;color:#785638;background:#fffaf3;white-space:nowrap;cursor:pointer}
+.availability-action.is-paused{background:#fff0df;border-color:#e0a96e;color:#914812}
+.availability-action:hover{border-color:#cb7a3a;background:#fff1df}
+.availability-action:focus-visible{outline:3px solid #f69a57;outline-offset:3px}
+.availability-action:disabled{opacity:.5;cursor:wait}
+.stock-tag.paused{color:#8d5427;background:#f8e6d1}
+.admin-stock-hint{margin:-5px 0 18px;font-size:11px;line-height:1.7;color:#96785e}
+.stock-actions .table-edit:disabled{opacity:.5;cursor:wait}

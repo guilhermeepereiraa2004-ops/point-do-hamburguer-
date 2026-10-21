@@ -1,0 +1,263 @@
+@import "./poppins-font.css";
+/* Customer storefront. Kept separate from the operational admin interface. */
+.storefront{--sf-ink:#30231d;--sf-muted:#887366;--sf-accent:#f46a28;--sf-action:#cc470d;--sf-line:#eee2d5;background:#fffefa;color:var(--sf-ink);overflow-x:clip}
+.storefront{--font:'Poppins',sans-serif;--display:'Poppins',sans-serif;font-family:var(--font)}
+/* Keep the established wordmark typography. */
+.storefront .brand{--font:'DM Sans',sans-serif;--display:'Bricolage Grotesque',sans-serif}
+.storefront .container{max-width:1240px}
+.storefront button,.storefront a,.storefront input,.storefront textarea{outline-offset:4px}
+.storefront button:focus-visible,.storefront a:focus-visible{outline:2px solid #d45219}
+.storefront .site-header{height:94px;background:#fffefaeb;border-bottom:1px solid #f0e8df}
+.storefront .brand-mark{box-shadow:0 4px 10px #df681821;transform:rotate(-8deg)}
+.storefront .desktop-nav{gap:32px}
+.storefront .desktop-nav a{font-size:12px;color:#8c7667}
+.storefront .desktop-nav a.active{color:#c74d17}
+.storefront .bag-button{border-color:#eaded1;border-radius:12px;padding:12px 15px;gap:10px;font-size:11px;background:white;box-shadow:0 2px 6px #68401a04}
+.storefront .bag-button b{border-radius:6px;background:#f36a2a}
+.storefront .button.primary,.storefront .preview-close-action{background:var(--sf-action);color:white;box-shadow:0 7px 18px #c54d1720}
+.storefront .button.primary:hover:not(:disabled),.storefront .preview-close-action:hover:not(:disabled){background:#b83d0b;box-shadow:0 9px 22px #c54d1729;transform:translateY(-2px)}
+.storefront .button{border-radius:13px;transition:background .2s,box-shadow .2s,transform .2s}
+
+/* Keep the original photographic hero, with a quieter frame and more deliberate scale. */
+.storefront .hero{position:relative;isolation:isolate;min-height:640px;padding-block:60px 68px;grid-template-columns:1fr 1fr;gap:38px;align-items:center}
+.storefront .hero:before{content:"";position:absolute;width:54%;aspect-ratio:1;right:-3%;top:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse,#fff0dc 0,#fff8ee 42%,#fffefa00 72%)}
+.storefront .hero .eyebrow{color:#a5683b;letter-spacing:2.1px;font-size:9px}
+.storefront .hero h1{font-size:clamp(64px,6.6vw,91px);line-height:.99;letter-spacing:-4.8px;margin:27px 0 23px;position:relative;font-weight:800}
+.storefront .hero h1 .hero-line{display:block;color:var(--sf-ink)}
+.storefront .hero h1 .hero-accent{color:var(--sf-accent);position:relative;width:max-content}
+.storefront .hero h1 .title-spark{position:absolute;width:39px;height:39px;bottom:13px;left:calc(100% + 17px);margin:0;stroke:#ed722e}
+.storefront .hero-copy>p{font-size:14px;line-height:1.85;color:#8a7566}
+.storefront .hero-cta{margin-top:27px;padding:17px 23px;font-size:13px;gap:29px;min-height:53px}
+.storefront .hero-cta svg{transition:transform .2s}.storefront .hero-cta:hover svg{transform:translateX(3px)}
+.storefront .hero-proof{margin-top:22px;font-size:10px;color:#8e7e6f;gap:17px}
+.storefront .hero-proof svg{width:16px;color:#b99a7d}
+.storefront .hero-art{width:100%;aspect-ratio:1;max-height:530px;position:relative}
+.storefront .hero-burger{width:107%;height:107%;left:-4%;top:-1%;object-fit:contain;filter:drop-shadow(0 20px 17px #63300c1c)}
+.storefront .hero-halo{border:1px solid #efcda7;inset:6%;width:88%;height:88%;background:#fff7e9}
+.storefront .orbit-line{border-color:#eddbc5;opacity:.7}
+.storefront .hero-handwritten{font-size:18px;right:0;top:3%;color:#977960;line-height:1.3;transform:rotate(9deg)}
+.storefront .price-sticker{width:128px;height:128px;left:-6px;bottom:8%;padding:22px 9px 12px;transform:rotate(-10deg);border:5px solid #fffefa;box-shadow:0 8px 20px #b75b1f17;background:#ef6325}
+.storefront .price-sticker>span{font-size:8px;letter-spacing:1.3px}.storefront .price-sticker strong{font-size:31px;letter-spacing:-1.5px;margin:4px 0}.storefront .price-sticker small{font-size:8px}
+.storefront .hero-label{display:none}
+.storefront .spark-one{font-size:31px;left:0;top:16%}.storefront .spark-two{font-size:26px;bottom:15%;right:0}
+.storefront .flavor-strip{padding:14px 0;background:#fff1e3;border-block-color:#f5dfc6}
+.storefront .flavor-strip>div{font-size:10px;letter-spacing:1.8px;gap:32px;color:#b85a29}
+
+/* Burger studio and ingredient menu. */
+.storefront .builder-section{padding-top:72px;padding-bottom:75px;scroll-margin-top:28px}
+.storefront .extra-card>div{min-width:0}.storefront .extra-card h4{overflow-wrap:anywhere}.storefront .extra-card .counter{flex-shrink:0}.storefront .accompaniment-empty{padding:25px;color:#96775b;font-size:12px}
+.storefront .category-tabs.accompaniment-filters{flex-wrap:wrap}.storefront .extra-card .removed-accompaniment{font-size:10px;color:#bc7855;line-height:1.7;margin-top:6px}
+.storefront .section-heading{margin-bottom:33px;align-items:center}
+.storefront .section-heading .eyebrow{font-size:9px;letter-spacing:1.8px;color:#b68158}
+.storefront .section-heading h2{font-size:44px;letter-spacing:-1.8px;line-height:1.1;margin-top:12px}
+.storefront .section-heading>p{color:#99816c;font-size:12px;max-width:180px;line-height:1.7;text-align:right}
+.storefront .builder-layout{grid-template-columns:376px minmax(0,1fr);gap:28px}
+.storefront .preview-card{padding:24px;border-radius:26px;top:22px;border-color:#efd8bd;background:radial-gradient(ellipse at 50% 30%,#fffdf8,#fff2e0);box-shadow:inset 0 1px white,0 16px 45px #7e47120a}
+.storefront .preview-heading{font-size:8px;letter-spacing:1.4px;color:#a87852}
+.storefront .preview-heading .live-dot{font-size:6px!important;color:#808a62}
+.storefront .burger-experience{margin-top:16px}
+.storefront .assembly-view-controls{background:#f8ecdd;border:0;padding:4px;box-shadow:none}
+.storefront .assembly-view-controls button{font-size:10px;padding:8px 17px;color:#a08063}
+.storefront .assembly-view-controls button[aria-pressed=true]{box-shadow:0 2px 5px #81502312;color:#945325}
+.storefront .photo-scene{height:310px}
+.storefront .assembly-caption{font-size:8px;color:#a78b70;bottom:0}
+.storefront .assembly-ambient{background:radial-gradient(ellipse,#ffdba266,transparent 70%)}
+.storefront .preview-card .preview-caption{margin:16px 0 15px}
+.storefront .preview-caption h3{font-size:22px;letter-spacing:-.65px}
+.storefront .preview-caption p{font-size:10px;color:#82674f;margin-top:7px}
+.storefront .preview-card .selected-chips{max-height:70px;margin-bottom:16px;gap:5px;scrollbar-color:#dfc3a0 transparent}
+.storefront .preview-card .selected-chips>span{font-size:9px;border-radius:6px;background:#fffcf6;padding:5px 7px;color:#98704c}
+.storefront .selected-chips button{padding:3px;margin:-3px;min-width:19px;min-height:19px;justify-content:center}
+.storefront .preview-card .preview-total{padding-top:17px;border-color:#ddc1a0;gap:8px}
+.storefront .preview-card .preview-total strong{font-size:32px;letter-spacing:-1.1px}
+.storefront .preview-card .preview-total small{font-size:10px;color:#9a7f65}
+.storefront .preview-close-action{font-size:12px;border-radius:11px;min-height:47px;padding:14px 16px;margin-top:17px}
+.storefront .preview-footnote{font-size:8px;color:#a18a72;line-height:1.6}
+.storefront .builder-controls{min-width:0;padding:27px;background:#fff;border:1px solid var(--sf-line);border-radius:26px;box-shadow:0 10px 35px #68431a05}
+.storefront .steps{gap:8px;margin-bottom:27px;border:0;background:#f7f3ed;padding:5px;border-radius:12px}
+.storefront .steps button{padding:11px 8px;justify-content:center;font-size:10px;gap:7px;color:#a18e7c;border-radius:9px;font-weight:550}
+.storefront .steps button>span{padding:0;border:0;font-size:9px;color:inherit}
+.storefront .steps button>svg{display:none}
+.storefront .steps button.current{background:white;color:#b54c1b;box-shadow:0 2px 5px #85582e0c;font-weight:650}
+.storefront .steps button.current:after{display:none}
+.storefront .step-title{margin-bottom:22px}
+.storefront .step-title h3{font-size:25px;letter-spacing:-.8px;line-height:1.1}
+.storefront .step-title p{font-size:11px;color:#836c58;margin-top:9px;line-height:1.7}
+.storefront .step-title>span{font-size:7px;letter-spacing:.8px;border-color:#e9decf;color:#ac8c71;padding:7px;flex-shrink:0}
+.storefront .category-tabs{gap:7px;margin-bottom:17px;flex-wrap:wrap}
+.storefront .category-tabs button{padding:9px 11px;border:1px solid transparent;background:#f8f5f0;font-size:10px;color:#937c69;border-radius:8px}
+.storefront .category-tabs button.selected{background:#36271e;color:#fff}
+.storefront .ingredients-grid{gap:11px}
+.storefront .ingredient-card{display:grid;grid-template-columns:88px minmax(0,1fr);grid-template-areas:"photo info" "photo counter";padding:18px 13px 14px;gap:8px 10px;min-height:144px;border-radius:14px;border-color:#eee5db;background:#fffefb;transition:border-color .2s,box-shadow .2s,background .2s}
+.storefront .ingredient-card:hover{border-color:#e6c19b;box-shadow:0 4px 13px #9c62290a}
+.storefront .ingredient-card.is-selected{border-color:#eda367;background:#fff9f1;box-shadow:inset 0 0 0 1px #f8d6b0}
+.storefront .ingredient-picked{display:grid;place-items:center;position:absolute;right:8px;top:8px;width:15px;height:15px;background:#ee7936;color:white;border-radius:50%}
+.storefront .ingredient-card .food-icon{grid-area:photo;width:88px;height:76px;padding:2px;background:radial-gradient(ellipse,#fff0d9,transparent 75%);align-self:center;margin:0}
+.storefront .ingredient-card .ingredient-info{grid-area:info;min-width:0;flex-basis:auto;padding:0;align-self:end}
+.storefront .ingredient-info h4{font-size:12px;line-height:1.25;font-weight:650;padding-right:6px}
+.storefront .ingredient-info p{font-size:10px;line-height:1.5;color:#8c7563;margin-top:5px}
+.storefront .ingredient-status{font-size:9px;margin-top:6px;color:#816a55}
+.storefront .ingredient-status.is-unavailable{color:#704820;font-size:9px;padding:3px 6px}
+.storefront .ingredient-card .counter{grid-area:counter;justify-self:end;position:static;margin:0;align-self:start}
+.storefront .counter{height:38px;border-color:#e9d6c1;border-radius:8px;gap:0}
+.storefront .counter button{width:34px;height:36px;color:#a7896e}.storefront .counter button:disabled{opacity:.4}.storefront .counter span{width:25px;font-size:11px}
+.storefront .counter.has-value{border-color:#e8bc96}.storefront .counter.has-value button:last-child{color:#be521b}
+.storefront .ingredient-card.sold-out{border-color:#e5ded4;background:#f6f3ef;box-shadow:none}
+.storefront .ingredient-card.sold-out .ingredient-picked{background:#b39b82}
+.storefront .pricing-note{margin-top:22px;font-size:9px;color:#a18b75;align-items:center}
+.storefront .pricing-note summary{font-size:10px;color:#9f663d}
+.storefront .builder-bottom{padding-top:23px;margin-top:24px;border-color:#eee3d6}
+.storefront .builder-bottom>span{font-size:10px;color:#918569;line-height:1.6}
+.storefront .builder-bottom .button{font-size:11px;padding:13px 16px;gap:12px;min-height:44px}
+.storefront .bread-option{background:#fffaf3;border-color:#edddca;border-radius:17px;padding:27px 20px}
+.storefront .bread-option.chosen{border-color:#efa96f;box-shadow:inset 0 0 0 1px #f8d6b0}
+.storefront .bread-option h4{font-size:18px}.storefront .bread-option p{font-size:11px;line-height:1.6}
+.storefront .extra-card{border-radius:15px;background:#fffcf7;gap:15px;padding:21px 17px}
+.storefront .extra-card h4{font-size:17px}.storefront .extra-card p{font-size:11px;line-height:1.6}
+.storefront .how-section{padding-block:48px 60px;border-color:#ece1d4;gap:32px}
+.storefront .how-section h2{font-size:29px}.storefront .how-item>span{color:#d69a6d;font:600 12px var(--display);margin-bottom:14px}
+.storefront .how-item p{color:#a18a75;line-height:1.8}.storefront footer{background:#faf4ec;border-color:#ecdfcf}
+
+/* A proper order summary beside delivery, rather than one long undifferentiated form. */
+.storefront .modal-backdrop{background:#2f1b1080;backdrop-filter:blur(9px);padding:28px}
+.storefront .checkout-modal{width:980px;max-width:100%;padding:32px;border-radius:26px;max-height:92dvh;background:#fffefa;box-shadow:0 24px 110px #2d170f40;scrollbar-width:thin;scrollbar-color:#ddc4aa transparent}
+.storefront .checkout-header{margin-bottom:25px;padding-right:38px}
+.storefront .checkout-header .eyebrow{font-size:8px;letter-spacing:1.7px;color:#b17c50}
+.storefront .checkout-header h2{font-size:35px;letter-spacing:-1.3px;line-height:1.08;margin:14px 0 10px}
+.storefront .modal-description{font-size:12px;line-height:1.8;color:#866c56;margin:0}
+.storefront .checkout-toolbar{position:sticky;top:0;z-index:6;display:flex;justify-content:flex-end;height:0;pointer-events:none}
+.storefront .modal-close{position:static;width:34px;height:34px;background:#f4ece2;color:#8e745d;transform:translate(6px,-8px);pointer-events:auto;z-index:3}
+.storefront .checkout-layout{display:grid;grid-template-columns:.9fr 1.1fr;gap:30px;align-items:start}
+.storefront .checkout-summary{padding:21px;background:#fff4e5;border:1px solid #efd8b9;border-radius:18px;min-width:0}
+.storefront .checkout-section-heading{display:flex;align-items:center;gap:10px;margin:0 0 17px}
+.storefront .checkout-section-heading h3{font-size:19px;letter-spacing:-.5px;margin:0;line-height:1.2;display:block}
+.storefront .checkout-number{display:grid;place-items:center;width:29px;height:29px;border:1px solid #e8cdb0;border-radius:8px;background:#fffaf2;color:#b87a47;font-size:10px;font-weight:600;flex-shrink:0}
+.storefront .checkout-edit{margin-left:auto;font-size:10px;color:#a46430;text-decoration:underline;text-underline-offset:4px;padding:6px}
+.storefront .checkout-burger-proof{height:166px;margin:-7px 0 13px;background:radial-gradient(ellipse,#ffdfb4aa,transparent 68%);border-radius:13px}
+.storefront .checkout-burger-proof .burger-experience,.storefront .checkout-burger-proof .photo-scene{height:100%;margin:0}
+.storefront .checkout-burger-proof .photo-burger{transform:scale(1.2);transform-origin:center}
+.storefront .order-review{background:transparent;border:0;border-radius:0;padding:4px 0 13px;max-height:190px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#dfc3a0 transparent}
+.storefront .order-review>div{font-size:11px;padding:7px 0;line-height:1.5;gap:10px;border-bottom:1px solid #f1dfc8}
+.storefront .order-review>div:last-child{border:0}.storefront .order-review b{font-size:10px;color:#b5652b;margin-right:6px}
+.storefront .order-review small{font-size:9px;white-space:nowrap;color:#b09478}
+.storefront .review-totals{border-top:1px dashed #d8bb98;padding-top:13px;margin:0}
+.storefront .review-totals>div{font-size:10px;line-height:1.5;color:#987957;padding:5px 0}
+.storefront .review-totals b{color:#775332;font-weight:550}
+.storefront .review-total{border-color:#dfc3a0;margin-top:11px;padding-top:13px!important}
+.storefront .review-total span{font-size:12px;font-weight:600;color:#6d4729}.storefront .review-total strong{font-size:27px;color:#4f301c;letter-spacing:-.9px}
+.storefront .delivery-form{min-width:0}.storefront .delivery-form .checkout-section-heading{margin:3px 0 9px}
+.storefront .delivery-form .checkout-number{background:#fff2e2;border-color:#ecd7be}
+.storefront .delivery-intro{font-size:11px;color:#876f59;line-height:1.7;margin-bottom:21px}
+.storefront .delivery-form label{font-size:11px;color:#806a58;font-weight:550;margin-bottom:15px}
+.storefront .delivery-form input,.storefront .delivery-form textarea{padding:13px 14px;min-height:45px;font-size:12px;border-radius:10px;background:#fff;border-color:#e9dfd3;margin-top:7px}
+.storefront .delivery-form input::placeholder,.storefront .delivery-form textarea::placeholder{font-size:11px;color:#b6a28f}
+.storefront .delivery-form input:focus,.storefront .delivery-form textarea:focus{border-color:#e6a066;box-shadow:0 0 0 3px #fff0dd}
+.storefront .delivery-form .form-row{gap:13px}
+.storefront .submit-order{font-size:12px;gap:10px;padding:15px 17px;min-height:49px;border-radius:11px;margin-top:18px}
+.storefront .submit-order>strong{margin-left:auto;font-size:15px;font-weight:650;letter-spacing:-.4px;white-space:nowrap}
+.storefront .checkout-footnote{font-size:9px;color:#a28b77;line-height:1.6;margin-top:13px}
+.storefront .checkout-success{width:560px;padding:40px}.storefront .success-state{padding:20px 0}
+.storefront .success-state h2{font-size:35px}.storefront .success-state p{font-size:13px;line-height:1.8}
+
+@media(min-width:761px) and (max-width:1100px){
+ .storefront .hero{gap:20px;min-height:590px;padding-block:44px 56px}.storefront .hero h1{font-size:67px;letter-spacing:-3.6px}.storefront .hero-copy>p{font-size:12px}
+ .storefront .hero-handwritten{font-size:15px}.storefront .price-sticker{width:108px;height:108px;padding-top:18px}.storefront .price-sticker strong{font-size:27px}
+ .storefront .builder-layout{grid-template-columns:310px minmax(0,1fr);gap:20px}.storefront .preview-card{padding:20px}.storefront .preview-heading{letter-spacing:.6px;font-size:7px}.storefront .photo-scene{height:285px}
+ .storefront .builder-controls{padding:21px}.storefront .ingredient-card{grid-template-columns:1fr;grid-template-areas:"photo" "info" "counter";gap:7px;min-height:205px;padding:14px}
+ .storefront .ingredient-card .food-icon{justify-self:center;width:80px;height:57px}.storefront .ingredient-card .ingredient-info{align-self:start}.storefront .ingredient-card .counter{align-self:end}
+ .storefront .steps button{font-size:9px;gap:4px;padding:11px 5px}.storefront .step-title>span{display:none}
+}
+@media(max-width:760px){
+ .storefront .container{width:calc(100% - 36px)}
+ .storefront .site-header{height:78px}.storefront .brand{font-size:32px}.storefront .brand-mark{width:36px;height:36px;border-radius:11px}.storefront .brand-mark svg{width:23px}.storefront .brand-small{font-size:5px;letter-spacing:1.5px}
+ .storefront .bag-button{padding:10px 11px;gap:7px;font-size:10px;border-radius:10px}
+ .storefront .hero{grid-template-columns:1fr;gap:10px;min-height:0;padding:35px 0 29px}
+ .storefront .hero:before{width:110%;top:auto;bottom:0;right:-5%}
+ .storefront .hero-copy{text-align:center}.storefront .hero .eyebrow{font-size:8px;letter-spacing:1.8px}
+ .storefront .hero h1{font-size:clamp(49px,11.8vw,66px);line-height:1;letter-spacing:-2.8px;margin:21px 0 18px}
+ .storefront .hero h1 .hero-line{width:auto}.storefront .hero h1 .hero-accent{width:max-content;margin:auto}
+ .storefront .hero h1 .title-spark{width:27px;height:27px;bottom:10px;left:calc(100% + 12px)}
+ .storefront .hero-copy>p{font-size:11px;line-height:1.8;max-width:310px;margin-inline:auto}
+ .storefront .hero-cta{font-size:12px;min-height:48px;padding:14px 20px;margin-top:21px;gap:26px}
+ .storefront .hero-proof{margin-top:16px;gap:13px;font-size:9px}.storefront .hero-proof svg{width:14px}
+ .storefront .hero-art{width:min(360px,95%);margin:8px auto 0;max-height:none}
+ .storefront .hero-burger{width:105%;height:105%;left:-3%;top:-1%}
+ .storefront .hero-halo{inset:7%;width:86%;height:86%}
+ .storefront .hero-handwritten{font-size:13px;top:-4%;right:0}
+ .storefront .hero-handwritten svg{width:42px;top:29px;right:17px}
+ .storefront .price-sticker{width:98px;height:98px;left:-1%;bottom:9%;padding:15px 6px 8px;border-width:4px}
+ .storefront .price-sticker>span{font-size:6px;letter-spacing:1px}.storefront .price-sticker strong{font-size:25px;margin:3px 0}.storefront .price-sticker small{font-size:6px}
+ .storefront .hero-label{font-size:8px;bottom:0;right:28%}.storefront .spark-one{font-size:23px;left:0;top:17%}.storefront .spark-two{font-size:23px;bottom:16%}
+ .storefront .flavor-strip{padding:11px 0}.storefront .flavor-strip>div{font-size:8px;letter-spacing:1.4px;gap:26px}
+ .storefront .builder-section{padding:41px 0 45px;scroll-margin-top:20px}
+ .storefront .section-heading{margin-bottom:23px}.storefront .section-heading .eyebrow{font-size:7px;letter-spacing:1.3px}
+ .storefront .section-heading h2{font-size:31px;letter-spacing:-1.1px;line-height:1.15;margin-top:10px}.storefront .section-heading>p{display:none}
+ .storefront .builder-layout{display:flex;flex-direction:column;gap:23px}
+ .storefront .preview-card{position:relative;top:0;width:100%;padding:20px;border-radius:23px;display:grid;grid-template-columns:1fr 1fr;grid-template-areas:"head head" "burger burger" "caption caption" "chips chips" "total action" "foot foot";gap:0 12px}
+ .storefront .preview-heading{grid-area:head;font-size:7px;letter-spacing:1.1px}.storefront .preview-heading .live-dot{font-size:6px!important;letter-spacing:.6px!important}
+ .storefront .preview-card>.burger-experience{grid-area:burger;margin-top:15px}
+ .storefront .preview-card .photo-scene{height:290px;max-width:350px}
+ .storefront .assembly-view-controls button{font-size:10px;padding:8px 17px}.storefront .assembly-motion-choice{font-size:8px;margin-bottom:-10px}
+ .storefront .preview-card .preview-caption{grid-area:caption;margin:12px 0 15px}.storefront .preview-caption h3{font-size:21px;letter-spacing:-.6px}.storefront .preview-caption p{display:none}
+ .storefront .preview-card .selected-chips{grid-area:chips;max-height:65px;margin-bottom:18px;padding:1px 0;gap:5px}
+ .storefront .preview-card .selected-chips>span{font-size:8px;padding:5px 6px}
+ .storefront .preview-card .preview-total{grid-area:total;align-self:center;display:block;border:0;padding:0}
+ .storefront .preview-card .preview-total strong{font-size:28px;letter-spacing:-1px}.storefront .preview-card .preview-total small{font-size:8px;margin:0 0 4px}
+ .storefront .preview-included{display:none}.storefront .preview-card .preview-total .unpriced-burger{font-size:13px;letter-spacing:-.2px}
+ .storefront .preview-close-action{grid-area:action;align-self:center;margin:0;padding:12px 10px;gap:6px;font-size:10px;min-height:44px;border-radius:10px}
+ .storefront .preview-close-action svg{width:15px;flex-shrink:0}.storefront .preview-card .preview-footnote{grid-area:foot;font-size:7px;line-height:1.7;margin:13px 0 0}
+ .storefront .builder-controls{width:100%;padding:19px 15px;border-radius:21px}
+ .storefront .steps{position:sticky;top:8px;z-index:5;gap:4px;margin-bottom:24px;padding:4px;box-shadow:0 0 0 5px white}
+ .storefront .steps button{padding:11px 5px;font-size:9px;gap:5px}.storefront .steps button>span{font-size:8px}
+ .storefront .step-title{margin-bottom:19px}.storefront .step-title h3{font-size:22px;letter-spacing:-.6px;line-height:1.15}.storefront .step-title p{font-size:10px;margin-top:8px}.storefront .step-title>span{display:none}
+ .storefront .category-tabs{gap:5px;flex-wrap:nowrap;margin-bottom:15px}.storefront .category-tabs button{padding:9px 8px;gap:5px;font-size:9px}.storefront .category-tabs svg{width:13px}
+ .storefront .ingredients-grid{gap:9px}
+ .storefront .ingredient-card{grid-template-columns:1fr;grid-template-areas:"photo" "info" "counter";min-height:208px;padding:14px 11px 12px;gap:8px;align-content:stretch}
+ .storefront .ingredient-card .food-icon{width:94px;max-width:100%;height:62px;justify-self:center;margin:0;align-self:center}
+ .storefront .ingredient-card .ingredient-info{align-self:start;min-width:0}.storefront .ingredient-info h4{font-size:12px;line-height:1.3;padding:0}.storefront .ingredient-info p{font-size:9px;line-height:1.5;margin-top:5px}
+ .storefront .ingredient-status{font-size:8px;margin-top:6px}.storefront .ingredient-status.is-unavailable{font-size:8px;padding:3px 5px}
+ .storefront .ingredient-card .counter{align-self:end;position:static;justify-self:end;margin:0}.storefront .counter{height:38px}.storefront .counter button{width:34px;height:36px}.storefront .counter span{font-size:11px;width:23px}
+ .storefront .pricing-note{display:block;margin-top:20px;font-size:8px}.storefront .pricing-note details{margin-top:10px}.storefront .pricing-note summary{font-size:9px}
+ .storefront .builder-bottom{padding-top:20px;margin-top:22px;gap:10px}.storefront .builder-bottom>span{font-size:9px;max-width:140px}.storefront .builder-bottom .button{font-size:10px;padding:12px 13px;gap:7px}
+ .storefront .bread-grid{grid-template-columns:1fr}.storefront .bread-option{padding:24px}.storefront .bread-art-photo{height:100px;margin-bottom:17px}
+ .storefront .extra-card{padding:18px 12px;gap:12px}.storefront .extra-emoji{font-size:31px}.storefront .extra-card h4{font-size:15px}.storefront .extra-card p{font-size:10px}
+ .storefront .how-section{gap:25px 20px;padding:35px 0}.storefront .how-section h2{font-size:25px}.storefront .how-item h3{font-size:16px}.storefront .how-item p{font-size:10px}
+ .storefront .modal-backdrop{padding:10px;align-items:flex-end}
+ .storefront .checkout-modal{width:100%;padding:25px 18px 24px;max-height:95dvh;border-radius:24px 24px 16px 16px}
+ .storefront .checkout-header{padding-right:28px;margin-bottom:23px}.storefront .checkout-header h2{font-size:29px;letter-spacing:-1px;max-width:265px}.storefront .checkout-header .eyebrow{font-size:7px;letter-spacing:1.4px}
+ .storefront .modal-description{font-size:11px;line-height:1.7}.storefront .modal-close{width:30px;height:30px;transform:translate(0,-6px)}
+ .storefront .checkout-layout{grid-template-columns:1fr;gap:25px}.storefront .checkout-summary{padding:18px;border-radius:16px}
+ .storefront .checkout-section-heading{margin-bottom:12px}.storefront .checkout-section-heading h3{font-size:19px}.storefront .checkout-number{width:26px;height:26px}
+ .storefront .checkout-burger-proof{height:150px;margin:-3px 0 8px}.storefront .order-review{max-height:210px;padding-bottom:10px}.storefront .order-review>div{font-size:11px;padding:6px 0}
+ .storefront .review-total strong{font-size:27px}.storefront .delivery-intro{font-size:10px;margin-bottom:20px}.storefront .delivery-form .form-row{grid-template-columns:1fr;gap:0}
+ .storefront .delivery-form input,.storefront .delivery-form textarea{font-size:16px;min-height:47px;padding:14px}.storefront .delivery-form input::placeholder,.storefront .delivery-form textarea::placeholder{font-size:11px}
+ .storefront .submit-order{margin-top:19px;padding:15px 16px;font-size:12px}.storefront .checkout-footnote{font-size:8px;margin-top:14px}
+ .storefront .checkout-success{padding:30px 23px;align-self:center}.storefront .success-state h2{font-size:30px}.storefront .success-state p{font-size:12px}
+}
+/* The original preview is the only mobile preview and stays above the choices. */
+@media(max-width:760px){
+ .storefront .preview-card{position:sticky;top:8px;z-index:10;align-self:stretch;padding:12px 14px;border-radius:19px;grid-template-columns:minmax(0,1.12fr) minmax(0,1fr);grid-template-areas:"burger total" "burger action";gap:0 12px;box-shadow:0 8px 24px #683b1720}
+ .storefront .preview-card .preview-heading,.storefront .preview-card .preview-caption,.storefront .preview-card .selected-chips,.storefront .preview-card .preview-footnote{display:none}
+ .storefront .preview-card>.burger-experience{margin:0;min-width:0}
+ .storefront .preview-card .photo-scene{height:162px;width:100%;margin:0;max-width:none}
+ .storefront .preview-card .assembly-caption{display:none}
+ .storefront .preview-card .assembly-view-controls{width:100%;gap:1px;padding:2px;margin:0 0 1px}
+ .storefront .preview-card .assembly-view-controls button{padding:5px 4px;min-height:28px;font-size:8px;gap:3px;flex:1}
+ .storefront .preview-card .assembly-view-controls svg{width:11px}
+ .storefront .preview-card .assembly-motion-choice{margin:3px auto 0;font-size:7px;min-height:18px}
+ .storefront .preview-card .preview-total{align-self:end;padding:0 0 12px}
+ .storefront .preview-card .preview-total strong{font-size:29px}
+ .storefront .preview-card .preview-total small{font-size:9px;line-height:1.5;margin-bottom:5px}
+ .storefront .preview-card .preview-close-action{align-self:start;width:100%;min-height:44px;padding:11px 9px;font-size:10px;gap:5px}
+ .storefront .steps{position:static;box-shadow:none}
+ .storefront .ingredient-card,.storefront .bread-option,.storefront .extra-card{scroll-margin-top:270px}
+}
+@media(max-width:760px) and (max-height:600px){
+ .storefront .preview-card .photo-scene{height:112px}
+ .storefront .preview-card .assembly-motion-choice{display:none}
+ .storefront .preview-card .preview-total strong{font-size:25px}
+ .storefront .ingredient-card,.storefront .bread-option,.storefront .extra-card{scroll-margin-top:210px}
+}
+@media(max-width:360px){
+ .storefront .hero h1{font-size:47px}.storefront .preview-card{padding:17px}.storefront .preview-heading{font-size:6px;letter-spacing:.8px}.storefront .preview-close-action{font-size:9px}.storefront .category-tabs button{padding:9px 6px;font-size:8px}.storefront .category-tabs svg{width:11px}.storefront .ingredient-card{padding-inline:9px}.storefront .ingredient-info h4{font-size:11px}
+}

@@ -1,0 +1,9 @@
+.ingredient-card.sold-out,.extra-card.sold-out,.bread-option.sold-out{opacity:1;border-color:#ded4c9;background:#f6f3ef}
+.ingredient-card.sold-out .food-icon,.extra-card.sold-out .extra-emoji,.bread-option.sold-out .bread-art-photo{opacity:.4;filter:saturate(.4)}
+.ingredient-status{display:block;margin-top:7px;font-size:9px;line-height:1.5;color:#796653}
+.ingredient-status.is-unavailable{display:inline-flex;align-items:center;gap:5px;padding:4px 7px;border:1px solid #e0c8b0;border-radius:5px;background:#efe3d6;color:#704820;font-size:10px;font-weight:650}
+.ingredient-status.is-unavailable:before{content:"";width:5px;height:5px;flex-shrink:0;border-radius:50%;background:currentColor}
+.menu-stock-notice{margin:0 0 18px;padding:14px 16px;border:1px solid #ebcba8;border-radius:10px;background:#fff5e8;color:#754722;font-size:11px;line-height:1.7}
+.menu-stock-notice strong{display:block;font-size:12px;margin-bottom:3px}
+.sold-out .counter button:last-child{color:#ae9d8a;cursor:not-allowed}
+.bread-option.sold-out .bread-check{background:#a0907e}

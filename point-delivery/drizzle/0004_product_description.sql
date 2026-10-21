@@ -1,0 +1,1 @@
+ALTER TABLE `ingredients` ADD `description` text DEFAULT '' NOT NULL;

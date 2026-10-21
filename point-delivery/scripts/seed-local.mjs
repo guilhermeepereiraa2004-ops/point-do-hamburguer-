@@ -1,0 +1,10 @@
+import { writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { ingredientNames } from '../domain/menu.ts';
+const quote = value => "'" + String(value).replaceAll("'", "''") + "'";
+const rows = [...ingredientNames.map(([id,name,category,unit])=>[id,name,category,unit,50,4]),['pao','Pão tradicional','Pães','unidade',50,1],['suco','Suco','Complementos','unidade',50,4],['refrigerante','Refrigerante','Complementos','unidade',50,4],['batata-frita','Batata frita','Complementos','porção',50,4]];
+const sql = rows.map(([id,name,category,unit,stock,max])=>`INSERT OR IGNORE INTO ingredients (id,name,category,unit,stock,low_stock,max_qty,price,active) VALUES (${quote(id)},${quote(name)},${quote(category)},${quote(unit)},${stock},10,${max},NULL,1);`);
+for(let i=3;i<=15;i++) sql.push(`INSERT OR IGNORE INTO prices (count,value) VALUES (${i},${(10+i)*100});`);
+sql.push("INSERT OR IGNORE INTO settings (key,value) VALUES ('deliveryFee',NULL);");
+writeFileSync('.sites-runtime/seed.sql',sql.join('\n'));
+const r=spawnSync(process.execPath,['--import','./scripts/sites-env.mjs','./node_modules/wrangler/bin/wrangler.js','d1','execute','DB','--local','--config','dist/server/wrangler.json','--persist-to','.wrangler/state','--file','.sites-runtime/seed.sql'],{stdio:'inherit'});process.exit(r.status??1);

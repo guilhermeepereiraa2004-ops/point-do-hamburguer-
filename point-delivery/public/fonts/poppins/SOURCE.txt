@@ -1,0 +1,5 @@
+Poppins, normal styles 400, 500, 600, 700 and 800.
+Downloaded from Google Fonts CSS API and fonts.gstatic.com on 2026-10-20.
+CSS source: https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap
+License: SIL Open Font License 1.1; see OFL.txt.
+License source: https://github.com/google/fonts/blob/main/ofl/poppins/OFL.txt

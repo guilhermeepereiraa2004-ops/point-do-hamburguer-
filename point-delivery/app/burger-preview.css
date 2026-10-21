@@ -1,0 +1,42 @@
+/* A photographed sandwich, open while choosing and gently closed on completion. */
+.preview-card{background:radial-gradient(ellipse at 50% 28%,#fffef9 0,#fff8ef 48%,#fff5e9 100%);border:1px solid #eddcca;border-radius:24px;box-shadow:inset 0 1px 0 #fff,0 18px 55px #93531a0b;padding:25px;overflow:hidden}
+.preview-card .preview-heading{font-size:9px;letter-spacing:1.4px;color:#aa805e;gap:12px}
+.preview-card .preview-heading>span:first-child{gap:8px}.preview-card .preview-heading svg{width:16px}
+.preview-card .live-dot{font-size:7px!important;letter-spacing:1px!important;color:#9b987b;white-space:nowrap}
+.burger-experience{width:100%;margin-top:21px}
+.assembly-view-controls{display:flex;align-items:center;justify-content:center;width:max-content;margin:0 auto 0;padding:4px;border:1px solid #eedfce;border-radius:99px;background:#fffaf3;box-shadow:inset 0 1px 2px #7b471409;gap:3px}
+.assembly-view-controls button{display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 16px;border-radius:99px;font-size:10px;line-height:1;color:#a78a71;font-weight:550;transition:background .25s,color .25s,box-shadow .25s}
+.assembly-view-controls button[aria-pressed=true]{background:#fff;color:#8a5936;box-shadow:0 2px 8px #81502315}.assembly-view-controls button[aria-pressed=true] svg{color:#e66a2f}
+.assembly-motion-choice{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;gap:5px;margin:8px auto -12px;padding:4px 8px;font-size:9px;color:#b18c6e;border-radius:5px}.assembly-motion-choice[aria-pressed=true]{color:#c26330}
+.photo-scene{position:relative;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);place-items:center;width:100%;height:382px;margin:0;isolation:isolate}
+.assembly-ambient{position:absolute;inset:13% 0 12%;border-radius:50%;background:radial-gradient(ellipse,#ffe8c666 0,#fff1de3d 48%,transparent 72%);z-index:-1;transition:opacity .8s;pointer-events:none}
+.is-closed .assembly-ambient{opacity:.55}
+.photo-burger{display:block;width:100%;height:100%;min-height:0;min-width:0;max-height:100%;overflow:visible;filter:drop-shadow(0 8px 6px #6b371a12)}
+.photo-burger image{image-rendering:auto}.food-silhouette{overflow:visible}
+.burger-mass,.burger-food{transition:transform 850ms cubic-bezier(.22,1,.36,1)}.burger-mass{will-change:transform}
+.burger-lid{transform-box:view-box;transition:transform 850ms cubic-bezier(.22,1,.36,1);will-change:transform;filter:drop-shadow(0 10px 7px #603b171a)}
+.allow-motion .burger-mass,.allow-motion .burger-lid,.allow-motion .burger-food{transition:transform 850ms cubic-bezier(.22,1,.36,1)!important}
+.is-closed .burger-lid{filter:drop-shadow(0 2px 2px #603b1710)}
+.burger-food image{animation:ingredient-settle 380ms cubic-bezier(.22,1,.36,1) both}
+.assembly-ground{fill:#a87947;opacity:.1;filter:blur(5px);transition:opacity .85s}.is-closed .assembly-ground{opacity:.16}
+.assembly-caption{position:absolute;bottom:4px;left:0;right:0;text-align:center;font-size:9px;line-height:1.5;letter-spacing:.15px;color:#b39b81;pointer-events:none}
+.is-closing .assembly-caption{color:#d07039}
+.photo-empty{color:#a88c71;font-size:12px;text-align:center;max-width:190px;line-height:1.8}
+.ingredient-photo{display:block;width:100%;height:100%;overflow:visible}
+.ingredient-card .food-icon{width:66px;height:49px;padding:4px;border-radius:9px;background:#fff8ef}.ingredient-card .ingredient-info{min-width:90px}
+.bread-art-photo{height:95px;padding:8px 5px;margin-bottom:15px}
+.preview-card .preview-caption{text-align:center;margin:18px 0 20px}.preview-card .preview-caption h3{font-size:23px;line-height:1.15;letter-spacing:-.7px}.preview-card .preview-caption p{font-size:10px;line-height:1.7;color:#af967e;margin-top:7px}
+.preview-card .selected-chips{max-height:82px;overflow-y:auto;scrollbar-width:thin;padding-block:2px;justify-content:center;gap:6px;margin-bottom:18px}
+.preview-card .selected-chips>span{font-size:9px;padding:6px 8px;background:#fffcf7;border-color:#edd8bf;border-radius:7px}
+.preview-card .preview-total{border-color:#e7cfb3;padding-top:17px;gap:15px}.preview-card .preview-total strong{font-size:32px;letter-spacing:-1px}.preview-card .preview-total small{font-size:10px;color:#b39a80}
+.preview-card .preview-total .unpriced-burger{font-size:16px;line-height:1.35;max-width:210px;display:block;letter-spacing:-.4px}
+.preview-included{display:flex;align-items:center;gap:5px;font-size:9px;color:#a09273}.preview-included svg{color:#96a16c}
+.preview-close-action{display:flex;width:100%;align-items:center;justify-content:space-between;gap:12px;margin-top:17px;padding:15px 16px;border-radius:11px;background:#f36524;color:white;font-size:12px;font-weight:650;box-shadow:0 6px 14px #e7682515;transition:background .2s,transform .2s}.preview-close-action:hover:not(:disabled){background:#e65a1d;transform:translateY(-1px)}.preview-close-action:disabled{opacity:.5}
+.preview-card .preview-footnote{text-align:center;font-size:8px;line-height:1.6;margin-top:12px;letter-spacing:.1px}
+.checkout-burger-proof{height:145px;margin:-10px -8px 12px;overflow:hidden;background:radial-gradient(ellipse,#fff0dd66,transparent 70%);border-radius:15px}.checkout-burger-proof .burger-experience{height:100%;margin:0}.checkout-burger-proof .photo-scene{height:100%;margin:0}.checkout-burger-proof .assembly-caption{display:none}.checkout-burger-proof .photo-burger{filter:drop-shadow(0 4px 3px #63310d14)}
+@keyframes ingredient-settle{from{opacity:0;translate:0 -5px}to{opacity:1;translate:0 0}}
+@media(min-width:761px){.builder-layout{grid-template-columns:384px minmax(0,1fr)}.ingredient-card{gap:10px;padding-inline:10px}.preview-card{padding:25px}.photo-scene{height:378px}}
+@media(min-width:761px) and (max-width:1100px){.builder-layout{grid-template-columns:320px minmax(0,1fr)}.preview-card{padding:20px}.photo-scene{height:344px}.ingredient-card{min-height:155px}.ingredient-card .food-icon{width:62px}}
+@media(max-width:760px){.preview-card{display:flex;flex-direction:column;align-items:stretch;gap:0;padding:22px;min-height:0;border-radius:22px}.preview-card .preview-heading{margin-bottom:0;font-size:8px}.preview-card .live-dot{font-size:6px!important}.burger-experience{margin-top:19px}.preview-card .photo-scene{height:362px;max-width:390px;margin:0 auto}.preview-card .preview-caption{margin:16px 0 17px}.preview-card .preview-caption h3{font-size:22px}.preview-card .preview-caption p{font-size:10px;margin-top:6px}.preview-card .selected-chips{gap:6px;max-height:78px;margin-bottom:17px}.preview-card .selected-chips>span{font-size:9px;padding:6px 7px}.preview-card .preview-total{padding-top:17px}.preview-card .preview-total small{font-size:10px;margin-bottom:6px}.preview-card .preview-total strong{font-size:32px}.preview-card .preview-footnote{margin-top:11px;font-size:8px}.preview-close-action{padding:15px;margin-top:16px;font-size:11px}.ingredient-card .food-icon{width:64px;height:50px;margin-bottom:3px}.ingredient-card .ingredient-info{min-width:85px;flex-basis:100%}.ingredient-card{min-height:175px;position:relative;padding-bottom:43px}.ingredient-card .counter{position:absolute;bottom:10px;right:10px;margin:0}.ingredient-card .ingredient-info h4{font-size:12px}.ingredient-card .ingredient-info p,.ingredient-card .ingredient-info small{font-size:9px}.checkout-burger-proof .photo-scene{height:100%}}
+@media(max-width:380px){.preview-card{padding:18px}.preview-card .photo-scene{height:338px}.preview-card .preview-caption h3{font-size:21px}.assembly-view-controls button{padding:7px 14px}}
+@media(prefers-reduced-motion:reduce){.burger-experience:not(.allow-motion) .burger-mass,.burger-experience:not(.allow-motion) .burger-lid,.burger-experience:not(.allow-motion) .assembly-ground,.burger-experience:not(.allow-motion) .assembly-ambient,.assembly-view-controls button,.preview-close-action{transition:none!important}.burger-experience:not(.allow-motion) .burger-food image{animation:none!important}}

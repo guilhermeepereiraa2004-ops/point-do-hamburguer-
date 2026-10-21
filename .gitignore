@@ -1,0 +1,17 @@
+/plan/
+/log/
+*.tsbuildinfo
+
+# Local verification captures and private runtime/configuration state.
+/docs/screenshots/
+.env
+.env.*
+!.env.example
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+.vercel/
+.agents/
+.codex/

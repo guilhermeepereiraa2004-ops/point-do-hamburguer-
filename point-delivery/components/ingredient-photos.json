@@ -1,0 +1,460 @@
+{
+  "pao-topo": {
+    "file": "pao-topo-v5.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 45,
+      "y": 102,
+      "width": 1685,
+      "height": 688
+    }
+  },
+  "pao-base": {
+    "file": "pao-base-v5.png",
+    "width": 2172,
+    "height": 724,
+    "crop": {
+      "x": 68,
+      "y": 128,
+      "width": 2036,
+      "height": 539
+    }
+  },
+  "carne-hamburguer": {
+    "file": "carne-1-v5.png",
+    "width": 2172,
+    "height": 724,
+    "crop": {
+      "x": 34,
+      "y": 74,
+      "width": 2105,
+      "height": 582
+    }
+  },
+  "frango": {
+    "file": "frango-v2.png",
+    "width": 2172,
+    "height": 724,
+    "crop": {
+      "x": 46,
+      "y": 169,
+      "width": 2080,
+      "height": 409
+    }
+  },
+  "queijo": {
+    "file": "queijo-v5.png",
+    "width": 1847,
+    "height": 852,
+    "crop": {
+      "x": 43,
+      "y": 222,
+      "width": 1761,
+      "height": 503
+    }
+  },
+  "cheddar": {
+    "file": "cheddar-v5.png",
+    "width": 2073,
+    "height": 758,
+    "crop": {
+      "x": 34,
+      "y": 127,
+      "width": 1998,
+      "height": 544
+    }
+  },
+  "catupiry": {
+    "file": "catupiry-v2.png",
+    "width": 2172,
+    "height": 724,
+    "crop": {
+      "x": 107,
+      "y": 171,
+      "width": 1992,
+      "height": 431
+    }
+  },
+  "presunto": {
+    "width": 1942,
+    "height": 809,
+    "crop": {
+      "x": 41,
+      "y": 149,
+      "width": 1860,
+      "height": 512
+    }
+  },
+  "bacon": {
+    "file": "bacon-v5.png",
+    "width": 1981,
+    "height": 793,
+    "crop": {
+      "x": 26,
+      "y": 150,
+      "width": 1930,
+      "height": 483
+    }
+  },
+  "ovo": {
+    "width": 1855,
+    "height": 848,
+    "crop": {
+      "x": 31,
+      "y": 181,
+      "width": 1793,
+      "height": 525
+    }
+  },
+  "calabresa": {
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 45,
+      "y": 266,
+      "width": 1686,
+      "height": 395
+    }
+  },
+  "salsicha": {
+    "width": 1914,
+    "height": 822,
+    "crop": {
+      "x": 27,
+      "y": 178,
+      "width": 1860,
+      "height": 482
+    }
+  },
+  "milho-verde": {
+    "file": "milho-verde-v3.png",
+    "width": 1536,
+    "height": 1024,
+    "crop": {
+      "x": 94,
+      "y": 333,
+      "width": 1350,
+      "height": 414
+    }
+  },
+  "ervilha": {
+    "file": "ervilha-v3.png",
+    "width": 1536,
+    "height": 1024,
+    "crop": {
+      "x": 116,
+      "y": 341,
+      "width": 1342,
+      "height": 421
+    }
+  },
+  "cebola": {
+    "file": "cebola-v2.png",
+    "width": 2167,
+    "height": 725,
+    "crop": {
+      "x": 72,
+      "y": 224,
+      "width": 1950,
+      "height": 296
+    }
+  },
+  "salada": {
+    "file": "salada-v5.png",
+    "width": 1983,
+    "height": 793,
+    "crop": {
+      "x": 23,
+      "y": 113,
+      "width": 1935,
+      "height": 581
+    }
+  },
+  "batata-palha": {
+    "file": "batata-palha.png",
+    "width": 1983,
+    "height": 793,
+    "crop": {
+      "x": 38,
+      "y": 138,
+      "width": 1911,
+      "height": 546
+    }
+  },
+  "carne-1-v3": {
+    "file": "carne-1-v3.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 55,
+      "y": 229,
+      "width": 1662,
+      "height": 468
+    }
+  },
+  "carne-2-v3": {
+    "file": "carne-2-v3.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 44,
+      "y": 191,
+      "width": 1694,
+      "height": 579
+    }
+  },
+  "carne-3-v3": {
+    "file": "carne-3-v3.png",
+    "width": 1916,
+    "height": 821,
+    "crop": {
+      "x": 33,
+      "y": 118,
+      "width": 1852,
+      "height": 642
+    }
+  },
+  "carne-4-v3": {
+    "file": "carne-4-v3.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 41,
+      "y": 184,
+      "width": 1707,
+      "height": 631
+    }
+  },
+  "milho-verde-v3": {
+    "file": "milho-verde-v3.png",
+    "width": 1536,
+    "height": 1024,
+    "crop": {
+      "x": 94,
+      "y": 333,
+      "width": 1350,
+      "height": 414
+    }
+  },
+  "ervilha-v3": {
+    "file": "ervilha-v3.png",
+    "width": 1536,
+    "height": 1024,
+    "crop": {
+      "x": 116,
+      "y": 341,
+      "width": 1342,
+      "height": 421
+    }
+  },
+  "milho-grao-v4": {
+    "file": "milho-grao-v4.png",
+    "width": 1536,
+    "height": 1024,
+    "crop": {
+      "x": 412,
+      "y": 238,
+      "width": 742,
+      "height": 580
+    }
+  },
+  "ervilha-grao-v4": {
+    "file": "ervilha-grao-v4.png",
+    "width": 1382,
+    "height": 1138,
+    "crop": {
+      "x": 309,
+      "y": 216,
+      "width": 781,
+      "height": 736
+    }
+  },
+  "batata-palha-solta-v4": {
+    "file": "batata-palha-solta-v4.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 101,
+      "y": 255,
+      "width": 1567,
+      "height": 479
+    }
+  },
+  "carne-1-v5": {
+    "file": "carne-1-v5.png",
+    "width": 2172,
+    "height": 724,
+    "crop": {
+      "x": 34,
+      "y": 74,
+      "width": 2105,
+      "height": 582
+    }
+  },
+  "carne-1": {
+    "file": "carne-1-v5.png",
+    "width": 2172,
+    "height": 724,
+    "crop": {
+      "x": 34,
+      "y": 74,
+      "width": 2105,
+      "height": 582
+    }
+  },
+  "pao-topo-v5": {
+    "file": "pao-topo-v5.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 45,
+      "y": 102,
+      "width": 1685,
+      "height": 688
+    }
+  },
+  "queijo-v5": {
+    "file": "queijo-v5.png",
+    "width": 1847,
+    "height": 852,
+    "crop": {
+      "x": 43,
+      "y": 222,
+      "width": 1761,
+      "height": 503
+    }
+  },
+  "carne-2-v5": {
+    "file": "carne-2-v5.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 63,
+      "y": 159,
+      "width": 1654,
+      "height": 625
+    }
+  },
+  "carne-2": {
+    "file": "carne-2-v5b.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 33,
+      "y": 228,
+      "width": 1713,
+      "height": 532
+    }
+  },
+  "carne-3-v5": {
+    "file": "carne-3-v5.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 68,
+      "y": 183,
+      "width": 1641,
+      "height": 598
+    }
+  },
+  "carne-3": {
+    "file": "carne-3-v5.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 68,
+      "y": 183,
+      "width": 1641,
+      "height": 598
+    }
+  },
+  "carne-4-v5": {
+    "file": "carne-4-v5.png",
+    "width": 1672,
+    "height": 941,
+    "crop": {
+      "x": 75,
+      "y": 167,
+      "width": 1551,
+      "height": 681
+    }
+  },
+  "carne-4": {
+    "file": "carne-4-v5.png",
+    "width": 1672,
+    "height": 941,
+    "crop": {
+      "x": 75,
+      "y": 167,
+      "width": 1551,
+      "height": 681
+    }
+  },
+  "pao-base-v5": {
+    "file": "pao-base-v5.png",
+    "width": 2172,
+    "height": 724,
+    "crop": {
+      "x": 68,
+      "y": 128,
+      "width": 2036,
+      "height": 539
+    }
+  },
+  "cheddar-v5": {
+    "file": "cheddar-v5.png",
+    "width": 2073,
+    "height": 758,
+    "crop": {
+      "x": 34,
+      "y": 127,
+      "width": 1998,
+      "height": 544
+    }
+  },
+  "bacon-v5": {
+    "file": "bacon-v5.png",
+    "width": 1981,
+    "height": 793,
+    "crop": {
+      "x": 26,
+      "y": 150,
+      "width": 1930,
+      "height": 483
+    }
+  },
+  "salada-v5": {
+    "file": "salada-v5.png",
+    "width": 1983,
+    "height": 793,
+    "crop": {
+      "x": 23,
+      "y": 113,
+      "width": 1935,
+      "height": 581
+    }
+  },
+  "carne-2-v5b": {
+    "file": "carne-2-v5b.png",
+    "width": 1774,
+    "height": 887,
+    "crop": {
+      "x": 33,
+      "y": 228,
+      "width": 1713,
+      "height": 532
+    }
+  },
+  "carne-4-v5b": {
+    "file": "carne-4-v5b.png",
+    "width": 1670,
+    "height": 941,
+    "crop": {
+      "x": 44,
+      "y": 213,
+      "width": 1595,
+      "height": 556
+    }
+  }
+}

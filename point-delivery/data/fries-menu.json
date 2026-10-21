@@ -1,0 +1,10 @@
+[
+  { "id": "batata-frita-tradicional", "productName": "Batata frita tradicional", "description": "Queijo ralado", "price": 2500 },
+  { "id": "batata-frita-bacon", "productName": "Batata frita com bacon", "description": "Bacon e queijo ralado", "price": 2700 },
+  { "id": "batata-frita-calabresa", "productName": "Batata frita com calabresa", "description": "Calabresa e queijo ralado", "price": 2700 },
+  { "id": "batata-frita-cheddar", "productName": "Batata frita com cheddar", "description": "Cheddar e queijo ralado", "price": 2700 },
+  { "id": "batata-frita-bacon-calabresa", "productName": "Batata frita com bacon e calabresa", "description": "Bacon, calabresa e queijo ralado", "price": 2800 },
+  { "id": "batata-frita-bacon-cheddar", "productName": "Batata frita com bacon e cheddar", "description": "Bacon, cheddar e queijo ralado", "price": 2800 },
+  { "id": "batata-frita-calabresa-cheddar", "productName": "Batata frita com calabresa e cheddar", "description": "Calabresa, cheddar e queijo ralado", "price": 2800 },
+  { "id": "batata-frita-completa", "productName": "Batata frita completa", "description": "Bacon, calabresa, cheddar e queijo ralado", "price": 3000 }
+]
