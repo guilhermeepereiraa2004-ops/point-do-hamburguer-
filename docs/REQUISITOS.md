@@ -96,3 +96,6 @@ O financeiro inclui receitas por conclusão e movimentações manuais de caixa. 
 Evidências de implementação, testes e limites operacionais são mantidas em plan/STATUS.md.
 
 CLI-11 (21/10/2026): permitir repetir a receita do lanche ativo em outros hambúrgueres escolhidos do mesmo pedido, preservando os não marcados e a independência das cópias. Avisar substituição de montagem existente, manter revisão/finalização por lanche e conferir estoque total antes de copiar. Não copiar acompanhamentos nem modificar a tabela de preços.
+
+## Acesso pela tela inicial — 21/10/2026
+A vitrine oferece seção Seu Point está a um toque, com benefício de acessar o cardápio sem procurar o link. App web instalável via manifesto, ícones PNG e modo standalone, iniciando em /#montar. Android e navegadores compatíveis usam o prompt nativo quando disponível; ausência/recusa/erro oferece instruções, sem prometer instalação automática. iPhone/iPad orientam Safari → Compartilhar → Adicionar à Tela de Início → Adicionar. Se disponível, manter Abrir como App da Web. A seção desaparece em modo standalone ou após appinstalled. Não é distribuído APK; não há cache offline de catálogo, estoque, sessão ou pedidos. Internet continua necessária. Não altera o fluxo ou o preço dos pedidos.
