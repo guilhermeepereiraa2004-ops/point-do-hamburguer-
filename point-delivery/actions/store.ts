@@ -1,4 +1,5 @@
 import { getDb, getStore } from "@/db";
+import { validateCart } from "@/domain/cart";
 import { reserveOrder } from "@/db/order-reservation";
 import { ingredients, prices, settings, orders, orderItems, movements, finance, manualFinance } from "@/db/pg-schema";
 import { eq, desc, and, gte, lt } from "drizzle-orm";
@@ -18,13 +19,14 @@ function stringField(value: unknown, label: string, min: number, max: number) {
 }
 export async function placeOrder(input: Record<string, unknown>) {
   const idempotencyKey = stringField(input.key, "identificador", 16, 80);
-  const fingerprint = JSON.stringify({ selection: input.selection, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal });
+  const fingerprint = JSON.stringify({ selection: input.selection, burgers: input.burgers, extras: input.extras, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal });
   const db = getDb();
   const existing = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
   if (existing[0]) { if (existing[0].fingerprint !== fingerprint) throw new Error("Este identificador já pertence a outro pedido. Recarregue a página."); return { code: existing[0].code }; }
   const catalog = await getCatalog();
-  const selection = input.selection as Selection;
-  const summary = validateSelection(selection, catalog);
+  const cart = input.burgers !== undefined ? validateCart(input.burgers, input.extras ?? {}, catalog) : null;
+  const selection = cart?.selection ?? input.selection as Selection;
+  const summary = cart ?? validateSelection(selection, catalog);
   if (catalog.deliveryFee === null) throw new Error("A taxa de entrega ainda precisa ser configurada pela hamburgueria.");
   const total = summary.subtotal + catalog.deliveryFee;
   if (input.expectedTotal !== total) throw new Error("Os preços foram atualizados. Revise o total antes de confirmar novamente.");
@@ -35,7 +37,7 @@ export async function placeOrder(input: Record<string, unknown>) {
   const id = crypto.randomUUID(), code = id.slice(0, 6).toUpperCase(), createdAt = Date.now();
   const raw = getStore();
   try {
-    await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt }, catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
+    await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt, ...(cart ? { burgers: JSON.stringify(cart.snapshots) } : {}) }, cart?.lines ?? catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
   } catch {
     const duplicate = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
     if (duplicate[0]?.fingerprint === fingerprint) return { code: duplicate[0].code };
@@ -57,7 +59,7 @@ export async function getDashboard() {
     db.select({ id: orders.id, status: orders.status, createdAt: orders.createdAt }).from(orders).where(and(gte(orders.createdAt, month.start), lt(orders.createdAt, month.end))),
   ]);
   const manualEntries = manual as ManualEntry[];
-  return { orders: list.map(o => ({ ...o, status: o.status as Status, items: lines.filter(l => l.orderId === o.id).map(l => ({ name: l.name, quantity: l.quantity })) })) as Order[],
+  return { orders: list.map(o => ({ ...o, status: o.status as Status, burgers: JSON.parse(o.burgers), extras: lines.filter(l => l.orderId === o.id && catalog.ingredients.find(i => i.id === l.ingredientId)?.category === "Complementos").map(l => ({ name: l.name, quantity: l.quantity })), items: lines.filter(l => l.orderId === o.id).map(l => ({ name: l.name, quantity: l.quantity })) })) as Order[],
     finance: receipts.map(({ phone: _phone, ...receipt }) => receipt), manualFinance: manualEntries, movements: history, catalog,
     report: buildMonthlyReport(monthOrders, receipts, manualEntries, now) };
 }

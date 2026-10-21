@@ -11,6 +11,7 @@ export const ingredients = pgTable("ingredients", {
 export const prices = pgTable("prices", { count: integer("count").primaryKey(), value: integer("value").notNull() }, t => [check("valid_price", sql`${t.value} >= 0`)]);
 export const settings = pgTable("settings", { key: text("key").primaryKey(), value: integer("value") });
 export const orders = pgTable("orders", {
+  burgers: text("burgers").notNull().default("[]"),
   id: text("id").primaryKey(), idempotencyKey: text("idempotency_key").notNull().unique(), fingerprint: text("fingerprint").notNull(), code: text("code").notNull(),
   customer: text("customer").notNull(), phone: text("phone").notNull(), address: text("address").notNull(), reference: text("reference").notNull(), notes: text("notes").notNull(),
   status: text("status").notNull().default("recebido"), subtotal: integer("subtotal").notNull(), deliveryFee: integer("delivery_fee").notNull(), total: integer("total").notNull(), createdAt: millis("created_at").notNull(),

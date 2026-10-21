@@ -59,4 +59,4 @@ export function validateSelection(selection: Selection, catalog: Catalog) {
 export function canTransition(from: Status, to: Status) {
   return from === to || ({ recebido: ["preparo", "cancelado"], preparo: ["entrega", "cancelado"], entrega: ["concluido", "cancelado"], concluido: [], cancelado: [] } as Record<Status, string[]>)[from]?.includes(to);
 }
-export type Order = { id: string; code: string; customer: string; phone: string; address: string; reference: string; notes: string; status: Status; subtotal: number; deliveryFee: number; total: number; createdAt: number; items: { name: string; quantity: number }[] };
+export type Order = { id: string; code: string; customer: string; phone: string; address: string; reference: string; notes: string; status: Status; subtotal: number; deliveryFee: number; total: number; createdAt: number; burgers?: { price: number; items: { name: string; quantity: number }[] }[]; extras?: { name: string; quantity: number }[]; items: { name: string; quantity: number }[] };

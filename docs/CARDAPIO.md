@@ -88,3 +88,8 @@ Cada porção tem preço e estoque independentes, tamanho “Porção” e descr
 - A tabela cobre apenas 3 a 15 itens; fora dela a finalização deve aguardar uma faixa cadastrada. Não extrapolar preços.
 - O máximo por ingrediente começa em 4, conforme a imagem. O admin poderá revisar essa limitação posteriormente.
 - O estoque de frango é medido em porções, conforme o cardápio; não em gramas sem uma conversão cadastrada.
+
+## Pedido com vários hambúrgueres — 21/10/2026
+Um pedido pode conter de 1 a 10 montagens independentes. Cada lanche exige um pão e usa sua própria faixa da tabela pela soma das quantidades dos recheios. Acompanhamentos são compartilhados no pedido e a taxa de entrega é cobrada uma única vez. O servidor calcula o total e verifica a soma de todos os ingredientes antes da reserva atômica. O limite por ingrediente vale por hambúrguer; estoque considera o pedido completo.
+Receita e preço de cada lanche são guardados no histórico em orders.burgers; pedidos antigos continuam legíveis. As linhas de estoque de cada lanche são reservadas juntas, repetição continua idempotente e cancelamento devolve a soma das porções uma vez. O financeiro continua com uma receita por pedido concluído.
+Acompanhamentos do cliente agora aparecem em categorias recolhíveis: Batata frita, Bebidas (refrigerantes e sucos), e Outros quando houver produtos. A estrela e a disponibilidade do cadastro administrativo permanecem vigentes. Nenhum sabor, preço ou estoque foi inventado.
