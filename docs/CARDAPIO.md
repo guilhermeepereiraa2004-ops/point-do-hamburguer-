@@ -99,3 +99,5 @@ A primeira etapa escolhe a quantidade de hambúrgueres, respeitando o limite exi
 
 ## Repetir uma receita em outros lanches — 21/10/2026
 Na etapa Montagem, pedidos com mais de um hambúrguer oferecem Repetir este lanche após compor uma receita válida. O cliente marca quais outros hambúrgueres recebem a cópia; cada destino com ingredientes informa que a receita atual será substituída. Destinos ainda não finalizados são sugeridos inicialmente. Cópias são independentes, incluem o pão e podem ser alteradas depois. Lanches copiados continuam sujeitos à revisão/finalização em sequência. Acompanhamentos não são copiados. A operação verifica a soma do estoque de todos os hambúrgueres antes de alterar o rascunho e mantém os preços calculados pela tabela existente.
+
+A lista de recheios na montagem começa por Carne de hambúrguer, Queijo, Cheddar, Catupiry, Salada, Frango, Calabresa e Salsicha, nessa ordem. Os demais ingredientes seguem depois, preservando sua ordem relativa. Os filtros de categoria respeitam essa mesma sequência.
