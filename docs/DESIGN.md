@@ -106,3 +106,5 @@ Como funciona usa um único card dividido: bloco escuro com título Você imagin
 
 ## Acompanhamento do pedido — 21/10/2026
 Após confirmação, a API retorna code e trackingUrl; a vitrine abre /pedido/[id] automaticamente e mantém link de fallback na confirmação. Página pública sem login consulta o status persistido pelo admin a cada5segundos enquanto visível, com retorno ao foco/reconexão, consulta manual e proteção contra sobreposição/atualizações após desmontagem. Concluído/cancelado encerram polling automático. Erro preserva última leitura com aviso de desatualização; link ausente/inválido não mostra dados. Etapas: recebido, preparo, entrega, concluído; cancelado tem estado próprio. Exibe código, total histórico e data no horário da Bahia; sem prazo de entrega inventado. Link copiável permite reabrir após recarregar.
+
+Acompanhamento usa painel de status com cabeçalho escuro, banner claro com foto do burger e título destacado, etapas em blocos com ícones e resumo financeiro separado. No celular, etapas viram lista vertical e controles mantêm alvos44–48px. A renderização reflete o status real sem alterar o polling ou expor novos dados.
