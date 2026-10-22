@@ -2,7 +2,7 @@ import { spawnSync } from "node:child_process";
 const steps = [
   ["node_modules/typescript/bin/tsc", "--noEmit"],
   ["scripts/check-layers.mjs"],
-  ["--test", "tests/burger-composition.test.mjs", "tests/management.test.mjs", "tests/order-reservation.test.mjs", "tests/admin-access.test.mjs", "tests/cart.test.mjs"],
+  ["--test", "tests/burger-composition.test.mjs", "tests/management.test.mjs", "tests/order-reservation.test.mjs", "tests/admin-access.test.mjs", "tests/cart.test.mjs", "tests/order-tracking.test.mjs", "tests/request-origin.test.mjs"],
   ["node_modules/next/dist/bin/next", "build", "--webpack"],
 ];
 for (const args of steps) {

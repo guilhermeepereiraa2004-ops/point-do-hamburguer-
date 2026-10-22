@@ -2,9 +2,9 @@ import { headers } from 'next/headers';
 import { getAdminIdentity } from '@/actions/admin';
 import { getAuth } from '@/lib/auth';
 import { getStore } from '@/db';
+import { hasValidRequestOrigin } from '@/lib/request-origin';
 export async function POST(request:Request){
-  const origin=request.headers.get('origin');
-  if(!origin||origin!==new URL(request.url).origin)return Response.json({error:'Origem inválida.'},{status:403});
+  if(!hasValidRequestOrigin(request,{allowMissing:false}))return Response.json({error:'Origem inválida.'},{status:403});
   if(Number(request.headers.get('content-length')||0)>2000)return Response.json({error:'Solicitação inválida.'},{status:413});
   const identity=await getAdminIdentity();
   if(!identity)return Response.json({error:'Acesso restrito.'},{status:403});

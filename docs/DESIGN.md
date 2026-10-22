@@ -99,3 +99,10 @@ A vitrine oferece seção Seu Point está a um toque, com benefício de acessar 
 
 ## Administração no celular — 21/10/2026
 Em telas de até 900px, o painel oferece atalhos fixos Início, Pedidos, Estoque, Cardápio e Mais (Preços/Financeiro no menu). Controles principais têm pelo menos44–48px, textos de leitura maiores e maior contraste. Conta/Sair ficam ao final do conteúdo, fora da sobreposição. Estoque e produtos possuem busca local sem distinção de acentos; filtros existentes permanecem. Pedidos em uma coluna e financeiro em cartões com rótulos, evitando tabela horizontal. Formulários em folha inferior rolável, campos16px e uma coluna; foco inicial no botão de fechar em dispositivos de toque, Escape/Tab e retorno de foco. Funcionalidades e autorização do servidor permanecem iguais.
+
+Símbolos decorativos da hero, faixa e convite de instalação usam SVG com currentColor, evitando que Android/iOS substituam os caracteres por emojis coloridos.
+
+Como funciona usa um único card dividido: bloco escuro com título Você imagina. A gente capricha. e CTA laranja; à direita, três etapas em sequência vertical com ícones pequenos, números discretos e separadores finos. No celular, o título fica acima da sequência. Sem cartões aninhados ou etapa laranja isolada.
+
+## Acompanhamento do pedido — 21/10/2026
+Após confirmação, a API retorna code e trackingUrl; a vitrine abre /pedido/[id] automaticamente e mantém link de fallback na confirmação. Página pública sem login consulta o status persistido pelo admin a cada5segundos enquanto visível, com retorno ao foco/reconexão, consulta manual e proteção contra sobreposição/atualizações após desmontagem. Concluído/cancelado encerram polling automático. Erro preserva última leitura com aviso de desatualização; link ausente/inválido não mostra dados. Etapas: recebido, preparo, entrega, concluído; cancelado tem estado próprio. Exibe código, total histórico e data no horário da Bahia; sem prazo de entrega inventado. Link copiável permite reabrir após recarregar.

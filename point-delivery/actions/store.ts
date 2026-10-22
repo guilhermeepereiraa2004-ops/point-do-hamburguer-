@@ -1,6 +1,7 @@
 import { getDb, getStore } from "@/db";
 import { validateCart } from "@/domain/cart";
 import { reserveOrder } from "@/db/order-reservation";
+import { getTrackingSecret, orderConfirmation } from "@/lib/order-tracking";
 import { ingredients, prices, settings, orders, orderItems, movements, finance, manualFinance } from "@/db/pg-schema";
 import { eq, desc, and, gte, lt } from "drizzle-orm";
 import { buildMonthlyReport, currentMonth } from "@/domain/reporting";
@@ -18,11 +19,12 @@ function stringField(value: unknown, label: string, min: number, max: number) {
   return value.trim();
 }
 export async function placeOrder(input: Record<string, unknown>) {
+  const trackingSecret = getTrackingSecret();
   const idempotencyKey = stringField(input.key, "identificador", 16, 80);
   const fingerprint = JSON.stringify({ selection: input.selection, burgers: input.burgers, extras: input.extras, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal });
   const db = getDb();
   const existing = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
-  if (existing[0]) { if (existing[0].fingerprint !== fingerprint) throw new Error("Este identificador já pertence a outro pedido. Recarregue a página."); return { code: existing[0].code }; }
+  if (existing[0]) { if (existing[0].fingerprint !== fingerprint) throw new Error("Este identificador já pertence a outro pedido. Recarregue a página."); return orderConfirmation(existing[0], trackingSecret); }
   const catalog = await getCatalog();
   const cart = input.burgers !== undefined ? validateCart(input.burgers, input.extras ?? {}, catalog) : null;
   const selection = cart?.selection ?? input.selection as Selection;
@@ -40,13 +42,13 @@ export async function placeOrder(input: Record<string, unknown>) {
     await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt, ...(cart ? { burgers: JSON.stringify(cart.snapshots) } : {}) }, cart?.lines ?? catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
   } catch {
     const duplicate = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
-    if (duplicate[0]?.fingerprint === fingerprint) return { code: duplicate[0].code };
+    if (duplicate[0]?.fingerprint === fingerprint) return orderConfirmation(duplicate[0], trackingSecret);
     const shortages = getStockShortages(selection, await getCatalog());
     if (shortages.length) throw new InsufficientStockError(shortages);
     console.error("[orders] reservation persistence failed");
     throw new Error("Não conseguimos confirmar seu pedido agora. Tente novamente em instantes.");
   }
-  return { code };
+  return orderConfirmation({ id, code }, trackingSecret);
 }
 export async function getDashboard() {
   const db = getDb();

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowDownToLine, ArrowRight, Check, Hamburger, Share, Smartphone, X } from "lucide-react";
 import "@/app/install-app.css";
+import { DecorativeSpark } from "@/components/decorative-spark";
 
 type InstallPrompt = Event & {
   prompt: () => Promise<void>;
@@ -54,7 +55,7 @@ export function InstallApp() {
 
   return <section className="install-section container" aria-labelledby="install-heading">
     <div className="install-card">
-      <div className="install-art" aria-hidden="true"><div className="install-phone"><span className="install-camera"/><span className="install-app-icon"><Hamburger size={38}/></span><strong>point</strong><span>DO HAMBÚRGUER</span><div className="install-phone-pill"><Check size={13}/> Sempre por perto</div></div><span className="install-spark">✳</span></div>
+      <div className="install-art" aria-hidden="true"><div className="install-phone"><span className="install-camera"/><span className="install-app-icon"><Hamburger size={38}/></span><strong>point</strong><span>DO HAMBÚRGUER</span><div className="install-phone-pill"><Check size={13}/> Sempre por perto</div></div><span className="install-spark"><DecorativeSpark/></span></div>
       <div className="install-copy"><div className="eyebrow"><Smartphone size={15}/> SEU POINT NO CELULAR</div><h2 id="install-heading">Bateu a fome?<br/>Seu Point está a um toque.</h2><p>Adicione o Point à tela inicial e vá direto ao cardápio, sem precisar procurar o link. Seu próximo burger começa aqui.</p><button type="button" className="button primary install-button" disabled={busy} onClick={()=>void install()}><ArrowDownToLine size={19}/>{busy ? "Abrindo instalação…" : ios ? "Adicionar à tela inicial" : "Instalar o Point"}<ArrowRight size={18}/></button><small>Grátis. Sem loja de aplicativos. Direto na sua tela inicial.</small><p className="install-feedback" role="status">{message}</p></div>
     </div>
     <dialog ref={dialogRef} className="install-dialog" aria-labelledby="install-dialog-title" onClick={event=>{if(event.target===event.currentTarget){const rect=event.currentTarget.getBoundingClientRect();if(event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)event.currentTarget.close();}}}>

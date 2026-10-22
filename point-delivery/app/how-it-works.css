@@ -1,0 +1,38 @@
+.storefront .how-card-section{padding-block:28px 60px;scroll-margin-top:30px}
+.storefront .how-card-shell{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.3fr);border:1px solid #e9dfd6;border-radius:26px;overflow:hidden;background:#fffdf9;box-shadow:0 16px 45px #41271008}
+.storefront .how-card-header{position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;align-items:flex-start;padding:42px 46px;background:#29221e;color:#fff9ef}
+.storefront .how-card-header::after{content:"";position:absolute;z-index:-1;width:260px;height:260px;border:1px solid #ffffff0b;border-radius:50%;right:-170px;bottom:-60px;box-shadow:0 0 0 35px #ffffff03,0 0 0 70px #ffffff02}
+.storefront .how-card-label{display:inline-flex;align-items:center;gap:9px;font-size:9px;letter-spacing:1.9px;font-weight:700;color:#d4c4b5}
+.storefront .how-card-label>span{width:6px;height:6px;border-radius:50%;background:#ff914e;box-shadow:0 0 0 4px #ff914e15}
+.storefront .how-card-header h2{font:750 clamp(32px,3.8vw,46px)/1.06 var(--display);letter-spacing:-1.6px;margin:27px 0 20px;color:#fff9ef}
+.storefront .how-card-header h2 em{font-style:normal;color:#ff9a5c}
+.storefront .how-card-header>p{font-size:13px;line-height:1.85;color:#c4b4a7;margin-bottom:27px}
+.storefront .how-card-header>a{display:inline-flex;align-items:center;justify-content:space-between;gap:26px;min-height:48px;padding:13px 17px;background:#f57836;border:1px solid #ff9b60;border-radius:11px;font-size:13px;font-weight:700;color:#281a12;box-shadow:0 3px 0 #a83e13}
+.storefront .how-card-header>a:hover{background:#ff9b60}
+.storefront .how-card-signature{font-size:10px;letter-spacing:.5px;color:#958476;margin-top:22px}
+.storefront .how-steps{list-style:none;display:flex;flex-direction:column;justify-content:center;padding:15px 40px;margin:0;min-width:0}
+.storefront .how-step{position:relative;display:grid;grid-template-columns:54px minmax(0,1fr) 27px;gap:22px;align-items:center;padding:30px 0;min-width:0}
+.storefront .how-step+.how-step{border-top:1px solid #eee5dc}
+.storefront .how-step-icon{display:grid;place-items:center;width:54px;height:54px;border-radius:16px;background:#fff0e3;border:1px solid #f5dec9;color:#c45120}
+.storefront .how-step-copy{min-width:0}
+.storefront .how-step h3{font:700 21px/1.3 var(--display);letter-spacing:-.45px;color:#36291f;margin:0 0 9px}
+.storefront .how-step p{font-size:13px;line-height:1.85;color:#8a7360;margin:0;max-width:340px}
+.storefront .how-step-number{font:650 18px/1 var(--display);letter-spacing:-.5px;color:#cfbca9;align-self:start;margin-top:8px}
+@media(max-width:1000px){.storefront .how-card-header{padding:34px 30px}.storefront .how-steps{padding-inline:25px}.storefront .how-step{gap:16px;grid-template-columns:46px minmax(0,1fr) 23px}.storefront .how-step-icon{width:46px;height:46px;border-radius:14px}.storefront .how-step h3{font-size:19px}}
+@media(max-width:760px){
+ .storefront .how-card-section{padding-block:12px 38px}
+ .storefront .how-card-shell{grid-template-columns:minmax(0,1fr);border-radius:22px}
+ .storefront .how-card-header{padding:30px}
+ .storefront .how-card-header h2{font-size:38px;margin:24px 0 18px;letter-spacing:-1.3px}
+ .storefront .how-card-header>p{font-size:14px;margin-bottom:23px}
+ .storefront .how-card-header>a{min-height:50px;font-size:14px;gap:30px}
+ .storefront .how-card-signature{display:none}
+ .storefront .how-steps{padding:4px 24px}
+ .storefront .how-step{grid-template-columns:44px minmax(0,1fr);gap:16px;padding:27px 0;align-items:start}
+ .storefront .how-step-icon{width:44px;height:44px;border-radius:13px}
+ .storefront .how-step-icon svg{width:23px;height:23px}
+ .storefront .how-step h3{font-size:20px;line-height:1.3;margin-bottom:10px;padding-right:20px}
+ .storefront .how-step p{font-size:13px;line-height:1.85}
+ .storefront .how-step-number{position:absolute;right:0;top:31px;margin:0;font-size:12px;color:#bfa58d}
+}
+@media(max-width:360px){.storefront .how-card-header{padding:27px 24px}.storefront .how-card-header h2{font-size:34px}.storefront .how-steps{padding-inline:18px}.storefront .how-step{gap:12px}.storefront .how-step h3{font-size:18px}}
