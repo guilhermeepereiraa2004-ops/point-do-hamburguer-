@@ -3,16 +3,18 @@ import "../app/burger-preview.css";
 import type { CSSProperties } from "react";
 import type { Selection } from "@/domain/menu";
 import photos from "./ingredient-photos.json";
+import optimized from "./menu-image-assets.json";
 import { composeBurger, type Photo } from "./burger-composition";
 
 const assets: Record<string, Photo> = photos;
-const source = (id: string) => `/ingredients/${assets[id].file || `${id}.png`}`;
+const imagePaths: Record<string, { preview: string; thumbnail: string }> = optimized.ingredients;
+const source = (id: string, thumbnail = false) => imagePaths[id][thumbnail ? "thumbnail" : "preview"];
 
 export function IngredientPhoto({ id, className = "" }: { id: string; className?: string }) {
   const photo = assets[id];
   if (!photo) return null;
   const { crop } = photo;
-  return <svg className={`ingredient-photo ${className}`} viewBox={`${crop.x} ${crop.y} ${crop.width} ${crop.height}`} aria-hidden="true" focusable="false"><image href={source(id)} width={photo.width} height={photo.height} /></svg>;
+  return <svg className={`ingredient-photo ${className}`} viewBox={`${crop.x} ${crop.y} ${crop.width} ${crop.height}`} aria-hidden="true" focusable="false"><image href={source(id, true)} width={photo.width} height={photo.height} /></svg>;
 }
 
 export function BurgerPreview({ selection, closed = false, closing = false, onViewChange, forceMotion = false, onMotionChange }: { selection: Selection; closed?: boolean; closing?: boolean; onViewChange?: (closed: boolean) => void; forceMotion?: boolean; onMotionChange?: () => void }) {

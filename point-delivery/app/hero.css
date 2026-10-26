@@ -1,5 +1,6 @@
 /* Continuous hero movement stays in CSS, without playback controls or JS timers. */
 .storefront .hero-burger {
+  height: auto;
   animation: hero-burger-float 4.8s ease-in-out infinite;
   transform-origin: 50% 60%;
 }

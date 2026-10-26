@@ -1,0 +1,178 @@
+{
+  "ingredients": {
+    "pao-topo": {
+      "preview": "/ingredients/optimized/pao-topo-v5.65482f287597.preview.webp",
+      "thumbnail": "/ingredients/optimized/pao-topo-v5.65482f287597.thumbnail.webp"
+    },
+    "pao-base": {
+      "preview": "/ingredients/optimized/pao-base-v5.c91ac834215c.preview.webp",
+      "thumbnail": "/ingredients/optimized/pao-base-v5.c91ac834215c.thumbnail.webp"
+    },
+    "carne-hamburguer": {
+      "preview": "/ingredients/optimized/carne-1-v5.c9f9d048424b.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-1-v5.c9f9d048424b.thumbnail.webp"
+    },
+    "frango": {
+      "preview": "/ingredients/optimized/frango-v2.0c2955ab6afb.preview.webp",
+      "thumbnail": "/ingredients/optimized/frango-v2.0c2955ab6afb.thumbnail.webp"
+    },
+    "queijo": {
+      "preview": "/ingredients/optimized/queijo-v5.b65eafd0d61e.preview.webp",
+      "thumbnail": "/ingredients/optimized/queijo-v5.b65eafd0d61e.thumbnail.webp"
+    },
+    "cheddar": {
+      "preview": "/ingredients/optimized/cheddar-v5.b2985f2f24e3.preview.webp",
+      "thumbnail": "/ingredients/optimized/cheddar-v5.b2985f2f24e3.thumbnail.webp"
+    },
+    "catupiry": {
+      "preview": "/ingredients/optimized/catupiry-v2.cd87e3a3b6dd.preview.webp",
+      "thumbnail": "/ingredients/optimized/catupiry-v2.cd87e3a3b6dd.thumbnail.webp"
+    },
+    "presunto": {
+      "preview": "/ingredients/optimized/presunto.5279bd31b485.preview.webp",
+      "thumbnail": "/ingredients/optimized/presunto.5279bd31b485.thumbnail.webp"
+    },
+    "bacon": {
+      "preview": "/ingredients/optimized/bacon-v5.f5eccdf44ced.preview.webp",
+      "thumbnail": "/ingredients/optimized/bacon-v5.f5eccdf44ced.thumbnail.webp"
+    },
+    "ovo": {
+      "preview": "/ingredients/optimized/ovo.5331a1867678.preview.webp",
+      "thumbnail": "/ingredients/optimized/ovo.5331a1867678.thumbnail.webp"
+    },
+    "calabresa": {
+      "preview": "/ingredients/optimized/calabresa.6d7ab5fbfdd7.preview.webp",
+      "thumbnail": "/ingredients/optimized/calabresa.6d7ab5fbfdd7.thumbnail.webp"
+    },
+    "salsicha": {
+      "preview": "/ingredients/optimized/salsicha.a5547b2e74ff.preview.webp",
+      "thumbnail": "/ingredients/optimized/salsicha.a5547b2e74ff.thumbnail.webp"
+    },
+    "milho-verde": {
+      "preview": "/ingredients/optimized/milho-verde-v3.c3da35a54755.preview.webp",
+      "thumbnail": "/ingredients/optimized/milho-verde-v3.c3da35a54755.thumbnail.webp"
+    },
+    "ervilha": {
+      "preview": "/ingredients/optimized/ervilha-v3.e981278e6f2b.preview.webp",
+      "thumbnail": "/ingredients/optimized/ervilha-v3.e981278e6f2b.thumbnail.webp"
+    },
+    "cebola": {
+      "preview": "/ingredients/optimized/cebola-v2.822594526ca4.preview.webp",
+      "thumbnail": "/ingredients/optimized/cebola-v2.822594526ca4.thumbnail.webp"
+    },
+    "salada": {
+      "preview": "/ingredients/optimized/salada-v5.4a09e7da1976.preview.webp",
+      "thumbnail": "/ingredients/optimized/salada-v5.4a09e7da1976.thumbnail.webp"
+    },
+    "batata-palha": {
+      "preview": "/ingredients/optimized/batata-palha.6e6e01cc0e83.preview.webp",
+      "thumbnail": "/ingredients/optimized/batata-palha.6e6e01cc0e83.thumbnail.webp"
+    },
+    "carne-1-v3": {
+      "preview": "/ingredients/optimized/carne-1-v3.45f1059299ea.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-1-v3.45f1059299ea.thumbnail.webp"
+    },
+    "carne-2-v3": {
+      "preview": "/ingredients/optimized/carne-2-v3.4d7b524a404b.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-2-v3.4d7b524a404b.thumbnail.webp"
+    },
+    "carne-3-v3": {
+      "preview": "/ingredients/optimized/carne-3-v3.9bcf97a0db6d.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-3-v3.9bcf97a0db6d.thumbnail.webp"
+    },
+    "carne-4-v3": {
+      "preview": "/ingredients/optimized/carne-4-v3.bb1612a4927b.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-4-v3.bb1612a4927b.thumbnail.webp"
+    },
+    "milho-verde-v3": {
+      "preview": "/ingredients/optimized/milho-verde-v3.c3da35a54755.preview.webp",
+      "thumbnail": "/ingredients/optimized/milho-verde-v3.c3da35a54755.thumbnail.webp"
+    },
+    "ervilha-v3": {
+      "preview": "/ingredients/optimized/ervilha-v3.e981278e6f2b.preview.webp",
+      "thumbnail": "/ingredients/optimized/ervilha-v3.e981278e6f2b.thumbnail.webp"
+    },
+    "milho-grao-v4": {
+      "preview": "/ingredients/optimized/milho-grao-v4.b3d01f226581.preview.webp",
+      "thumbnail": "/ingredients/optimized/milho-grao-v4.b3d01f226581.thumbnail.webp"
+    },
+    "ervilha-grao-v4": {
+      "preview": "/ingredients/optimized/ervilha-grao-v4.db7d35aa5eb0.preview.webp",
+      "thumbnail": "/ingredients/optimized/ervilha-grao-v4.db7d35aa5eb0.thumbnail.webp"
+    },
+    "batata-palha-solta-v4": {
+      "preview": "/ingredients/optimized/batata-palha-solta-v4.0770e6071cfc.preview.webp",
+      "thumbnail": "/ingredients/optimized/batata-palha-solta-v4.0770e6071cfc.thumbnail.webp"
+    },
+    "carne-1-v5": {
+      "preview": "/ingredients/optimized/carne-1-v5.c9f9d048424b.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-1-v5.c9f9d048424b.thumbnail.webp"
+    },
+    "carne-1": {
+      "preview": "/ingredients/optimized/carne-1-v5.c9f9d048424b.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-1-v5.c9f9d048424b.thumbnail.webp"
+    },
+    "pao-topo-v5": {
+      "preview": "/ingredients/optimized/pao-topo-v5.65482f287597.preview.webp",
+      "thumbnail": "/ingredients/optimized/pao-topo-v5.65482f287597.thumbnail.webp"
+    },
+    "queijo-v5": {
+      "preview": "/ingredients/optimized/queijo-v5.b65eafd0d61e.preview.webp",
+      "thumbnail": "/ingredients/optimized/queijo-v5.b65eafd0d61e.thumbnail.webp"
+    },
+    "carne-2-v5": {
+      "preview": "/ingredients/optimized/carne-2-v5.f945bbf0e0ce.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-2-v5.f945bbf0e0ce.thumbnail.webp"
+    },
+    "carne-2": {
+      "preview": "/ingredients/optimized/carne-2-v5b.e2ae4d76f38d.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-2-v5b.e2ae4d76f38d.thumbnail.webp"
+    },
+    "carne-3-v5": {
+      "preview": "/ingredients/optimized/carne-3-v5.773e027a1928.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-3-v5.773e027a1928.thumbnail.webp"
+    },
+    "carne-3": {
+      "preview": "/ingredients/optimized/carne-3-v5.773e027a1928.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-3-v5.773e027a1928.thumbnail.webp"
+    },
+    "carne-4-v5": {
+      "preview": "/ingredients/optimized/carne-4-v5.fdb4ba7dfafe.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-4-v5.fdb4ba7dfafe.thumbnail.webp"
+    },
+    "carne-4": {
+      "preview": "/ingredients/optimized/carne-4-v5.fdb4ba7dfafe.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-4-v5.fdb4ba7dfafe.thumbnail.webp"
+    },
+    "pao-base-v5": {
+      "preview": "/ingredients/optimized/pao-base-v5.c91ac834215c.preview.webp",
+      "thumbnail": "/ingredients/optimized/pao-base-v5.c91ac834215c.thumbnail.webp"
+    },
+    "cheddar-v5": {
+      "preview": "/ingredients/optimized/cheddar-v5.b2985f2f24e3.preview.webp",
+      "thumbnail": "/ingredients/optimized/cheddar-v5.b2985f2f24e3.thumbnail.webp"
+    },
+    "bacon-v5": {
+      "preview": "/ingredients/optimized/bacon-v5.f5eccdf44ced.preview.webp",
+      "thumbnail": "/ingredients/optimized/bacon-v5.f5eccdf44ced.thumbnail.webp"
+    },
+    "salada-v5": {
+      "preview": "/ingredients/optimized/salada-v5.4a09e7da1976.preview.webp",
+      "thumbnail": "/ingredients/optimized/salada-v5.4a09e7da1976.thumbnail.webp"
+    },
+    "carne-2-v5b": {
+      "preview": "/ingredients/optimized/carne-2-v5b.e2ae4d76f38d.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-2-v5b.e2ae4d76f38d.thumbnail.webp"
+    },
+    "carne-4-v5b": {
+      "preview": "/ingredients/optimized/carne-4-v5b.d4daca72b739.preview.webp",
+      "thumbnail": "/ingredients/optimized/carne-4-v5b.d4daca72b739.thumbnail.webp"
+    }
+  },
+  "hero": {
+    "width": 1254,
+    "height": 1254,
+    "src": "/images/optimized/burger-hero.4dbf6c0eb01d.960.webp",
+    "srcSet": "/images/optimized/burger-hero.4dbf6c0eb01d.480.webp 480w, /images/optimized/burger-hero.4dbf6c0eb01d.960.webp 960w"
+  }
+}

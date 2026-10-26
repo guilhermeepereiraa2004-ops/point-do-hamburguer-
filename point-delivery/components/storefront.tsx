@@ -8,6 +8,7 @@ import { BurgerPreview, IngredientPhoto } from "@/components/burger-preview";
 import { StockAvailability } from "@/components/stock-availability";
 import { IngredientAvailability } from "@/components/ingredient-availability";
 import { useCatalog } from "@/components/use-catalog";
+import { useIngredientImageWarmup } from "@/components/use-image-warmup";
 import "@/app/storefront.css";
 import "@/app/hero.css";
 import "@/app/assembly-flow.css";
@@ -25,6 +26,7 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
  const [activeBurger,setActiveBurger]=useState(0),[extras,setExtras]=useState<Selection>({});
  const selection=burgers[activeBurger];
  const [step,setStep]=useState(0),[category,setCategory]=useState("Todos");
+ useIngredientImageWarmup(step===1);
  const [completedSignatures,setCompletedSignatures]=useState<string[]>([]);
  const [extrasChoice,setExtrasChoice]=useState<"yes"|"no"|null>(null);
  const controlsRef=useRef<HTMLDivElement|null>(null);
