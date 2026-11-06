@@ -4,12 +4,53 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { Miniflare } from "miniflare";
 import { validateAccompaniment, validateManualEntry, parseBusinessDate } from "../domain/management.ts";
-import { buildMonthlyReport, currentMonth, inFinancialPeriod } from "../domain/reporting.ts";
+import { buildCustomerProfiles, buildFinanceTrend, buildMonthlyReport, currentMonth, inFinancialPeriod } from "../domain/reporting.ts";
 import { saveAccompaniment, addManualEntry, setProductFeatured } from "../db/management.ts";
 import { reserveOrder } from "../db/order-reservation.ts";
+import { readCustomerOrders } from "../db/customer-orders.ts";
 import { validateSelection, accompanimentChoices, isIngredientAvailable, getStockShortages } from "../domain/menu.ts";
 
 const now = Date.parse("2026-10-20T15:00:00Z");
+test("clientes combinam nome e telefone e preservam o endereço do pedido mais recente", () => {
+  const latest = { orderId: "new", customer: "João Silva", phone: "(71) 99999-0101", address: "Rua Nova, 10", value: 2500, orderedAt: now, createdAt: now + 1 };
+  const older = { ...latest, orderId: "old", customer: " JOAO  SILVA ", phone: "+55 71 99999-0101", address: "Rua Antiga, 25", value: 1500, orderedAt: now - 1, createdAt: now + 2 };
+  const samePhone = { ...latest, orderId: "same-phone", customer: "Ana Silva" };
+  const sameName = { ...latest, orderId: "same-name", phone: "(71) 99999-0202" };
+  const profiles = buildCustomerProfiles([latest, older, samePhone, sameName]);
+  assert.equal(profiles.length, 3);
+  const { id, ...profile } = profiles.find(customer => customer.name === latest.customer && customer.phone === latest.phone);
+  assert.deepEqual(profile, { name: latest.customer, phone: latest.phone, address: latest.address, spent: 4000, orderCount: 2 });
+  assert.deepEqual(profiles.map(customer => customer.orderCount).sort(), [1, 1, 2]);
+  assert.equal(new Set(profiles.map(customer => customer.id)).size, 3);
+});
+
+test("histórico de cliente inclui pedidos antigos e todos os status, com itens e valores guardados", async t => {
+  const db = await postgresFixture(t);
+  const phone = "(71) 99999-0101";
+  const recipe = [{ price: 1500, items: [{ name: "Pão tradicional", quantity: 1 }] }];
+  const insertOrder = (id, code, name, number, status, total, date, burgers = "[]") => db.prepare(`
+    INSERT INTO orders (id, idempotency_key, fingerprint, code, customer, phone, address, reference, notes,
+      status, subtotal, delivery_fee, total, created_at, burgers)
+    VALUES (?, ?, '', ?, ?, ?, '', '', '', ?, ?, 0, ?, ?, ?)
+  `).bind(id, id, code, name, number, status, total, total, date, burgers);
+  await db.batch([
+    insertOrder("legacy", "OLD", " JOAO  SILVA ", "+55 71 99999-0101", "concluido", 1300, 1),
+    insertOrder("current", "NEW", "João Silva", phone, "preparo", 2100, now, JSON.stringify(recipe)),
+    insertOrder("cancelled", "CAN", "João Silva", phone, "cancelado", 1500, now - 1),
+    insertOrder("same-phone", "OTHER", "Ana Silva", phone, "recebido", 1500, now + 1),
+    insertOrder("same-name", "DIFF", "João Silva", "71999990202", "recebido", 1500, now + 2),
+    db.prepare("INSERT INTO ingredients (id,name,category,unit,stock,featured) VALUES ('test-side','Nome novo','Complementos','porção',5,1)"),
+    db.prepare("INSERT INTO order_items (order_id, ingredient_id, name, quantity) VALUES ('legacy','test-side','Nome antigo',1), ('current','test-side','Nome antigo',2)"),
+  ]);
+  const history = await readCustomerOrders(db, "João Silva", phone);
+  assert.deepEqual(history.map(({ code, status, total, createdAt }) => [code, status, total, createdAt]), [
+    ["NEW", "preparo", 2100, now], ["CAN", "cancelado", 1500, now - 1], ["OLD", "concluido", 1300, 1],
+  ]);
+  assert.deepEqual(history[0].burgers, recipe);
+  assert.deepEqual(history[0].extras, [{ name: "Nome antigo", quantity: 2 }]);
+  assert.deepEqual(history[2].items, [{ name: "Nome antigo", quantity: 1 }]);
+});
+
 const friesMenu = JSON.parse(readFileSync(new URL("../data/fries-menu.json", import.meta.url), "utf8"));
 const beverage = (overrides = {}) => validateAccompaniment({ id: crypto.randomUUID(), extraType: "refrigerante", productName: "Bebida de teste", flavor: "Cola", size: "Lata 350 ml", price: 600, stock: 2, lowStock: 1, maxQty: 4, ...overrides });
 async function fixture(t, beforeFeatured) {
@@ -74,6 +115,33 @@ test("monthly analytics use all orders, exclude cancellations, show weekday ties
   assert.deepEqual(tied.busiestDays, ["Segunda", "Terça"]);
   const empty = buildMonthlyReport([], [], [], now); assert.equal(empty.averageTicket, 0); assert.equal(empty.topCustomer, null); assert.deepEqual(empty.busiestDays, []);
 });
+test("financial evolution crosses years, groups by Bahia month and separates sales from net balance", () => {
+  const now = Date.parse("2026-11-06T15:00:00Z");
+  const sales = [
+    { createdAt: Date.parse("2026-11-01T02:59:59Z"), value: 1500 },
+    { createdAt: Date.parse("2026-11-01T03:00:00Z"), value: 2100 },
+    { createdAt: Date.parse("2026-12-01T03:00:00Z"), value: 9000 },
+  ];
+  const entry = (type, value, occurredAt) => ({ type, value, occurredAt, createdAt: now, id: type, description: type });
+  const manual = [
+    entry("entrada", 700, now),
+    entry("saida", 4100, now),
+    entry("saida", 900, Date.parse("2026-11-01T02:59:59Z")),
+  ];
+  const months = buildFinanceTrend(sales, manual, now);
+  assert.equal(months.length, 12);
+  assert.deepEqual(months.slice(5, 9).map(m => [new Date(m.start).toISOString(), m.status, m.revenue, m.balance]), [
+    ["2026-10-01T03:00:00.000Z", "closed", 1500, 600],
+    ["2026-11-01T03:00:00.000Z", "current", 2100, -1300],
+    ["2026-12-01T03:00:00.000Z", "upcoming", null, null],
+    ["2027-01-01T03:00:00.000Z", "upcoming", null, null],
+  ]);
+  assert.equal(months[4].revenue, 0);
+  const december = buildFinanceTrend(sales, manual, Date.parse("2026-12-05T03:00:00Z"));
+  assert.equal(december[5].revenue, 2100);
+  assert.equal(december[6].revenue, 9000);
+});
+
 test("finance periods include today's dated manual entries even before noon and use seven local calendar days", () => {
   const morning = Date.parse("2026-10-20T10:00:00Z"), month = currentMonth(morning);
   assert.equal(inFinancialPeriod(parseBusinessDate("2026-10-20"), "semana", month, morning), true);

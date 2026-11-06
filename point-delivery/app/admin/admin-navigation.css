@@ -1,0 +1,125 @@
+.workspace-admin { --workspace-sidebar-width: 258px; --workspace-mobile-bar: 68px; }
+.workspace-admin .admin-main { margin-left: var(--workspace-sidebar-width); }
+.workspace-sidebar {
+  position: fixed; inset: 0 auto 0 0; z-index: 40;
+  width: var(--workspace-sidebar-width); padding: 25px 16px 16px;
+  display: flex; flex-direction: column; gap: 23px; overflow-y: auto; overscroll-behavior: contain;
+  color: #f5ede8; background: radial-gradient(ellipse at top left, #38271f, transparent 58%), #241e1b;
+  border-right: 1px solid #463931; scrollbar-color: #665249 transparent;
+}
+.workspace-brand {
+  display: flex; align-items: center; gap: 11px; padding: 9px 8px 19px;
+  border-bottom: 1px solid #ffffff1c; border-radius: 3px; color: inherit;
+}
+.workspace-brand-icon {
+  display: grid; place-items: center; width: 42px; height: 42px; flex-shrink: 0;
+  color: #342014; background: #ffad79; border-radius: 12px;
+}
+.workspace-brand strong, .workspace-mobile-title strong { display: block; font-size: 14px; font-weight: 650; line-height: 1.3; }
+.workspace-brand small, .workspace-mobile-title small { display: block; color: #c8b6ad; font-size: 10px; margin-top: 5px; }
+.workspace-navigation { display: grid; gap: 16px; }
+.workspace-nav-group { display: grid; gap: 3px; }
+.workspace-nav-label {
+  padding: 0 11px 5px; font-size: 9px; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; color: #c1aaa0;
+}
+.workspace-nav-group button {
+  width: 100%; min-height: 46px; display: flex; align-items: center; gap: 11px; padding: 9px 11px;
+  border: 1px solid transparent; border-radius: 9px; background: transparent;
+  font-size: 13px; font-weight: 550; color: #e3d5cd; text-align: left; cursor: pointer;
+}
+.workspace-nav-group button svg { flex-shrink: 0; color: #cdb6a9; }
+.workspace-nav-group button:hover { background: #ffffff0d; }
+.workspace-nav-group button[aria-current="page"] {
+  color: #ffe5d6; background: #543629; border-color: #774b38; box-shadow: inset 3px 0 #ff9b61;
+}
+.workspace-nav-group button[aria-current="page"] svg { color: #ffad79; }
+.workspace-nav-group button b {
+  margin-left: auto; padding: 3px 6px; min-width: 23px; text-align: center;
+  color: #442717; background: #ffba90; border-radius: 7px; font-size: 10px;
+}
+.workspace-sidebar-footer { margin-top: auto; padding: 0; background: transparent; border: 0; }
+.workspace-links { padding-top: 12px; border-top: 1px solid #ffffff1c; }
+.workspace-store-link {
+  display: flex; align-items: center; gap: 9px; min-height: 44px; padding: 8px 9px;
+  color: #f0d9cc; font-size: 12px; border-radius: 8px;
+}
+.workspace-store-link svg:last-child { margin-left: auto; }
+.workspace-admin .workspace-links .admin-account {
+  position: static; display: flex; justify-content: space-between; gap: 4px; width: auto;
+  padding: 0; margin: 0; background: none; border: 0; box-shadow: none;
+}
+.workspace-admin .workspace-links .admin-account :is(a, button) {
+  display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 8px 9px;
+  background: transparent; border: 0; border-radius: 8px; color: #e4d4cb;
+  font: inherit; font-size: 12px; cursor: pointer;
+}
+.workspace-store-link:hover, .workspace-admin .workspace-links .admin-account :is(a, button):hover { background: #ffffff0d; }
+.workspace-connection {
+  display: flex; align-items: center; gap: 8px; margin-top: 11px; padding: 11px 9px 2px;
+  border-top: 1px solid #ffffff1c; font-size: 10px; color: #c8b6ad;
+}
+.workspace-connection i { width: 7px; height: 7px; border-radius: 50%; background: #ffb56d; }
+.workspace-connection.is-online i { background: #8ddbb0; }
+.workspace-mobile-title, .workspace-shortcuts { display: none; }
+.workspace-sheet:not([open]) { display: none; }
+.workspace-admin .admin-topbar .sound-button { display: inline-flex; align-items: center; justify-content: center; }
+.workspace-admin .admin-page-title h1:focus { outline: none; }
+
+@media (max-width: 900px) {
+  .workspace-sidebar { display: none; }
+  .workspace-admin .admin-main { margin-left: 0; }
+  .workspace-admin .admin-main .admin-content { padding-bottom: calc(var(--workspace-mobile-bar) + 24px + env(safe-area-inset-bottom)); }
+  .workspace-admin .admin-main .admin-topbar {
+    position: sticky; top: 0; min-height: 61px; padding: 7px max(12px, env(safe-area-inset-right)) 7px max(12px, env(safe-area-inset-left));
+    flex-wrap: nowrap; gap: 8px;
+  }
+  .workspace-admin .admin-topbar .workspace-breadcrumb { display: none; }
+  .workspace-mobile-title { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .workspace-mobile-title .workspace-brand-icon { width: 36px; height: 36px; border-radius: 10px; }
+  .workspace-mobile-title small { margin: 0 0 2px; color: #74655c; }
+  .workspace-mobile-title strong { font-size: 13px; }
+  .workspace-admin .admin-topbar .sound-button { flex-shrink: 0; min-height: 44px; padding: 8px 10px; font-size: 10px; white-space: nowrap; }
+  .workspace-shortcuts {
+    position: fixed; inset: auto 0 0; z-index: 45; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 3px;
+    min-height: var(--workspace-mobile-bar); padding: 5px max(6px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
+    background: #fff; border-top: 1px solid #e6dfd9; box-shadow: 0 -6px 24px #3924190e;
+  }
+  .workspace-shortcuts button {
+    min-width: 0; min-height: 54px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px;
+    padding: 3px 0; border-radius: 10px; color: #605c5a; font-size: clamp(9px, 2.8vw, 11px); font-weight: 600;
+  }
+  .workspace-shortcut-icon { position: relative; display: grid; place-items: center; width: 40px; height: 28px; border-radius: 10px; }
+  .workspace-shortcuts button:is([aria-current="page"], [aria-expanded="true"], .has-current-section) { color: #9a3d17; }
+  .workspace-shortcuts button:is([aria-current="page"], [aria-expanded="true"], .has-current-section) .workspace-shortcut-icon { background: #ffeade; }
+  .workspace-shortcut-icon b {
+    position: absolute; top: -3px; right: -4px; min-width: 17px; border: 2px solid #fff; border-radius: 12px;
+    color: #fff; background: #b7451a; padding: 1px 3px; font-size: 8px; line-height: 1.25;
+  }
+  body:has(.workspace-sheet[open]) { overflow: hidden; }
+  .workspace-sheet {
+    position: fixed; inset: auto 0 0; width: min(100%, 520px); max-width: none; max-height: min(88dvh, 710px);
+    margin: 0 auto; padding: 0; color: #2e2723; background: #fffbf7; border: 0; border-radius: 22px 22px 0 0;
+    box-shadow: 0 -12px 36px #29180f30; overscroll-behavior: contain;
+  }
+  .workspace-sheet::backdrop { background: #21181488; }
+  .workspace-sheet-content { padding: 0 max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+  .workspace-sheet-header {
+    position: sticky; top: 0; z-index: 1; display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 14px 0 10px; background: #fffbf7; border-bottom: 1px solid #eee1d8;
+  }
+  .workspace-sheet-header h2 { margin: 0; font-size: 20px; }
+  .workspace-sheet-header p { color: #695b52; margin: 4px 0 0; font-size: 12px; }
+  .workspace-sheet-header button {
+    display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0;
+    border-radius: 10px; color: #61483a; background: #f5ebe3;
+  }
+  .workspace-sheet .workspace-navigation { gap: 9px; padding: 13px 0; }
+  .workspace-sheet .workspace-nav-label { color: #756257; }
+  .workspace-sheet .workspace-nav-group button { color: #3c312b; }
+  .workspace-sheet .workspace-nav-group button svg { color: #8e6650; }
+  .workspace-sheet .workspace-nav-group button[aria-current="page"] {
+    color: #843511; background: #ffede0; border-color: #f6d6c2; box-shadow: inset 3px 0 #ce6b39;
+  }
+  .workspace-sheet .workspace-links { border-color: #eaded5; padding-top: 5px; }
+  .workspace-sheet .workspace-store-link, .workspace-admin .workspace-sheet .admin-account :is(a, button) { color: #6a4734; font-size: 13px; }
+}

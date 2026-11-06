@@ -4,13 +4,14 @@ import { ArrowDownLeft, ArrowUpRight, CalendarDays, Check, CupSoda, DollarSign, 
 import { money, type Ingredient } from "@/domain/menu";
 import { accompanimentTypes, type AccompanimentType, type ManualEntry } from "@/domain/management";
 import { businessDate, inFinancialPeriod, type MonthlyReport } from "@/domain/reporting";
+import { FinanceTrend } from "./finance-trend";
 
 export type Receipt = { orderId: string; value: number; createdAt: number; customer: string; code: string };
 type Mutation = (input: Record<string, unknown>) => Promise<string | null>;
 const dateTime = (date: number) => new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Bahia", dateStyle: "short", timeStyle: "short" }).format(date);
 const dateOnly = (date: number) => new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Bahia", dateStyle: "short" }).format(date);
 
-export function ManagementDialog({ title, busy, onClose, children }: { title: string; busy: boolean; onClose: () => void; children: ReactNode }) {
+export function ManagementDialog({ title, busy, onClose, children, closeLabel = "Fechar formulário" }: { title: string; busy: boolean; onClose: () => void; children: ReactNode; closeLabel?: string }) {
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null, overflow = document.body.style.overflow;
@@ -27,7 +28,7 @@ export function ManagementDialog({ title, busy, onClose, children }: { title: st
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
     }}>
-      <header><div><div className="eyebrow">GESTÃO DO SEU POINT</div><h2 id="management-title">{title}</h2></div><button type="button" aria-label="Fechar formulário" disabled={busy} onClick={onClose}><X size={20}/></button></header>
+      <header><div><div className="eyebrow">GESTÃO DO SEU POINT</div><h2 id="management-title">{title}</h2></div><button type="button" aria-label={closeLabel} disabled={busy} onClick={onClose}><X size={20}/></button></header>
       {children}
     </section>
   </div>;
@@ -43,9 +44,10 @@ export function Overview({ report }: { report: MonthlyReport }) {
       <article className="metric-card"><span><Package size={17}/> Pedidos no mês</span><strong>{report.orderCount}</strong><small>Pedidos recebidos no mês, sem cancelados</small></article>
       <article className="metric-card"><span><ArrowUpRight size={17}/> Saldo do mês</span><strong className={report.balance < 0 ? "negative" : ""}>{money(report.balance)}</strong><small>Recebimentos menos {money(report.expenses)} em saídas</small></article>
     </div>
+    <FinanceTrend months={report.financeTrend}/>
     <div className="overview-insights">
       <section className="insight-card"><span className="insight-icon"><CalendarDays size={21}/></span><div className="eyebrow">DIA DE MAIOR MOVIMENTO</div><h2>{report.busiestDays.length ? report.busiestDays.join(" / ") : "Ainda sem pedidos"}</h2><p>{report.busiestCount ? `${report.busiestCount} pedido(s) por dia da semana em destaque, no mês atual.${report.busiestDays.length > 1 ? " Há empate entre esses dias." : ""}` : "Os dias mais pedidos aparecem conforme os pedidos chegam."}</p><div className="weekday-chart" aria-label="Pedidos por dia da semana">{report.weekdays.map(day => <div key={day.label}><span>{day.label}</span><div className="weekday-track"><i style={{ width: `${day.count / max * 100}%` }}/></div><b>{day.count}</b></div>)}</div></section>
-      <section className="insight-card customer-insight"><span className="insight-icon"><Trophy size={21}/></span><div className="eyebrow">CLIENTE QUE MAIS COMPROU</div><h2>{report.topCustomer?.name || "Seu próximo fã"}</h2><p>Por quantidade de pedidos concluídos no mês. Compras agrupadas pelo telefone.</p>{report.topCustomer ? <><div className="customer-numbers"><div><strong>{report.topCustomer.count}</strong><span>compras no mês</span></div><div><strong>{money(report.topCustomer.value)}</strong><span>em vendas concluídas</span></div></div>{report.topCustomer.tiedCustomers > 0 && <small className="insight-note">Mais {report.topCustomer.tiedCustomers} cliente(s) com a mesma quantidade de compras. Desempate pelo valor comprado.</small>}</> : <div className="insight-empty"><Users size={32}/><span>Conclua as primeiras vendas para conhecer seus clientes mais frequentes.</span></div>}<div className="insight-note">Entradas manuais não entram no ticket médio nem no ranking de clientes. Vendas são contabilizadas na data da conclusão.</div></section>
+      <section className="insight-card customer-insight"><span className="insight-icon"><Trophy size={21}/></span><div className="eyebrow">CLIENTE QUE MAIS COMPROU</div><h2>{report.topCustomer?.name || "Ainda sem vendas concluídas"}</h2><p>Por quantidade de pedidos concluídos no mês. Compras agrupadas pelo telefone.</p>{report.topCustomer ? <><div className="customer-numbers"><div><strong>{report.topCustomer.count}</strong><span>compras no mês</span></div><div><strong>{money(report.topCustomer.value)}</strong><span>em vendas concluídas</span></div></div>{report.topCustomer.tiedCustomers > 0 && <small className="insight-note">Mais {report.topCustomer.tiedCustomers} cliente(s) com a mesma quantidade de compras. Desempate pelo valor comprado.</small>}</> : <div className="insight-empty"><Users size={32}/><span>Conclua as primeiras vendas para conhecer seus clientes mais frequentes.</span></div>}<div className="insight-note">Entradas manuais não entram no ticket médio nem no ranking de clientes. Vendas são contabilizadas na data da conclusão.</div></section>
     </div>
   </div>;
 }

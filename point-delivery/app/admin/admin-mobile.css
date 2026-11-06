@@ -1,19 +1,10 @@
-.admin-mobile-nav{display:none}
 .admin-app .admin-search{display:grid;gap:9px;font-size:13px;font-weight:600;color:#495565;margin:18px 0;max-width:540px}
 .admin-app .admin-search input{width:100%;min-width:0;min-height:48px;border:1px solid #d8dee7;border-radius:12px;padding:12px 15px;font-size:16px;color:#303c4b;background:white}
 .admin-search-empty{padding:20px;font-size:14px;color:#596577}
 
 @media(max-width:900px){
-  .admin-app{display:block;min-height:calc(100dvh - 80px)}
+  .admin-app{display:block}
   .admin-app .admin-main{width:100%}
-  .admin-app .admin-sidebar{height:68px;padding:12px 18px}
-  .admin-app .admin-brand-row{height:44px}
-  .admin-app .admin-menu-toggle{width:44px;height:44px}
-  .admin-app .admin-sidebar nav{top:68px;max-height:calc(100dvh - 160px);overflow-y:auto;padding:16px;overscroll-behavior:contain}
-  .admin-app .admin-sidebar nav button{min-height:68px;padding:12px;white-space:normal}
-  .admin-app .admin-nav-copy strong{font-size:14px}
-  .admin-app .admin-nav-copy small{font-size:11px;display:block}
-  .admin-app .admin-menu-backdrop{inset:68px 0 0;height:calc(100dvh - 68px)}
   .admin-app .admin-topbar{height:auto;min-height:60px;padding:10px 18px;flex-wrap:wrap;gap:8px}
   .admin-app .admin-topbar>span{font-size:12px}
   .admin-app .sound-button{min-height:44px;font-size:12px;padding:10px 12px}
@@ -124,13 +115,6 @@
   .admin-app .management-form-row{grid-template-columns:1fr;gap:0}
   .admin-app .management-submit{min-height:52px;margin-top:20px}
   .admin-app .management-modal form>.button,.admin-app .management-modal>.button{width:100%;justify-content:center;min-height:52px}
-  .admin-app .admin-mobile-nav{position:fixed;inset:auto 0 0;z-index:55;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));padding:7px 6px calc(7px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid #dfe4ec;box-shadow:0 -4px 20px #1d30400a}
-  .admin-app .admin-mobile-nav button{min-width:0;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border-radius:11px;color:#66758b;font-size:11px;font-weight:600;padding:6px 2px}
-  .admin-app .admin-mobile-nav button[aria-current=page]{background:#fff0e6;color:#bc4717}
-  .admin-mobile-nav button>span{position:relative;display:flex}
-  .admin-mobile-nav b{position:absolute;top:-7px;left:15px;border:2px solid white;background:#d65420;color:white;border-radius:12px;min-width:20px;font-size:9px;padding:2px 4px}
-  .admin-account{position:static;width:auto;justify-content:center;margin:0;padding:18px 16px calc(100px + env(safe-area-inset-bottom));border:0;border-top:1px solid #e3e7ed;border-radius:0;background:#f6f7f9;box-shadow:none;gap:12px}
-  .admin-account a,.admin-account button{min-height:48px;padding:12px 18px;font-size:13px;border:1px solid #dfe5ed;border-radius:10px}
   .admin-login .own-auth-form label{font-size:14px}
   .admin-login .own-auth-form input{font-size:16px;min-height:52px}
 }
@@ -140,6 +124,5 @@
   .admin-app .stock-table tbody tr{padding:14px}
   .admin-app .stock-table td:nth-child(1) strong{font-size:14px}
   .admin-app .stock-table td:nth-child(4){max-width:125px}
-  .admin-app .admin-nav-copy small{display:none}
   .admin-app .admin-topbar-icon,.admin-app .admin-breadcrumb-divider{display:none}
 }

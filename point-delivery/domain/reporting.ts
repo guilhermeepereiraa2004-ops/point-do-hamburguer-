@@ -1,4 +1,5 @@
 import type { ManualEntry } from "./management";
+import type { Order } from "./menu";
 export const businessTimeZone = "America/Bahia";
 export const businessDate = (time: number) => new Intl.DateTimeFormat("en-CA", { timeZone: businessTimeZone, year: "numeric", month: "2-digit", day: "2-digit" }).format(time);
 export function currentMonth(now = Date.now()) {
@@ -14,6 +15,70 @@ export function inFinancialPeriod(date: number, period: string, month: { start: 
 }
 export type ReportOrder = { id: string; status: string; createdAt: number };
 export type CompletedSale = { orderId: string; value: number; createdAt: number; customer: string; phone: string };
+type CustomerSale = Pick<CompletedSale, "orderId" | "customer" | "phone" | "value"> & { address: string; orderedAt: number };
+export type CustomerProfile = { id: string; name: string; phone: string; address: string; spent: number; orderCount: number };
+export type CustomerOrder = Pick<Order, "id" | "code" | "createdAt" | "total" | "status" | "items" | "burgers" | "extras">;
+
+export const normalizeCustomerName = (name: string) => name.normalize("NFD").replace(/\p{M}/gu, "").trim().replace(/\s+/g, " ").toLocaleLowerCase("pt-BR");
+export function normalizeCustomerPhone(phone: string) {
+  const digits = phone.replace(/\D/g, "");
+  return /^55\d{10,11}$/.test(digits) ? digits.slice(2) : digits;
+}
+
+export function buildCustomerProfiles(sales: CustomerSale[]): CustomerProfile[] {
+  const customers = new Map<string, { latest: CustomerSale; spent: number; orderCount: number }>();
+  for (const sale of sales) {
+    const id = JSON.stringify([normalizeCustomerName(sale.customer), normalizeCustomerPhone(sale.phone)]);
+    const customer = customers.get(id);
+    if (!customer) {
+      customers.set(id, { latest: sale, spent: sale.value, orderCount: 1 });
+      continue;
+    }
+    customer.spent += sale.value;
+    customer.orderCount++;
+    if (sale.orderedAt > customer.latest.orderedAt ||
+        (sale.orderedAt === customer.latest.orderedAt && sale.orderId > customer.latest.orderId)) {
+      customer.latest = sale;
+    }
+  }
+  return [...customers].map(([id, { latest, spent, orderCount }]) => ({
+    id, name: latest.customer, phone: latest.phone, address: latest.address, spent, orderCount,
+  })).sort((a, b) => a.name.localeCompare(b.name, "pt-BR") || a.id.localeCompare(b.id));
+}
+export type FinanceMonth = {
+  start: number;
+  label: string;
+  status: "closed" | "current" | "upcoming";
+  revenue: number | null;
+  balance: number | null;
+};
+const financeMonthLabel = new Intl.DateTimeFormat("pt-BR", { timeZone: businessTimeZone, month: "short", year: "numeric" });
+export function buildFinanceTrend(sales: Pick<CompletedSale, "value" | "createdAt">[], manual: ManualEntry[], now = Date.now()): FinanceMonth[] {
+  const current = new Date(currentMonth(now).start);
+  const year = current.getUTCFullYear(), month = current.getUTCMonth();
+  const totals = new Map<number, { revenue: number; balance: number }>();
+  function accumulate(time: number, revenue: number, balance: number) {
+    const day = new Date(time - 3 * 3600000);
+    const offset = (day.getUTCFullYear() - year) * 12 + day.getUTCMonth() - month;
+    if (offset < -6 || offset > 0) return;
+    const total = totals.get(offset) ?? { revenue: 0, balance: 0 };
+    total.revenue += revenue;
+    total.balance += balance;
+    totals.set(offset, total);
+  }
+  for (const sale of sales) accumulate(sale.createdAt, sale.value, sale.value);
+  for (const entry of manual) accumulate(entry.occurredAt, 0, entry.type === "entrada" ? entry.value : -entry.value);
+  return Array.from({ length: 12 }, (_, i) => {
+    const offset = i - 6;
+    const start = Date.UTC(year, month + offset, 1, 3);
+    return {
+      start, label: financeMonthLabel.format(start),
+      status: offset < 0 ? "closed" : offset === 0 ? "current" : "upcoming",
+      revenue: offset > 0 ? null : totals.get(offset)?.revenue ?? 0,
+      balance: offset > 0 ? null : totals.get(offset)?.balance ?? 0,
+    };
+  });
+}
 export function buildMonthlyReport(orders: ReportOrder[], sales: CompletedSale[], manual: ManualEntry[], now = Date.now()) {
   const month = currentMonth(now), inside = (date: number) => date >= month.start && date < month.end;
   const validOrders = orders.filter(o => o.status !== "cancelado" && inside(o.createdAt));
@@ -27,7 +92,7 @@ export function buildMonthlyReport(orders: ReportOrder[], sales: CompletedSale[]
   const peak = Math.max(...weekdays.map(d => d.count));
   const customers = new Map<string, { name: string; count: number; value: number; lastSale: number }>();
   completed.forEach(sale => {
-    const digits = sale.phone.replace(/\D/g, ""), identity = digits.length > 11 && digits.startsWith("55") ? digits.slice(2) : digits;
+    const identity = normalizeCustomerPhone(sale.phone);
     const customer = customers.get(identity) || { name: sale.customer, count: 0, value: 0, lastSale: 0 };
     customer.count++; customer.value += sale.value;
     if (sale.createdAt >= customer.lastSale) { customer.name = sale.customer; customer.lastSale = sale.createdAt; }
@@ -35,7 +100,7 @@ export function buildMonthlyReport(orders: ReportOrder[], sales: CompletedSale[]
   });
   const ranking = [...customers.values()].sort((a, b) => b.count - a.count || b.value - a.value || a.name.localeCompare(b.name, "pt-BR"));
   const leader = ranking[0];
-  return { month, received: revenue + income, revenue, manualIncome: income, expenses, balance: revenue + income - expenses,
+  return { month, financeTrend: buildFinanceTrend(sales, manual, now), received: revenue + income, revenue, manualIncome: income, expenses, balance: revenue + income - expenses,
     averageTicket: completed.length ? Math.round(revenue / completed.length) : 0, orderCount: validOrders.length, completedCount: completed.length,
     weekdays, busiestDays: peak ? weekdays.filter(d => d.count === peak).map(d => d.label) : [], busiestCount: peak,
     topCustomer: leader ? { name: leader.name, count: leader.count, value: leader.value, tiedCustomers: ranking.filter(c => c.count === leader.count).length - 1 } : null };

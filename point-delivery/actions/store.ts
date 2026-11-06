@@ -4,7 +4,7 @@ import { reserveOrder } from "@/db/order-reservation";
 import { getTrackingSecret, orderConfirmation } from "@/lib/order-tracking";
 import { ingredients, prices, settings, orders, orderItems, movements, finance, manualFinance } from "@/db/pg-schema";
 import { eq, desc, and, gte, lt } from "drizzle-orm";
-import { buildMonthlyReport, currentMonth } from "@/domain/reporting";
+import { buildCustomerProfiles, buildMonthlyReport, currentMonth } from "@/domain/reporting";
 import { validateAccompaniment, validateManualEntry, type ManualEntry } from "@/domain/management";
 import { saveAccompaniment, addManualEntry, setProductFeatured } from "@/db/management";
 import { canTransition, getStockShortages, InsufficientStockError, validateSelection, type Catalog, type Order, type Selection, type Status, statuses } from "@/domain/menu";
@@ -55,14 +55,15 @@ export async function getDashboard() {
   const now = Date.now(), month = currentMonth(now);
   const [list, lines, receipts, manual, history, catalog, monthOrders] = await Promise.all([
     db.select().from(orders).orderBy(desc(orders.createdAt)).limit(200), db.select().from(orderItems),
-    db.select({ orderId: finance.orderId, value: finance.value, createdAt: finance.createdAt, customer: orders.customer, phone: orders.phone, code: orders.code }).from(finance).innerJoin(orders, eq(finance.orderId, orders.id)),
+    db.select({ orderId: finance.orderId, value: finance.value, createdAt: finance.createdAt, customer: orders.customer, phone: orders.phone, code: orders.code, address: orders.address, orderedAt: orders.createdAt }).from(finance).innerJoin(orders, eq(finance.orderId, orders.id)),
     db.select().from(manualFinance).orderBy(desc(manualFinance.occurredAt)),
     db.select().from(movements).orderBy(desc(movements.createdAt)).limit(30), getCatalog(),
     db.select({ id: orders.id, status: orders.status, createdAt: orders.createdAt }).from(orders).where(and(gte(orders.createdAt, month.start), lt(orders.createdAt, month.end))),
   ]);
   const manualEntries = manual as ManualEntry[];
   return { orders: list.map(o => ({ ...o, status: o.status as Status, burgers: JSON.parse(o.burgers), extras: lines.filter(l => l.orderId === o.id && catalog.ingredients.find(i => i.id === l.ingredientId)?.category === "Complementos").map(l => ({ name: l.name, quantity: l.quantity })), items: lines.filter(l => l.orderId === o.id).map(l => ({ name: l.name, quantity: l.quantity })) })) as Order[],
-    finance: receipts.map(({ phone: _phone, ...receipt }) => receipt), manualFinance: manualEntries, movements: history, catalog,
+    finance: receipts.map(({ phone: _phone, address: _address, orderedAt: _orderedAt, ...receipt }) => receipt), manualFinance: manualEntries, movements: history, catalog,
+    customers: buildCustomerProfiles(receipts),
     report: buildMonthlyReport(monthOrders, receipts, manualEntries, now) };
 }
 export async function updateStatus(id: string, next: Status) {
