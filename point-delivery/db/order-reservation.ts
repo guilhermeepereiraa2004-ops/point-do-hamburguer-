@@ -6,6 +6,7 @@ type Reservation = {
   subtotal: number; deliveryFee: number; total: number; createdAt: number;
   burgers?: string;
   paymentMethod?: PaymentMethod;
+  needsChange?: number | null; changeFor?: number | null;
 };
 type ReservationItem = { id: string; name: string; quantity: number };
 
@@ -15,5 +16,6 @@ export function reserveOrder(db: Database, order: Reservation, items: Reservatio
     .bind(order.id, order.idempotencyKey, order.fingerprint, order.code, order.customer, order.phone, order.address, order.reference, order.notes, order.subtotal, order.deliveryFee, order.total, order.createdAt);
   const snapshot = order.burgers === undefined ? [] : [db.prepare("UPDATE orders SET burgers=? WHERE id=?").bind(order.burgers, order.id)];
   const payment = order.paymentMethod === undefined ? [] : [db.prepare("UPDATE orders SET payment_method=? WHERE id=?").bind(order.paymentMethod, order.id)];
-  return db.batch([insert, ...snapshot, ...payment, ...[...items].sort((a, b) => a.id.localeCompare(b.id)).map(item => db.prepare("INSERT INTO order_items (order_id,ingredient_id,name,quantity) VALUES (?,?,?,?)").bind(order.id, item.id, item.name, item.quantity))]);
+  const change = order.needsChange === undefined ? [] : [db.prepare("UPDATE orders SET needs_change=?,change_for=? WHERE id=?").bind(order.needsChange, order.changeFor ?? null, order.id)];
+  return db.batch([insert, ...snapshot, ...payment, ...change, ...[...items].sort((a, b) => a.id.localeCompare(b.id)).map(item => db.prepare("INSERT INTO order_items (order_id,ingredient_id,name,quantity) VALUES (?,?,?,?)").bind(order.id, item.id, item.name, item.quantity))]);
 }

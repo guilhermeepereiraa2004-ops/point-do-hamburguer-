@@ -112,10 +112,26 @@ test("monthly analytics use all orders, exclude cancellations, show weekday ties
   assert.equal(report.orderCount, 220); assert.equal(report.completedCount, 3);
   assert.equal(report.revenue, 11000); assert.equal(report.received, 12000); assert.equal(report.balance, 11600); assert.equal(report.averageTicket, 3667);
   assert.deepEqual(report.busiestDays, ["Segunda"]); assert.equal(report.busiestCount, 220);
-  assert.deepEqual(report.topCustomer, { name: "Ana Silva", count: 2, value: 5000, tiedCustomers: 0 });
+  assert.deepEqual(report.topCustomer, { name: "Bia", count: 1, value: 6000, tiedCustomers: 0 });
   const tied = buildMonthlyReport([{ id: "mon", status: "recebido", createdAt: Date.parse("2026-10-19T18:00:00Z") }, { id: "tue", status: "recebido", createdAt: now }], [], [], now);
   assert.deepEqual(tied.busiestDays, ["Segunda", "Terça"]);
   const empty = buildMonthlyReport([], [], [], now); assert.equal(empty.averageTicket, 0); assert.equal(empty.topCustomer, null); assert.deepEqual(empty.busiestDays, []);
+});
+
+test("top monthly customer ranks the sum of every purchase by phone, not one sale or order count", () => {
+  const sale = (id, name, phone, value, date = now) => ({ orderId: id, customer: name, phone, value, createdAt: date });
+  const sales = [
+    sale("a1", "Ana", "(71) 99999-1111", 4000, now - 10),
+    sale("a2", "Ana Silva", "+55 71 99999-1111", 4000),
+    sale("b", "Bia", "71999992222", 6000),
+    ...[1, 2, 3].map(n => sale(`c${n}`, "Cid", "71999993333", 1000)),
+    sale("old", "Outro mês", "71999994444", 90000, Date.parse("2026-10-01T02:59:59Z")),
+  ];
+  const expected = { name: "Ana Silva", count: 2, value: 8000, tiedCustomers: 0 };
+  assert.deepEqual(buildMonthlyReport([], sales, [], now).topCustomer, expected);
+  assert.deepEqual(buildMonthlyReport([], [...sales].reverse(), [], now).topCustomer, expected);
+  assert.deepEqual(buildMonthlyReport([], [...sales, sale("tie", "Dan", "71999995555", 8000)], [], now).topCustomer, { ...expected, tiedCustomers: 1 });
+  assert.equal(buildMonthlyReport([], sales, [], Date.parse("2026-11-15T15:00:00Z")).topCustomer, null);
 });
 test("financial evolution crosses years, groups by Bahia month and separates sales from net balance", () => {
   const now = Date.parse("2026-11-06T15:00:00Z");

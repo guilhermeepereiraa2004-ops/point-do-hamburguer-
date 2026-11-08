@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { Miniflare } from "miniflare";
 import { reserveOrder } from "../db/order-reservation.ts";
-import { paymentMethods, paymentLabel, validatePaymentMethod } from "../domain/payment.ts";
+import { paymentMethods, paymentLabel, validatePaymentMethod, validateCashChange } from "../domain/payment.ts";
 import { ingredientNames, validateSelection, getStockShortages, InsufficientStockError } from "../domain/menu.ts";
 
 const selection = { "carne-hamburguer": 1, queijo: 1, cheddar: 1, presunto: 1, ovo: 1, salsicha: 1, ervilha: 1, salada: 2, "batata-palha": 1, pao: 1 };
@@ -69,6 +69,34 @@ test("stock exhaustion on the last line rolls back the whole order and all previ
   await assert.rejects(reserveOrder(db, order(), items), /constraint/i);
   for (const table of ["orders", "order_items", "movements", "finance"]) assert.equal((await db.prepare(`SELECT COUNT(*) AS count FROM ${table}`).first()).count, 0);
   assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='salada'").first()).stock, 50);
+});
+
+test("cash change uses exact cents and stays atomic with the reservation", async t => {
+  const total = 1875;
+  for (const invalid of ["", "18.74", "-50", "1e2", "Infinity", "50.001", undefined, 5000]) assert.throws(() => validateCashChange("dinheiro", "sim", invalid, total), /troco/);
+  assert.throws(() => validateCashChange("dinheiro", undefined, undefined, total), /troco/);
+  assert.deepEqual(validateCashChange("pix", "sim", "bad", total), { needsChange: null, changeFor: null });
+  assert.deepEqual(validateCashChange("dinheiro", "nao", "50", total), { needsChange: 0, changeFor: null });
+  assert.deepEqual(validateCashChange("dinheiro", "sim", "18,75", total), { needsChange: 1, changeFor: total });
+  const db = await postgresFixture(t);
+  await db.prepare("INSERT INTO ingredients(id,name,category,unit,stock) VALUES('cash-test','Produto de teste','Proteínas','unidade',5)").run();
+  const lines = [{ id: "cash-test", name: "Produto de teste", quantity: 1 }];
+  const cash = { ...order(), subtotal: total, total, paymentMethod: "dinheiro", ...validateCashChange("dinheiro", "sim", "50,00", total) };
+  await reserveOrder(db, cash, lines);
+  assert.deepEqual(await db.prepare("SELECT needs_change,change_for,total FROM orders WHERE id=?").bind(cash.id).first(), { needs_change: 1, change_for: 5000, total });
+  await assert.rejects(reserveOrder(db, cash, lines), /unique/i);
+  const exact = { ...order(), paymentMethod: "dinheiro", ...validateCashChange("dinheiro", "nao", undefined, 2000) };
+  await reserveOrder(db, exact, lines);
+  assert.deepEqual(await db.prepare("SELECT needs_change,change_for FROM orders WHERE id=?").bind(exact.id).first(), { needs_change: 0, change_for: null });
+  for (const invalid of [
+    { ...order(), paymentMethod: "dinheiro", needsChange: 1, changeFor: 1000 },
+    { ...order(), paymentMethod: "pix", needsChange: 1, changeFor: 5000 },
+    { ...order(), paymentMethod: "dinheiro", needsChange: 0, changeFor: 5000 },
+  ]) await assert.rejects(reserveOrder(db, invalid, lines), /check/i);
+  assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='cash-test'").first()).stock, 3);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM orders").first()).count, 2);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM movements").first()).count, 2);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM finance").first()).count, 0);
 });
 
 test("concurrent orders for the last portions allow only one reservation and no negative stock", async t => {

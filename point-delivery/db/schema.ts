@@ -12,6 +12,7 @@ export const prices = sqliteTable("prices", { count: integer("count").primaryKey
 export const settings = sqliteTable("settings", { key: text("key").primaryKey(), value: integer("value") });
 export const orders = sqliteTable("orders", {
   paymentMethod: text("payment_method"),
+  needsChange: integer("needs_change"), changeFor: integer("change_for"),
   id: text("id").primaryKey(), idempotencyKey: text("idempotency_key").notNull().unique(), fingerprint: text("fingerprint").notNull(), code: text("code").notNull(),
   customer: text("customer").notNull(), phone: text("phone").notNull(), address: text("address").notNull(), reference: text("reference").notNull(), notes: text("notes").notNull(),
   status: text("status").notNull().default("recebido"), subtotal: integer("subtotal").notNull(), deliveryFee: integer("delivery_fee").notNull(), total: integer("total").notNull(), createdAt: integer("created_at").notNull(),

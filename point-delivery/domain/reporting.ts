@@ -98,11 +98,11 @@ export function buildMonthlyReport(orders: ReportOrder[], sales: CompletedSale[]
     if (sale.createdAt >= customer.lastSale) { customer.name = sale.customer; customer.lastSale = sale.createdAt; }
     customers.set(identity, customer);
   });
-  const ranking = [...customers.values()].sort((a, b) => b.count - a.count || b.value - a.value || a.name.localeCompare(b.name, "pt-BR"));
+  const ranking = [...customers.values()].sort((a, b) => b.value - a.value || b.count - a.count || a.name.localeCompare(b.name, "pt-BR"));
   const leader = ranking[0];
   return { month, financeTrend: buildFinanceTrend(sales, manual, now), received: revenue + income, revenue, manualIncome: income, expenses, balance: revenue + income - expenses,
     averageTicket: completed.length ? Math.round(revenue / completed.length) : 0, orderCount: validOrders.length, completedCount: completed.length,
     weekdays, busiestDays: peak ? weekdays.filter(d => d.count === peak).map(d => d.label) : [], busiestCount: peak,
-    topCustomer: leader ? { name: leader.name, count: leader.count, value: leader.value, tiedCustomers: ranking.filter(c => c.count === leader.count).length - 1 } : null };
+    topCustomer: leader ? { name: leader.name, count: leader.count, value: leader.value, tiedCustomers: ranking.filter(c => c.value === leader.value).length - 1 } : null };
 }
 export type MonthlyReport = ReturnType<typeof buildMonthlyReport>;

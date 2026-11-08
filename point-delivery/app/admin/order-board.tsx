@@ -43,6 +43,7 @@ function OrderCard({ order, busy, dragging, grip, onAdvance, onCancel }: {
     </div>
     <div className="board-card-customer"><h4>{order.customer}</h4><strong>{money(order.total)}</strong></div>
     <p className="board-card-payment"><CreditCard size={15} aria-hidden="true"/><span>{paymentLabel(order.paymentMethod)}</span></p>
+    {order.paymentMethod === "dinheiro" && <div className="board-card-change">{order.needsChange === 1 && order.changeFor != null ? <><strong>Troco para {money(order.changeFor)}</strong><span>Levar {money(order.changeFor - order.total)} de troco</span></> : order.needsChange === 0 ? <span>Não precisa de troco</span> : <span>Troco não informado</span>}</div>}
     <details className="board-card-details">
       <summary>Detalhes do pedido <ChevronDown size={16} aria-hidden="true"/></summary>
       <a href={`tel:${order.phone}`}>{order.phone}</a>

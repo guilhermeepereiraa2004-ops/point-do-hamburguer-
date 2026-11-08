@@ -1,6 +1,6 @@
 import { getDb, getStore } from "@/db";
 import { StoreClosedError } from "@/domain/store-status";
-import { validatePaymentMethod } from "@/domain/payment";
+import { validateCashChange, validatePaymentMethod } from "@/domain/payment";
 import { validateCart, validateBurgerRecipients } from "@/domain/cart";
 import { reserveOrder } from "@/db/order-reservation";
 import { getTrackingSecret, orderConfirmation } from "@/lib/order-tracking";
@@ -23,7 +23,7 @@ function stringField(value: unknown, label: string, min: number, max: number) {
 export async function placeOrder(input: Record<string, unknown>) {
   const trackingSecret = getTrackingSecret();
   const idempotencyKey = stringField(input.key, "identificador", 16, 80);
-  const fingerprint = JSON.stringify({ selection: input.selection, burgers: input.burgers, recipients: input.recipients, extras: input.extras, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal, paymentMethod: input.paymentMethod });
+  const fingerprint = JSON.stringify({ selection: input.selection, burgers: input.burgers, recipients: input.recipients, extras: input.extras, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal, paymentMethod: input.paymentMethod, needsChange: input.needsChange, changeFor: input.changeFor });
   const db = getDb();
   const existing = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
   if (existing[0]) { if (existing[0].fingerprint !== fingerprint) throw new Error("Este identificador já pertence a outro pedido. Recarregue a página."); return orderConfirmation(existing[0], trackingSecret); }
@@ -36,6 +36,7 @@ export async function placeOrder(input: Record<string, unknown>) {
   const summary = cart ?? validateSelection(selection, catalog);
   if (catalog.deliveryFee === null) throw new Error("A taxa de entrega ainda precisa ser configurada pela hamburgueria.");
   const total = summary.subtotal + catalog.deliveryFee;
+  const cashChange = validateCashChange(paymentMethod, input.needsChange, input.changeFor, total);
   if (input.expectedTotal !== total) throw new Error("Os preços foram atualizados. Revise o total antes de confirmar novamente.");
   const customer = stringField(input.customer, "nome", 2, 100), phone = stringField(input.phone, "telefone", 10, 20);
   if (!/^\d{10,11}$/.test(phone.replace(/\D/g, ""))) throw new Error("Informe telefone com DDD.");
@@ -44,7 +45,7 @@ export async function placeOrder(input: Record<string, unknown>) {
   const id = crypto.randomUUID(), code = id.slice(0, 6).toUpperCase(), createdAt = Date.now();
   const raw = getStore();
   try {
-    await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, paymentMethod, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt, ...(cart ? { burgers: JSON.stringify(cart.snapshots) } : {}) }, cart?.lines ?? catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
+    await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, paymentMethod, ...cashChange, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt, ...(cart ? { burgers: JSON.stringify(cart.snapshots) } : {}) }, cart?.lines ?? catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
   } catch (error) {
     const duplicate = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
     if (duplicate[0]?.fingerprint === fingerprint) return orderConfirmation(duplicate[0], trackingSecret);

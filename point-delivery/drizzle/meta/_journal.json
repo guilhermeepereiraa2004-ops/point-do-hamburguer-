@@ -43,6 +43,13 @@
       "when": 1794158400000,
       "tag": "0005_order_payment",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1794164400000,
+      "tag": "0006_cash_change",
+      "breakpoints": true
     }
   ]
 }
