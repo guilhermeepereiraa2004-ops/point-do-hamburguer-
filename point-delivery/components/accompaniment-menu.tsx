@@ -7,7 +7,6 @@ const groups = [
   { id: "todos", title: "Todos" },
   { id: "bebidas", title: "Bebidas" },
   { id: "batatas", title: "Batata frita" },
-  { id: "outros", title: "Outros" },
 ];
 const friesPhotos = new Set(["tradicional", "bacon", "calabresa", "cheddar", "bacon-calabresa", "bacon-cheddar", "calabresa-cheddar", "completa"].map(flavor => `batata-frita-${flavor}`));
 const juicePhotos = new Set(["maracuja", "acerola", "caja", "laranja", "cacau"].map(flavor => `suco-${flavor}-300ml`));
