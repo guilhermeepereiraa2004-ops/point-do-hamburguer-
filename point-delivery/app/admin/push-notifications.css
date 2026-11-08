@@ -1,0 +1,26 @@
+.push-settings {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid #ecd6c8;
+  border-radius: 14px;
+  background: #fffbf7;
+}
+.push-settings-description { display: flex; align-items: center; gap: 12px; flex: 1 1 310px; }
+.push-settings-description > svg { color: #a64b21; flex-shrink: 0; }
+.admin-app .push-settings h2 { font-size: 14px; margin: 0 0 4px; color: #382e27; }
+.push-settings p { font-size: 12px; line-height: 1.6; color: #68594f; margin: 0; }
+.push-settings-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.push-settings-actions button {
+  min-height: 44px; padding: 10px 13px; border: 1px solid #d9ad91; border-radius: 9px;
+  background: #fff; color: #8c3c19; font-size: 12px; font-weight: 600;
+}
+.push-settings-actions button:disabled { opacity: .55; }
+.push-settings-message { flex-basis: 100%; }
+@media(max-width: 600px) {
+  .push-settings { padding: 15px; }
+  .push-settings-actions, .push-settings-actions button { flex: 1 1 100%; }
+}

@@ -3,6 +3,8 @@ import { getDashboard, updateStatus, updateCatalog } from "@/actions/store";
 import { getStore } from "@/db";
 import { readCustomerOrders } from "@/db/customer-orders";
 import { normalizeCustomerPhone } from "@/domain/reporting";
+import { after } from "next/server";
+import { dispatchOrderPush } from "@/lib/order-push";
 import type { Status } from "@/domain/menu";
 import { hasValidRequestOrigin } from "@/lib/request-origin";
 async function checkAdmin(): Promise<Response | null> {
@@ -15,7 +17,11 @@ async function checkAdmin(): Promise<Response | null> {
 export async function GET() {
   const denied = await checkAdmin();
   if (denied) return denied;
-  try { return Response.json(await getDashboard(), { headers: { "Cache-Control": "no-store" } }); } catch { return Response.json({ error: "Falha ao carregar o painel." }, { status: 503 }); }
+  try {
+    const dashboard = await getDashboard();
+    after(dispatchOrderPush);
+    return Response.json(dashboard, { headers: { "Cache-Control": "no-store" } });
+  } catch { return Response.json({ error: "Falha ao carregar o painel." }, { status: 503 }); }
 }
 export async function POST(request: Request) {
   const denied = await checkAdmin();

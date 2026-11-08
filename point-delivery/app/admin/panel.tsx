@@ -12,6 +12,7 @@ import { AdminNavigation, adminSectionLabel, type AdminSection } from "./admin-n
 import { ManagementDialog, Overview, FinanceView, ProductCatalogView, type Receipt } from "./management-panels";
 import { CustomerView } from './customer-view';
 import { useOrderSound } from "./use-order-sound";
+import { PushNotifications } from "./push-notifications";
 import type { CustomerProfile, MonthlyReport } from "@/domain/reporting";
 import type { ManualEntry } from "@/domain/management";
 
@@ -27,6 +28,7 @@ export default function AdminPanel(){
  const { enabled, ready: soundReady, error: soundError, toggleSound, unlockSound } = useOrderSound(unseen);
  const [stockSearch,setStockSearch]=useState('');
  const headingRef=useRef<HTMLHeadingElement>(null);
+ useEffect(()=>{if(new URLSearchParams(window.location.search).get('section')==='pedidos')setTab('pedidos');},[]);
  function navigate(section:AdminSection){
    setTab(section);
    window.scrollTo({top:0,behavior:'instant'});
@@ -94,6 +96,7 @@ export default function AdminPanel(){
  {soundError&&<div className="notice error" role="status">{soundError}</div>}
  {enabled&&!soundReady&&<div className="notice" role="status"><span>Sineta ativada. Toque no painel para liberar o som neste navegador.</span><button type="button" onClick={unlockSound}>Liberar som</button></div>}
  {notice&&<div className={`notice${notice.error?' error':''}`} role="status">{notice.message}<button onClick={()=>setNotice(null)} aria-label="Dispensar aviso"><X size={13}/></button></div>}
+ {(tab==='dashboard'||tab==='pedidos')&&<PushNotifications/>}
  {unseen.length>0&&<div className="new-order-alert"><Bell size={22}/><div><strong>{unseen.length} pedido{unseen.length>1?'s novos':' novo'} no point!</strong><p>{enabled?(soundReady?'A sineta toca até você reconhecer o alerta.':'Toque no painel para liberar o aviso sonoro.'):'Ative a sineta para receber o aviso sonoro.'}</p></div><button className="button primary" onClick={()=>acknowledge(unseen)}><Check size={15}/> Estou ciente</button></div>}
  {!data?<div className="loading-state">{connectionIssue?(connectionIssue.signIn?'Aguardando acesso ao painel.':'Aguardando conexão com o painel…'):'Carregando seu painel…'}</div>:<>
  {tab==='dashboard'&&<Overview report={data.report}/>}
