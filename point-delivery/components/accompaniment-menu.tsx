@@ -30,7 +30,7 @@ export function AccompanimentMenu({ items, selection, disabled, onChange }: { it
         {!products.length && <p className="accompaniment-empty">Novas opções em breve.</p>}
         {products.map((item, index) => {
           const value = selection[item.id] || 0, available = isIngredientAvailable(item) && item.price !== null;
-          const photo = friesPhotos.has(item.id) ? `/images/accompaniments/baskets-v2/${item.id}.webp` : item.id === "refrigerante" ? "/images/accompaniments/baskets-v2/refrigerante.webp" : null;
+          const photo = friesPhotos.has(item.id) ? `/images/accompaniments/baskets-v2/${item.id}.webp` : item.id === "refrigerante" ? "/images/accompaniments/coca-cola-reference-v1.webp" : null;
           return <div className={`compact-product ${photo ? "has-photo" : ""} ${value ? "is-selected" : ""} ${!available ? "sold-out" : ""}`} key={item.id}>
             {photo && <div className={`accompaniment-photo ${item.id === "refrigerante" ? "is-drink" : ""}`}><img src={photo} alt="" width={144} height={144} loading="lazy" decoding="async" style={{animationDelay: `${index * -.65}s`}}/></div>}
             <div className="compact-product-info"><h5>{item.name}</h5>{item.description && <p>{item.description}</p>}
