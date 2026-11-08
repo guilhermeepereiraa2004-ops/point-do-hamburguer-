@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { InstallApp } from "@/components/install-app";
 import { HowItWorks } from "@/components/how-it-works";
-import { ArrowDown, ArrowLeft, ArrowRight, Check, CheckCircle2, ChefHat, ChevronRight, CupSoda, Flame, Hamburger, Leaf, MapPin, Minus, Plus, ShoppingBag, Sparkles, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, Check, CheckCircle2, ChefHat, ChevronRight, Flame, Hamburger, Leaf, MapPin, Minus, Plus, ShoppingBag, Sparkles, X } from "lucide-react";
 import { accompanimentChoices, countItems, getStockShortages, isIngredientAvailable, money, summarize, type StockShortage, type Ingredient, type Selection } from "@/domain/menu";
 import { BurgerPreview, IngredientPhoto } from "@/components/burger-preview";
 import { StockAvailability } from "@/components/stock-availability";
@@ -32,7 +32,6 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
  const [step,setStep]=useState(0),[category,setCategory]=useState("Todos");
  useIngredientImageWarmup(step===1);
  const [completedSignatures,setCompletedSignatures]=useState<string[]>([]);
- const [extrasChoice,setExtrasChoice]=useState<"yes"|"no"|null>(null);
  const controlsRef=useRef<HTMLDivElement|null>(null);
  const [checkout,setCheckout]=useState(false),[sending,setSending]=useState(false),[error,setError]=useState(""),[success,setSuccess]=useState(""); const keyRef=useRef("");
  const [trackingUrl,setTrackingUrl]=useState("");
@@ -61,7 +60,7 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
  const unfinished=nextUnfinishedBurger(burgers,effectiveSignatures);
  const nextBurger=nextUnfinishedBurger(burgers,effectiveSignatures,activeBurger);
  const canFinishBurger=isOpen&&summary.burgerPrice!==undefined&&selection.pao===1&&currentShortages.length===0&&!loading&&!closing;
- const canReview=isOpen&&allBurgersFinished&&cart.valid&&extrasChoice!==null&&unavailable.length===0&&!loading&&!closing;
+ const canReview=isOpen&&allBurgersFinished&&cart.valid&&unavailable.length===0&&!loading&&!closing;
  const finishLabel=nextBurger>=0?"Próximo hambúrguer":"Finalizar montagem";
  function focusStage(){window.requestAnimationFrame(()=>{controlsRef.current?.scrollIntoView({behavior:systemReducedMotion?"auto":"smooth",block:"start"});controlsRef.current?.querySelector<HTMLHeadingElement>("h3")?.focus({preventScroll:true});});}
  function goToStep(next:number){
@@ -97,9 +96,13 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
   if(!isOpen||closing||sending||loading)return;
   if(step===0){focusStage();return;}
   if(!allBurgersFinished||!cart.valid){if(unfinished>=0)editBurger(unfinished);else goToStep(1);return;}
-  if(step!==2||extrasChoice===null){goToStep(2);return;}
+  if(step!==2){goToStep(2);return;}
   if(unavailable.length)return;
   setError("");setCheckout(true);void loadCatalog(true);
+ }
+ function skipAccompaniments(){
+  if(!isOpen||closing||sending||loading||!allBurgersFinished||!cart.valid||getStockShortages(combineSelections(burgers),catalog).length)return;
+  setExtras({});keyRef.current="";setError("");setCheckout(true);void loadCatalog(true);
  }
  function finishBurger(){
   if(!canFinishBurger)return;
@@ -134,7 +137,7 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
     if(data.code==="INSUFFICIENT_STOCK"&&data.shortages?.length){setCatalog(current=>({...current,ingredients:current.ingredients.map(item=>{const missing=data.shortages?.find(i=>i.id===item.id);return missing?{...item,stock:missing.available}:item;})}));return;}
     throw new Error(data.error);
    }
-   setTrackingUrl(data.trackingUrl||"");setCheckout(false);setSuccess(data.code);setCheckoutDraft({});setBurgers([{pao:1}]);setRecipients([""]);setCompletedSignatures([]);setExtrasChoice(null);setStep(0);setExtras({});setActiveBurger(0);setClosedSignature(null);keyRef.current="";
+   setTrackingUrl(data.trackingUrl||"");setCheckout(false);setSuccess(data.code);setCheckoutDraft({});setBurgers([{pao:1}]);setRecipients([""]);setCompletedSignatures([]);setStep(0);setExtras({});setActiveBurger(0);setClosedSignature(null);keyRef.current="";
    if(data.trackingUrl)window.location.assign(data.trackingUrl);
   }catch(e){setError(e instanceof Error?e.message:"Falha de conexão. Tente novamente.");}finally{setSending(false);}
  }
@@ -165,7 +168,7 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
       <div className="assembly-progress" aria-live="polite"><strong>Hambúrguer {activeBurger+1} de {burgers.length}</strong><span>{finished.filter(Boolean).length} de {burgers.length} finalizados</span></div>
       <div className="burger-cart-tabs" role="group" aria-label="Montagens do pedido">{burgers.map((burger,index)=><div key={index} className={`${activeBurger===index?"active":""} ${finished[index]?"is-finished":""}`}><button type="button" aria-label={`Editar hambúrguer ${index+1}`} aria-pressed={activeBurger===index} disabled={closing||!finished[index]&&index!==unfinished&&index!==activeBurger} onClick={()=>editBurger(index)}>{finished[index]?<CheckCircle2 size={16}/>:<Hamburger size={16}/>}<span>Hambúrguer {index+1}{recipients[index]?` · ${recipients[index]}`:""}<small>{finished[index]?"Finalizado":activeBurger===index?"Em montagem":countItems(burger,catalog)>0?"Revisar receita":"A montar"}</small></span></button></div>)}</div>
      </>}
-     <div className="step-title"><div><h3 tabIndex={-1}>{step===0?"Quantos hambúrgueres vão ser?":step===1?`Monte o hambúrguer ${activeBurger+1}.`:"Quer algo para acompanhar?"}</h3><p>{step===0?"Escolha a quantidade. Depois, monte um de cada vez.":step===1?"Escolha de 3 a 15 itens. O pão já está incluído.":"Seus lanches estão prontos. Você decide o que vem junto."}</p></div><span>{step===0?"PRIMEIRO PASSO":step===1?"ATÉ 4× CADA":"OPCIONAL"}</span></div>
+     <div className="step-title"><div><h3 tabIndex={-1}>{step===0?"Quantos hambúrgueres vão ser?":step===1?`Monte o hambúrguer ${activeBurger+1}.`:"Cardápio de acompanhamentos"}</h3><p>{step===0?"Escolha a quantidade. Depois, monte um de cada vez.":step===1?"Escolha de 3 a 15 itens. O pão já está incluído.":"Seus lanches estão prontos. Você decide o que vem junto."}</p></div><span>{step===0?"PRIMEIRO PASSO":step===1?"ATÉ 4× CADA":"OPCIONAL"}</span></div>
      {unavailable.length>0&&<div className="menu-stock-notice" role="status"><strong>A disponibilidade mudou. Revise seu pedido.</strong>{unavailable.map(item=>item.name).join(", ")} — ajuste a quantidade ou os ingredientes para continuar.</div>}
      {step===0&&<BurgerQuantity quantity={burgers.length} available={quantityLimit} onChange={setQuantity} onStart={()=>goToStep(1)}/>}
      {step===1&&<>
@@ -176,12 +179,8 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
       <div className="builder-bottom"><span>{count<3?(count===2?"Falta 1 item para este lanche":`Faltam ${3-count} itens para este lanche`):count>15?"Retire alguns itens: o máximo é 15":<><CheckCircle2 size={16}/> {count} itens · {money(summary.burgerPrice??0)}</>}</span><div className="assembly-actions"><button type="button" className="builder-back" disabled={closing} onClick={()=>goToStep(0)}><ArrowLeft size={14}/> Quantidade</button><button type="button" className="button primary" disabled={!canFinishBurger} onClick={finishBurger}>{closing?"Finalizando…":finishLabel}<ArrowRight size={17}/></button></div></div>
      </>}
      {step===2&&<>
-      <div className="side-choice" role="group" aria-label="Escolha de acompanhamentos">
-       <button type="button" aria-pressed={extrasChoice==="yes"} onClick={()=>setExtrasChoice("yes")}><CupSoda size={25}/><span><strong>Quero acompanhamentos</strong><small>Escolher bebidas e porções</small></span></button>
-       <button type="button" aria-pressed={extrasChoice==="no"} onClick={()=>{setExtrasChoice("no");setExtras({});keyRef.current="";}}><Hamburger size={25}/><span><strong>Só os hambúrgueres</strong><small>Continuar sem acompanhamentos</small></span></button>
-      </div>
-      {extrasChoice==="yes"&&<AccompanimentMenu items={accompaniments} selection={extras} disabled={closing||sending} onChange={change}/>}
-      {extrasChoice==="no"&&<p className="no-sides-message"><CheckCircle2 size={23}/>Tudo certo! Vamos seguir apenas com seus hambúrgueres.</p>}
+      <button type="button" className="skip-accompaniments" disabled={!isOpen||closing||sending||loading||!allBurgersFinished||!cart.valid||getStockShortages(combineSelections(burgers),catalog).length>0} onClick={skipAccompaniments}>Não quero acompanhamentos<ArrowRight size={16}/></button>
+      <AccompanimentMenu items={accompaniments} selection={extras} disabled={closing||sending} onChange={change}/>
       <div className="builder-bottom"><span>Total do pedido: <strong>{money(total)}</strong></span><div className="assembly-actions"><button type="button" className="builder-back" onClick={()=>editBurger(activeBurger)}><ArrowLeft size={14}/> Lanches</button><button type="button" className="button primary" disabled={!canReview} onClick={startCheckout}>Continuar para entrega<ArrowRight size={17}/></button></div></div>
      </>}
     </>}
