@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Minus, Pause, Play, Plus } from "lucide-react";
 import { isIngredientAvailable, money, type Ingredient, type Selection } from "@/domain/menu";
 
@@ -17,11 +17,9 @@ export function accompanimentGroup(item: Ingredient) {
 export function AccompanimentMenu({ items, selection, disabled, onChange }: { items: Ingredient[]; selection: Selection; disabled: boolean; onChange: (item: Ingredient, delta: number) => void }) {
   const [filter, setFilter] = useState("todos");
   const products = items.filter(item => filter === "todos" || accompanimentGroup(item) === filter);
-  const [motionChoice, setMotionChoice] = useState<"auto" | "on" | "off">("auto");
-  const [reducedMotion, setReducedMotion] = useState(false);
-  useEffect(() => { const media = window.matchMedia("(prefers-reduced-motion: reduce)"); const update = () => setReducedMotion(media.matches); update(); media.addEventListener("change", update); return () => media.removeEventListener("change", update); }, []);
-  const motion = motionChoice === "on" || (motionChoice === "auto" && !reducedMotion);
-  return <div className="accompaniment-menu" data-motion={motionChoice === "on" ? "on" : motion ? "auto" : "off"}><button type="button" className="accompaniment-motion" aria-pressed={!motion} onClick={() => setMotionChoice(motion ? "off" : "on")}>{motion ? <Pause size={12}/> : <Play size={12}/>} {motion ? "Pausar movimento" : "Ativar movimento"}</button>
+  const [motionChoice, setMotionChoice] = useState<"on" | "off">("on");
+  const motion = motionChoice === "on";
+  return <div className="accompaniment-menu" data-motion={motionChoice}><button type="button" className="accompaniment-motion" aria-pressed={!motion} onClick={() => setMotionChoice(motion ? "off" : "on")}>{motion ? <Pause size={12}/> : <Play size={12}/>} {motion ? "Pausar movimento" : "Ativar movimento"}</button>
     <div className="accompaniment-filters" role="group" aria-label="Filtrar acompanhamentos">{groups.map(group => <button type="button" key={group.id} aria-pressed={filter === group.id} onClick={() => setFilter(group.id)}>{group.title}<span>{group.id === "todos" ? items.length : items.filter(item => accompanimentGroup(item) === group.id).length}</span></button>)}</div>
     <div className="accompaniment-products" key={filter}>
       {!products.length && <p className="accompaniment-empty" role="status">Nenhum acompanhamento nesta categoria no momento.</p>}
