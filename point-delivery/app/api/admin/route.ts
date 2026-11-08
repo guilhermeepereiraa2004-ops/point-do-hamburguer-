@@ -2,6 +2,7 @@ import { isAdmin } from "@/actions/admin";
 import { getDashboard, updateStatus, updateCatalog } from "@/actions/store";
 import { getStore } from "@/db";
 import { readCustomerOrders } from "@/db/customer-orders";
+import { normalizeCustomerPhone } from "@/domain/reporting";
 import type { Status } from "@/domain/menu";
 import { hasValidRequestOrigin } from "@/lib/request-origin";
 async function checkAdmin(): Promise<Response | null> {
@@ -24,13 +25,12 @@ export async function POST(request: Request) {
   try {
     const input = await request.json() as Record<string, unknown>;
     if (input.kind === "customer-history") {
-      const { name, phone } = input;
-      if (typeof name !== "string" || !name.trim() || name.length > 100 ||
-          typeof phone !== "string" || !phone.trim() || phone.length > 20) {
-        return Response.json({ error: "Confira o nome e o telefone do cliente." }, { status: 400 });
+      const { phone } = input;
+      if (typeof phone !== "string" || phone.length > 20 || !/^\d{10,11}$/.test(normalizeCustomerPhone(phone))) {
+        return Response.json({ error: "Confira o telefone do cliente, incluindo o DDD." }, { status: 400 });
       }
       try {
-        const orders = await readCustomerOrders(getStore(), name, phone);
+        const orders = await readCustomerOrders(getStore(), phone);
         return Response.json({ orders }, { headers: { "Cache-Control": "no-store" } });
       } catch {
         return Response.json({ error: "Não foi possível carregar o histórico agora." }, { status: 503 });

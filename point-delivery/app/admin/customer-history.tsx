@@ -23,7 +23,7 @@ export function CustomerHistory({ customer, onClose }: { customer: CustomerProfi
         const response = await fetch("/api/admin", {
           method: "POST", redirect: "manual", cache: "no-store", signal: controller.signal,
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ kind: "customer-history", name, phone }),
+          body: JSON.stringify({ kind: "customer-history", phone }),
         });
         const payload = await readAdminResponse(response, historyError);
         if (!Array.isArray(payload.orders)) throw new Error(historyError);
@@ -34,7 +34,7 @@ export function CustomerHistory({ customer, onClose }: { customer: CustomerProfi
     }
     void load();
     return () => controller.abort();
-  }, [name, phone, attempt]);
+  }, [phone, attempt]);
 
   return <ManagementDialog title={`Pedidos de ${name}`} closeLabel="Fechar histórico" busy={false} onClose={onClose}>
     {!result ? <p role="status">Carregando pedidos…</p> : "error" in result ? <>

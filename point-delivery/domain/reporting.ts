@@ -28,7 +28,7 @@ export function normalizeCustomerPhone(phone: string) {
 export function buildCustomerProfiles(sales: CustomerSale[]): CustomerProfile[] {
   const customers = new Map<string, { latest: CustomerSale; spent: number; orderCount: number }>();
   for (const sale of sales) {
-    const id = JSON.stringify([normalizeCustomerName(sale.customer), normalizeCustomerPhone(sale.phone)]);
+    const id = normalizeCustomerPhone(sale.phone);
     const customer = customers.get(id);
     if (!customer) {
       customers.set(id, { latest: sale, spent: sale.value, orderCount: 1 });

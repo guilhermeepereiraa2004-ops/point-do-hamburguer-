@@ -11,17 +11,18 @@ import { readCustomerOrders } from "../db/customer-orders.ts";
 import { validateSelection, accompanimentChoices, isIngredientAvailable, getStockShortages } from "../domain/menu.ts";
 
 const now = Date.parse("2026-10-20T15:00:00Z");
-test("clientes combinam nome e telefone e preservam o endereço do pedido mais recente", () => {
+test("clientes são identificados só pelo telefone e usam os dados da compra mais recente", () => {
   const latest = { orderId: "new", customer: "João Silva", phone: "(71) 99999-0101", address: "Rua Nova, 10", value: 2500, orderedAt: now, createdAt: now + 1 };
-  const older = { ...latest, orderId: "old", customer: " JOAO  SILVA ", phone: "+55 71 99999-0101", address: "Rua Antiga, 25", value: 1500, orderedAt: now - 1, createdAt: now + 2 };
-  const samePhone = { ...latest, orderId: "same-phone", customer: "Ana Silva" };
+  const older = { ...latest, orderId: "old", customer: "João", phone: "+55 71 99999-0101", address: "Rua Antiga, 25", value: 1500, orderedAt: now - 1, createdAt: now + 2 };
+  const samePhone = { ...latest, orderId: "same-phone", customer: "Ana Silva", orderedAt: now - 2 };
   const sameName = { ...latest, orderId: "same-name", phone: "(71) 99999-0202" };
   const profiles = buildCustomerProfiles([latest, older, samePhone, sameName]);
-  assert.equal(profiles.length, 3);
+  assert.equal(profiles.length, 2);
   const { id, ...profile } = profiles.find(customer => customer.name === latest.customer && customer.phone === latest.phone);
-  assert.deepEqual(profile, { name: latest.customer, phone: latest.phone, address: latest.address, spent: 4000, orderCount: 2 });
-  assert.deepEqual(profiles.map(customer => customer.orderCount).sort(), [1, 1, 2]);
-  assert.equal(new Set(profiles.map(customer => customer.id)).size, 3);
+  assert.deepEqual(profile, { name: latest.customer, phone: latest.phone, address: latest.address, spent: 6500, orderCount: 3 });
+  assert.deepEqual(profiles.map(customer => customer.orderCount).sort(), [1, 3]);
+  assert.equal(new Set(profiles.map(customer => customer.id)).size, 2);
+  assert.deepEqual(buildCustomerProfiles([sameName, samePhone, older, latest]), profiles);
 });
 
 test("histórico de cliente inclui pedidos antigos e todos os status, com itens e valores guardados", async t => {
@@ -42,13 +43,14 @@ test("histórico de cliente inclui pedidos antigos e todos os status, com itens 
     db.prepare("INSERT INTO ingredients (id,name,category,unit,stock,featured) VALUES ('test-side','Nome novo','Complementos','porção',5,1)"),
     db.prepare("INSERT INTO order_items (order_id, ingredient_id, name, quantity) VALUES ('legacy','test-side','Nome antigo',1), ('current','test-side','Nome antigo',2)"),
   ]);
-  const history = await readCustomerOrders(db, "João Silva", phone);
+  const history = await readCustomerOrders(db, phone);
   assert.deepEqual(history.map(({ code, status, total, createdAt }) => [code, status, total, createdAt]), [
-    ["NEW", "preparo", 2100, now], ["CAN", "cancelado", 1500, now - 1], ["OLD", "concluido", 1300, 1],
+    ["OTHER", "recebido", 1500, now + 1], ["NEW", "preparo", 2100, now], ["CAN", "cancelado", 1500, now - 1], ["OLD", "concluido", 1300, 1],
   ]);
-  assert.deepEqual(history[0].burgers, recipe);
-  assert.deepEqual(history[0].extras, [{ name: "Nome antigo", quantity: 2 }]);
-  assert.deepEqual(history[2].items, [{ name: "Nome antigo", quantity: 1 }]);
+  assert.deepEqual(history[1].burgers, recipe);
+  assert.deepEqual(history[1].extras, [{ name: "Nome antigo", quantity: 2 }]);
+  assert.deepEqual(history[3].items, [{ name: "Nome antigo", quantity: 1 }]);
+  assert.deepEqual(await readCustomerOrders(db, "+55 71 99999-0101"), history);
 });
 
 const friesMenu = JSON.parse(readFileSync(new URL("../data/fries-menu.json", import.meta.url), "utf8"));
