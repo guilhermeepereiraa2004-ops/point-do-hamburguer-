@@ -260,3 +260,21 @@ test("the additive star migration preserves existing menu products, prices and q
   assert.equal((await db.prepare("SELECT featured FROM ingredients WHERE id='carne'").first()).featured, 0);
   assert.equal(beverage({ extraType: "outros", productName: "Produto de teste", flavor: undefined, size: "Unidade" }).name, "Produto de teste · Unidade");
 });
+
+test("five 300 ml juices keep separate stock, safe retries and historic revenue", async t => {
+ const db=await postgresFixture(t);
+ const menu=JSON.parse(readFileSync(new URL('../data/juices-menu.json',import.meta.url),'utf8'));
+ assert.deepEqual(menu.map(i=>i.flavor),['Maracujá','Acerola','Cajá','Laranja','Cacau']);
+ for(const row of menu){const item=validateAccompaniment({...row,extraType:'suco',lowStock:5,maxQty:4});assert.equal(item.size,'300 ml');assert.equal(item.price,500);assert.equal(item.stock,50);await saveAccompaniment(db,item,true);await setProductFeatured(db,item.id,true);}
+ const lines=menu.map((item,index)=>({id:item.id,name:'Suco · '+item.flavor+' · 300 ml',quantity:index%2?2:1}));
+ const total=lines.reduce((sum,line)=>sum+line.quantity*500,0),first=order(crypto.randomUUID(),total);
+ await reserveOrder(db,first,lines);await assert.rejects(reserveOrder(db,first,lines),/unique/i);
+ for(const line of lines)assert.equal((await db.prepare('SELECT stock FROM ingredients WHERE id=?').bind(line.id).first()).stock,50-line.quantity);
+ for(let i=0;i<2;i++)await db.prepare("UPDATE orders SET status='cancelado' WHERE id=?").bind(first.id).run();
+ for(const line of lines)assert.equal((await db.prepare('SELECT stock FROM ingredients WHERE id=?').bind(line.id).first()).stock,50);
+ assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM finance').first()).count,0);
+ const completed=order(crypto.randomUUID(),total);await reserveOrder(db,completed,lines);
+ await db.prepare('UPDATE ingredients SET price=999 WHERE id=?').bind(menu[0].id).run();
+ for(const status of ['preparo','entrega','concluido','concluido'])await db.prepare('UPDATE orders SET status=? WHERE id=?').bind(status,completed.id).run();
+ assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM finance').first()).count,1);assert.equal((await db.prepare('SELECT value FROM finance').first()).value,total);
+});

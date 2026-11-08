@@ -1,0 +1,42 @@
+[
+  {
+    "id": "suco-maracuja-300ml",
+    "productName": "Suco",
+    "flavor": "Maracujá",
+    "size": "300 ml",
+    "price": 500,
+    "stock": 50
+  },
+  {
+    "id": "suco-acerola-300ml",
+    "productName": "Suco",
+    "flavor": "Acerola",
+    "size": "300 ml",
+    "price": 500,
+    "stock": 50
+  },
+  {
+    "id": "suco-caja-300ml",
+    "productName": "Suco",
+    "flavor": "Cajá",
+    "size": "300 ml",
+    "price": 500,
+    "stock": 50
+  },
+  {
+    "id": "suco-laranja-300ml",
+    "productName": "Suco",
+    "flavor": "Laranja",
+    "size": "300 ml",
+    "price": 500,
+    "stock": 50
+  },
+  {
+    "id": "suco-cacau-300ml",
+    "productName": "Suco",
+    "flavor": "Cacau",
+    "size": "300 ml",
+    "price": 500,
+    "stock": 50
+  }
+]
