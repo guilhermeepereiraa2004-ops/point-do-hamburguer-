@@ -1,4 +1,5 @@
 import "server-only";
+import { randomUUID } from "node:crypto";
 import { sendNotification } from "web-push";
 import { getStore } from "@/db";
 import { claimPushDeliveries, finishPushDelivery, readPushTarget } from "@/db/push";
@@ -14,7 +15,7 @@ export async function sendPushTest(userId: string, endpoint: string) {
   const config = getPushConfig();
   const target = await readPushTarget(getStore(), userId, endpoint);
   if (!config || !target) throw new Error("Ative as notificações neste aparelho primeiro.");
-  await sendNotification(target, JSON.stringify({ test: true, tag: "point-push-test" }),
+  await sendNotification(target, JSON.stringify({ test: true, tag: `point-push-test-${randomUUID()}` }),
     { vapidDetails: config, TTL: 60, urgency: "high", timeout: 7000 });
 }
 

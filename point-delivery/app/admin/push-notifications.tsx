@@ -61,7 +61,9 @@ export function PushNotifications() {
         setDevices(Array.isArray(config.devices) ? config.devices as PushDevice[] : []);
         setPublicKey(typeof config.publicKey === "string" ? config.publicKey : "");
         if (!canSubscribe) return;
-        const worker = await navigator.serviceWorker.register("/admin-notifications-sw.js", { scope: "/admin" });
+        const worker = await navigator.serviceWorker.register("/admin-notifications-sw.js", { scope: "/admin", updateViaCache: "none" });
+        // Check on every panel visit, including when an older worker is already active.
+        await worker.update();
         if (!worker.active) await navigator.serviceWorker.ready;
         const subscription = await worker.pushManager.getSubscription();
         const status = subscription ? await post({ kind: "status", endpoint: subscription.endpoint }) : { enabled: false, deviceId: null };

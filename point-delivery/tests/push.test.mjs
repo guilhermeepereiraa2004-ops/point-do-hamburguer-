@@ -141,21 +141,31 @@ test("renaming is private, survives reactivation and preserves activation date a
   assert.equal((await listPushDevices(db, "admin2"))[0].label, "Chrome · Android");
 });
 
-test("service worker displays push with no open page and notification click opens the order board", async () => {
+test("service worker activates updates immediately and displays an alert with no open page", async () => {
   const handlers = {}, notifications = [], opened = [];
+  let activated = false, claimed = false;
   const self = {
     addEventListener: (type, handler) => { handlers[type] = handler; },
+    skipWaiting: async () => { activated = true; },
     location: { origin: "https://point.example" },
     registration: { showNotification: async (title, options) => notifications.push({ title, options }) },
-    clients: { matchAll: async () => [], openWindow: async url => opened.push(url) },
+    clients: { claim: async () => { claimed = true; }, matchAll: async () => [], openWindow: async url => opened.push(url) },
   };
   vm.runInNewContext(readFileSync(new URL("../public/admin-notifications-sw.js", import.meta.url), "utf8"), { self, URL });
   let completion;
+  handlers.install({ waitUntil: work => { completion = work; } });
+  await completion;
+  assert.equal(activated, true);
+  handlers.activate({ waitUntil: work => { completion = work; } });
+  await completion;
+  assert.equal(claimed, true);
   handlers.push({ data: { json: () => ({ code: "ABC123", tag: "same-order" }) }, waitUntil: work => { completion = work; } });
   await completion;
   assert.equal(notifications[0].options.tag, "same-order");
   assert.match(notifications[0].options.body, /ABC123/);
   assert.equal(notifications[0].options.silent, false);
+  assert.equal(notifications[0].options.renotify, true);
+  assert.deepEqual(Array.from(notifications[0].options.vibrate), [300, 120, 300, 120, 600]);
   handlers.notificationclick({ notification: { close() {} }, waitUntil: work => { completion = work; } });
   await completion;
   assert.deepEqual(opened, ["https://point.example/admin?section=pedidos"]);

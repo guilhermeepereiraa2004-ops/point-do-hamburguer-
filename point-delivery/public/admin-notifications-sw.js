@@ -1,3 +1,11 @@
+self.addEventListener("install", event => {
+  event.waitUntil(self.skipWaiting());
+});
+
+self.addEventListener("activate", event => {
+  event.waitUntil(self.clients.claim());
+});
+
 self.addEventListener("push", event => {
   let data = {};
   try { data = event.data?.json() || {}; } catch {}
@@ -11,6 +19,7 @@ self.addEventListener("push", event => {
     renotify: true,
     requireInteraction: true,
     silent: false,
+    vibrate: [300, 120, 300, 120, 600],
   }));
 });
 
