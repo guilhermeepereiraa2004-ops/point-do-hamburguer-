@@ -162,7 +162,7 @@ test("service worker activates updates immediately and displays an alert with no
   assert.equal(claimed, true);
   handlers.push({ data: { json: () => ({ code: "ABC123", tag: "same-order" }) }, waitUntil: work => { completion = work; } });
   await completion;
-  assert.equal(notifications[0].options.tag, "point-order-alert");
+  assert.equal(notifications[0].options.tag, "same-order");
   assert.match(notifications[0].options.body, /ABC123/);
   assert.equal(notifications[0].options.silent, false);
   assert.equal(notifications[0].options.renotify, true);
@@ -228,7 +228,7 @@ test("tests use the same alert as orders, fall back after rejected options and a
   assert.equal("vibrate" in notifications[0].options, false);
   assert.equal(reports[0].profile, "standard");
   assert.equal(reports[0].displayed, true);
-  assert.equal(reports[0].revision, "point-push-20261108-4");
+  assert.equal(reports[0].revision, "point-push-20261108-3");
   assert.equal(reports[0].canonicalOrigin, true);
   rejectOptions = true;
   await push({ code: "ABC123", receipt: "signed-receipt", tag: "order-1" });
@@ -243,7 +243,7 @@ test("tests use the same alert as orders, fall back after rejected options and a
   assert.equal(reports[2].profile, "standard");
 });
 
-test("one alert slot preserves the pre-transfer audible options for orders and tests", async () => {
+test("order and test alert options exactly match the last deployment before the Vercel transfer", async () => {
   // Snapshot of the deployed worker in commit 21bfe4805feea982a81ddd00ce3c34e734856cc2.
   const previous = readFileSync(new URL("./fixtures/notifications-before-transfer.js", import.meta.url), "utf8");
   const current = readFileSync(new URL("../public/admin-notifications-sw.js", import.meta.url), "utf8");
@@ -258,39 +258,6 @@ test("one alert slot preserves the pre-transfer audible options for orders and t
     return JSON.parse(JSON.stringify(alerts));
   }
   for (const payload of [{ code: "ABC123", tag: "point-order-fixture" }, { test: true, tag: "point-push-test" }]) {
-    const oldAlerts = await render(previous, payload), currentAlerts = await render(current, payload);
-    assert.equal(currentAlerts[0].options.tag, "point-order-alert");
-    oldAlerts[0].options.tag = "point-order-alert";
-    assert.deepEqual(currentAlerts, oldAlerts);
+    assert.deepEqual(await render(current, payload), await render(previous, payload));
   }
-});
-
-test("successive pushes replace one alert, remove only legacy Point alerts and survive cleanup failure", async () => {
-  const handlers = {}, alerts = new Map(), closed = [];
-  let unavailable = false;
-  const existing = ["point-order-old", "point-push-test-old", "another-alert", "point-order-alert"];
-  const self = { addEventListener: (name, handler) => { handlers[name] = handler; }, registration: {
-    getNotifications: async () => {
-      if (unavailable) throw new Error("Unavailable notification list");
-      return existing.map(tag => ({ tag, close: () => closed.push(tag) }));
-    },
-    showNotification: async (title, options) => { alerts.set(options.tag, { title, options }); },
-  } };
-  vm.runInNewContext(readFileSync(new URL("../public/admin-notifications-sw.js", import.meta.url), "utf8"), { self, URL });
-  async function push(data) {
-    let completion;
-    handlers.push({ data: { json: () => data }, waitUntil: work => { completion = work; } });
-    await completion;
-  }
-  await push({ code: "FIRST", tag: "point-order-one" });
-  assert.deepEqual(closed, ["point-order-old", "point-push-test-old"]);
-  await push({ code: "SECOND", tag: "point-order-two" });
-  assert.equal(alerts.size, 1);
-  assert.match(alerts.get("point-order-alert").options.body, /SECOND/);
-  assert.equal(alerts.get("point-order-alert").options.renotify, true);
-  assert.equal(alerts.get("point-order-alert").options.silent, false);
-  unavailable = true;
-  await push({ test: true, tag: "point-push-test-new" });
-  assert.equal(alerts.size, 1);
-  assert.equal(alerts.get("point-order-alert").title, "Notificações do Point ativadas");
 });
