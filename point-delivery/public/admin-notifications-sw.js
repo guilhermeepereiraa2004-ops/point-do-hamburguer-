@@ -16,11 +16,19 @@ self.addEventListener("push", event => {
       code ? `Pedido #${code} recebido. Abra o painel para preparar.` : "Chegou um novo pedido. Abra o painel para conferir.",
     icon: "/icons/point-192.png",
     badge: "/icons/point-192.png",
-    tag: typeof data.tag === "string" ? data.tag : "point-new-order",
+    // Keep one alert slot. renotify makes a later order alert again, rather than
+    // accumulating children in Android's notification group for this origin.
+    tag: "point-order-alert",
   };
   event.waitUntil((async () => {
     let profile = "standard";
     let displayed = false;
+    try {
+      const previous = await self.registration.getNotifications();
+      for (const notification of previous) {
+        if (notification.tag !== basic.tag && notification.tag?.startsWith("point-")) notification.close();
+      }
+    } catch {}
     try {
       await self.registration.showNotification(title, { ...basic,
         renotify: true,
@@ -38,7 +46,7 @@ self.addEventListener("push", event => {
         await fetch("https://point-do-hamburguer.vercel.app/api/push-receipt", {
           method: "POST", credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store",
           headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(5000),
-          body: JSON.stringify({ token: data.receipt, revision: "point-push-20261108-3", profile, displayed,
+          body: JSON.stringify({ token: data.receipt, revision: "point-push-20261108-4", profile, displayed,
             canonicalOrigin: self.location.origin === "https://point-do-hamburguer.vercel.app" }),
         });
       } catch {}
