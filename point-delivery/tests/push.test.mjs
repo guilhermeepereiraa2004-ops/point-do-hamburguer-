@@ -5,8 +5,8 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { generateVAPIDKeys, generateRequestDetails } from "web-push";
 import { postgresFixture } from "./postgres-fixture.mjs";
-import { validatePushTarget } from "../domain/push.ts";
-import { claimPushDeliveries, finishPushDelivery, hasPushTarget, removePushTarget, savePushTarget } from "../db/push.ts";
+import { pushDeviceLabel, validatePushTarget } from "../domain/push.ts";
+import { claimPushDeliveries, finishPushDelivery, hasPushTarget, listPushDevices, pushDeviceId, removePushDevice, removePushTarget, savePushTarget } from "../db/push.ts";
 import { reserveOrder } from "../db/order-reservation.ts";
 
 const vapid = generateVAPIDKeys();
@@ -75,6 +75,39 @@ test("revoked administrators stop receiving push and expired or removed devices 
   assert.equal(await hasPushTarget(db, "admin", target.endpoint), true);
   await removePushTarget(db, "admin", target.endpoint);
   assert.equal(await hasPushTarget(db, "admin", target.endpoint), false);
+});
+
+test("device management lists only this administrator's registrations and removal cancels only the selected delivery", async t => {
+  const { db, order } = await fixture(t);
+  const second = { ...target, endpoint: "https://fcm.googleapis.com/fcm/send/second" };
+  const secondId = await savePushTarget(db, "admin", second, "Chrome · Android");
+  const firstId = await pushDeviceId(db, "admin", target.endpoint);
+  const devices = await listPushDevices(db, "admin");
+  assert.equal(devices.length, 2);
+  assert.deepEqual(Object.keys(devices[0]).sort(), ["id", "label", "updatedAt"]);
+  assert.equal(devices.find(device => device.id === secondId).label, "Chrome · Android");
+  assert.equal(devices.find(device => device.id === firstId).label, "Aparelho cadastrado");
+  assert.deepEqual(await listPushDevices(db, "other-admin"), []);
+  await reserveOrder(db, order, []);
+  await removePushDevice(db, "other-admin", firstId);
+  assert.equal((await listPushDevices(db, "admin")).length, 2);
+  await removePushDevice(db, "admin", firstId);
+  await removePushDevice(db, "admin", firstId);
+  assert.equal((await listPushDevices(db, "admin")).length, 1);
+  const deliveries = await claimPushDeliveries(db);
+  assert.equal(deliveries.length, 1);
+  assert.equal(deliveries[0].subscription_id, secondId);
+  assert.equal(await hasPushTarget(db, "admin", target.endpoint), false);
+  const restoredId = await savePushTarget(db, "admin", target, "Safari · iPhone");
+  assert.equal(restoredId, firstId);
+});
+
+test("device labels identify browser and system without retaining the raw user agent", () => {
+  assert.equal(pushDeviceLabel("Mozilla/5.0 (Linux; Android 14) Chrome/130 Safari/537.36"), "Chrome · Android");
+  assert.equal(pushDeviceLabel("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) Safari/604.1"), "Safari · iPhone");
+  assert.equal(pushDeviceLabel("Mozilla/5.0 (Windows NT 10.0) Chrome/130 Safari/537.36 Edg/130"), "Edge · Windows");
+  assert.equal(pushDeviceLabel("Mozilla/5.0 (Linux; Android 14) SamsungBrowser/27 Chrome/130 Safari/537.36"), "Samsung Internet · Android");
+  assert.equal(pushDeviceLabel(""), "Navegador");
 });
 
 test("service worker displays push with no open page and notification click opens the order board", async () => {

@@ -36,6 +36,13 @@
       "when": 1794099600000,
       "tag": "0004_admin_push",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794103200000,
+      "tag": "0005_push_devices",
+      "breakpoints": true
     }
   ]
 }

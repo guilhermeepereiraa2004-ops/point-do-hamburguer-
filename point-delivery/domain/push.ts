@@ -1,4 +1,18 @@
 export type PushTarget = { endpoint: string; keys: { p256dh: string; auth: string } };
+export type PushDevice = { id: string; label: string; updatedAt: number };
+
+export function pushDeviceLabel(userAgent: string) {
+  const browser = /SamsungBrowser\//.test(userAgent) ? "Samsung Internet" :
+    /(?:OPR|OPiOS)\//.test(userAgent) ? "Opera" :
+    /Edg(?:e|A|iOS)?\//.test(userAgent) ? "Edge" :
+    /(?:Chrome|CriOS)\//.test(userAgent) ? "Chrome" :
+    /(?:Firefox|FxiOS)\//.test(userAgent) ? "Firefox" :
+    /Safari\//.test(userAgent) ? "Safari" : "Navegador";
+  const system = /iPhone|iPod/.test(userAgent) ? "iPhone" : /iPad/.test(userAgent) ? "iPad" :
+    /Android/.test(userAgent) ? "Android" : /Windows/.test(userAgent) ? "Windows" :
+    /Macintosh|Mac OS X/.test(userAgent) ? "Mac" : /Linux/.test(userAgent) ? "Linux" : "";
+  return system ? `${browser} · ${system}` : browser;
+}
 
 export function validatePushTarget(input: unknown): PushTarget {
   if (!input || typeof input !== "object") throw new Error("Inscrição de notificações inválida.");

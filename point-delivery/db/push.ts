@@ -1,29 +1,45 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { Database } from "./contracts";
-import type { PushTarget } from "../domain/push";
+import type { PushDevice, PushTarget } from "../domain/push";
 
 const targetId = (endpoint: string) => createHash("sha256").update(endpoint).digest("hex");
 
-export async function savePushTarget(db: Database, userId: string, target: PushTarget) {
+export async function savePushTarget(db: Database, userId: string, target: PushTarget, label = "Aparelho cadastrado") {
   await db.prepare(`
-    INSERT INTO push_subscriptions(id,user_id,endpoint,p256dh,auth,updated_at)
-    SELECT ?,?,?,?,?,? WHERE
+    INSERT INTO push_subscriptions(id,user_id,endpoint,p256dh,auth,updated_at,device_label)
+    SELECT ?,?,?,?,?,?,? WHERE
       (SELECT count(*) FROM push_subscriptions WHERE user_id=?) < 20 OR
       EXISTS(SELECT 1 FROM push_subscriptions WHERE id=?)
     ON CONFLICT(id) DO UPDATE SET user_id=excluded.user_id,p256dh=excluded.p256dh,
-      auth=excluded.auth,updated_at=excluded.updated_at
-  `).bind(targetId(target.endpoint), userId, target.endpoint, target.keys.p256dh, target.keys.auth, Date.now(),
+      auth=excluded.auth,updated_at=excluded.updated_at,device_label=excluded.device_label
+  `).bind(targetId(target.endpoint), userId, target.endpoint, target.keys.p256dh, target.keys.auth, Date.now(), label,
     userId, targetId(target.endpoint)).run();
-  const saved = await hasPushTarget(db, userId, target.endpoint);
+  const saved = await pushDeviceId(db, userId, target.endpoint);
   if (!saved) throw new Error("Limite de aparelhos atingido para este administrador.");
+  return saved;
 }
 
 export async function hasPushTarget(db: Database, userId: string, endpoint: string) {
-  return Boolean(await db.prepare("SELECT id FROM push_subscriptions WHERE id=? AND user_id=?").bind(targetId(endpoint), userId).first());
+  return await pushDeviceId(db, userId, endpoint) !== null;
 }
 
 export async function removePushTarget(db: Database, userId: string, endpoint: string) {
-  await db.prepare("DELETE FROM push_subscriptions WHERE id=? AND user_id=?").bind(targetId(endpoint), userId).run();
+  await removePushDevice(db, userId, targetId(endpoint));
+}
+
+export async function listPushDevices(db: Database, userId: string): Promise<PushDevice[]> {
+  const { results } = await db.prepare("SELECT id,device_label,updated_at FROM push_subscriptions WHERE user_id=? ORDER BY updated_at DESC,id")
+    .bind(userId).all<{ id: string; device_label: string; updated_at: number | string }>();
+  return results.map(row => ({ id: row.id, label: row.device_label, updatedAt: Number(row.updated_at) }));
+}
+
+export async function removePushDevice(db: Database, userId: string, id: string) {
+  await db.prepare("DELETE FROM push_subscriptions WHERE id=? AND user_id=?").bind(id, userId).run();
+}
+
+export async function pushDeviceId(db: Database, userId: string, endpoint: string) {
+  const row = await db.prepare("SELECT id FROM push_subscriptions WHERE id=? AND user_id=?").bind(targetId(endpoint), userId).first<{ id: string }>();
+  return row?.id ?? null;
 }
 
 export async function readPushTarget(db: Database, userId: string, endpoint: string): Promise<PushTarget | null> {

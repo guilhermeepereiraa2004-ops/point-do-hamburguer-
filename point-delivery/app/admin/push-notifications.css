@@ -20,6 +20,16 @@
 }
 .push-settings-actions button:disabled { opacity: .55; }
 .push-settings-message { flex-basis: 100%; }
+.push-devices { flex-basis: 100%; min-width: 0; padding-top: 16px; border-top: 1px solid #ecd6c8; }
+.push-devices > header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.admin-app .push-devices h3 { margin: 0 0 4px; font-size: 14px; color: #382e27; }
+.push-devices button { min-height: 44px; padding: 9px 12px; border: 1px solid #dac4b6; border-radius: 8px; color: #8c3c19; background: #fff; font-size: 12px; }
+.push-devices ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.push-devices li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px; background: #fff; border: 1px solid #e8ddd6; border-radius: 10px; }
+.push-devices li > div { min-width: 0; overflow-wrap: anywhere; }
+.push-devices strong { font-size: 13px; color: #382e27; }
+.push-devices small { display: block; margin-top: 5px; font-size: 11px; line-height: 1.6; color: #68594f; }
+.push-current-device { display: inline-block; margin-left: 8px; padding: 2px 6px; border-radius: 5px; background: #e6f5ec; color: #275743; font-size: 10px; }
 @media(max-width: 600px) {
   .push-settings { padding: 15px; }
   .push-settings-actions, .push-settings-actions button { flex: 1 1 100%; }
