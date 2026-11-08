@@ -166,7 +166,7 @@ test("service worker activates updates immediately and displays an alert with no
   assert.match(notifications[0].options.body, /ABC123/);
   assert.equal(notifications[0].options.silent, false);
   assert.equal(notifications[0].options.renotify, true);
-  assert.deepEqual(Array.from(notifications[0].options.vibrate), [300, 120, 300, 120, 600]);
+  assert.equal("vibrate" in notifications[0].options, false);
   handlers.notificationclick({ notification: { close() {} }, waitUntil: work => { completion = work; } });
   await completion;
   assert.deepEqual(opened, ["https://point.example/admin?section=pedidos"]);
@@ -199,7 +199,7 @@ test("display receipts require a valid unexpired signature and log only bounded 
   assert.equal(records.length, 0);
 });
 
-test("worker compares native alerts, falls back after rejected options and acknowledges the actual display", async () => {
+test("tests use the same alert as orders, fall back after rejected options and acknowledge the actual display", async () => {
   const handlers = {}, notifications = [], reports = [];
   let rejectOptions = false, rejectReceipt = false;
   const self = { addEventListener: (type, handler) => { handlers[type] = handler; },
@@ -224,11 +224,11 @@ test("worker compares native alerts, falls back after rejected options and ackno
     await completion;
   }
   await push({ test: true, profile: "system-default", receipt: "signed-receipt", tag: "test-1" });
-  assert.equal("silent" in notifications[0].options, false);
+  assert.equal(notifications[0].options.silent, false);
   assert.equal("vibrate" in notifications[0].options, false);
-  assert.equal(reports[0].profile, "system-default");
+  assert.equal(reports[0].profile, "standard");
   assert.equal(reports[0].displayed, true);
-  assert.equal(reports[0].revision, "point-push-20261108-2");
+  assert.equal(reports[0].revision, "point-push-20261108-3");
   assert.equal(reports[0].canonicalOrigin, true);
   rejectOptions = true;
   await push({ code: "ABC123", receipt: "signed-receipt", tag: "order-1" });
@@ -241,4 +241,23 @@ test("worker compares native alerts, falls back after rejected options and ackno
   assert.equal(notifications.length, 3);
   assert.equal(notifications[2].options.silent, false);
   assert.equal(reports[2].profile, "standard");
+});
+
+test("order and test alert options exactly match the last deployment before the Vercel transfer", async () => {
+  // Snapshot of the deployed worker in commit 21bfe4805feea982a81ddd00ce3c34e734856cc2.
+  const previous = readFileSync(new URL("./fixtures/notifications-before-transfer.js", import.meta.url), "utf8");
+  const current = readFileSync(new URL("../public/admin-notifications-sw.js", import.meta.url), "utf8");
+  async function render(source, data) {
+    const handlers = {}, alerts = [];
+    const self = { addEventListener: (name, handler) => { handlers[name] = handler; },
+      registration: { showNotification: async (title, options) => alerts.push({ title, options }) } };
+    vm.runInNewContext(source, { self, URL });
+    let completion;
+    handlers.push({ data: { json: () => data }, waitUntil: work => { completion = work; } });
+    await completion;
+    return JSON.parse(JSON.stringify(alerts));
+  }
+  for (const payload of [{ code: "ABC123", tag: "point-order-fixture" }, { test: true, tag: "point-push-test" }]) {
+    assert.deepEqual(await render(current, payload), await render(previous, payload));
+  }
 });

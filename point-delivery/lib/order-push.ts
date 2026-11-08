@@ -16,8 +16,8 @@ export async function sendPushTest(userId: string, endpoint: string) {
   const config = getPushConfig();
   const target = await readPushTarget(getStore(), userId, endpoint);
   if (!config || !target) throw new Error("Ative as notificações neste aparelho primeiro.");
-  const receipt = createPushReceipt(config.privateKey, "system-default");
-  await sendNotification(target, JSON.stringify({ test: true, profile: "system-default",
+  const receipt = createPushReceipt(config.privateKey);
+  await sendNotification(target, JSON.stringify({ test: true,
     tag: `point-push-test-${randomUUID()}`, receipt: receipt.token }),
     { vapidDetails: config, TTL: 60, urgency: "high", timeout: 7000 });
 }

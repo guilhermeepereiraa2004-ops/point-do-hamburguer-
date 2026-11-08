@@ -41,7 +41,7 @@ export async function pushReceiptResponse(request: Request, secret: string,
     if (body.length > 1024) return invalid();
     const input = JSON.parse(body);
     const receipt = verifyReceipt(input.token, secret, now);
-    if (!receipt || input.revision !== "point-push-20261108-2" ||
+    if (!receipt || !["point-push-20261108-2", "point-push-20261108-3"].includes(input.revision) ||
         !["standard", "system-default", "fallback"].includes(input.profile) ||
         typeof input.displayed !== "boolean" || typeof input.canonicalOrigin !== "boolean") return invalid();
     record({ probe: receipt.probe, revision: input.revision, requestedProfile: receipt.profile,

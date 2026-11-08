@@ -19,14 +19,13 @@ self.addEventListener("push", event => {
     tag: typeof data.tag === "string" ? data.tag : "point-new-order",
   };
   event.waitUntil((async () => {
-    let profile = data.test && data.profile === "system-default" ? "system-default" : "standard";
+    let profile = "standard";
     let displayed = false;
     try {
-      await self.registration.showNotification(title, profile === "system-default" ? basic : { ...basic,
+      await self.registration.showNotification(title, { ...basic,
         renotify: true,
         requireInteraction: true,
         silent: false,
-        vibrate: [300, 120, 300, 120, 600],
       });
       displayed = true;
     } catch {
@@ -39,7 +38,7 @@ self.addEventListener("push", event => {
         await fetch("https://point-do-hamburguer.vercel.app/api/push-receipt", {
           method: "POST", credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store",
           headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(5000),
-          body: JSON.stringify({ token: data.receipt, revision: "point-push-20261108-2", profile, displayed,
+          body: JSON.stringify({ token: data.receipt, revision: "point-push-20261108-3", profile, displayed,
             canonicalOrigin: self.location.origin === "https://point-do-hamburguer.vercel.app" }),
         });
       } catch {}
