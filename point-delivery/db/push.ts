@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { Database } from "./contracts";
 import type { PushDevice, PushTarget } from "../domain/push";
-import { validatePushDeviceName } from "../domain/push.ts";
+import { PUSH_ACK_WAIT_MS, PUSH_RETENTION_MS, validatePushDeviceName } from "../domain/push.ts";
 
 const targetId = (endpoint: string) => createHash("sha256").update(endpoint).digest("hex");
 
@@ -70,10 +70,11 @@ export async function claimPushDeliveries(db: Database, now = Date.now()) {
       JOIN push_subscriptions s ON s.id=p.subscription_id
       JOIN admin_access a ON a.user_id=s.user_id AND a.active=1 AND a.must_change_password=0
       JOIN orders o ON o.id=p.order_id AND o.status='recebido'
-      WHERE p.sent_at IS NULL AND p.next_attempt<=? AND p.locked_until<=? AND p.created_at>=?
+      WHERE p.confirmed_at IS NULL AND (p.sent_at IS NULL OR p.confirmation_required=1)
+        AND p.next_attempt<=? AND p.locked_until<=? AND p.created_at>=?
       ORDER BY p.created_at LIMIT 50 FOR UPDATE OF p SKIP LOCKED
     )
-  `).bind(token, now + 60000, now, now, now - 15 * 60000).run();
+  `).bind(token, now + 60000, now, now, now - PUSH_RETENTION_MS).run();
   const { results } = await db.prepare(`
     SELECT d.order_id,d.subscription_id,d.claim_token,o.code,s.endpoint,s.p256dh,s.auth
     FROM push_deliveries d JOIN orders o ON o.id=d.order_id
@@ -89,7 +90,12 @@ export async function finishPushDelivery(db: Database, delivery: PushDelivery, s
     return;
   }
   await db.prepare(`
-    UPDATE push_deliveries SET sent_at=?,attempts=attempts+1,next_attempt=?,claim_token=NULL,locked_until=0
+    UPDATE push_deliveries SET sent_at=COALESCE(sent_at,?),attempts=attempts+1,next_attempt=?,claim_token=NULL,locked_until=0
     WHERE order_id=? AND subscription_id=? AND claim_token=?
-  `).bind(status === "sent" ? now : null, now + 1000, delivery.order_id, delivery.subscription_id, delivery.claim_token).run();
+  `).bind(status === "sent" ? now : null, now + (status === "sent" ? PUSH_ACK_WAIT_MS : 1000), delivery.order_id, delivery.subscription_id, delivery.claim_token).run();
+}
+
+export async function confirmPushDelivery(db: Database, delivery: { orderId: string; subscriptionId: string }, now = Date.now()) {
+  await db.prepare("UPDATE push_deliveries SET confirmed_at=COALESCE(confirmed_at,?) WHERE order_id=? AND subscription_id=?")
+    .bind(now, delivery.orderId, delivery.subscriptionId).run();
 }

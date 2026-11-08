@@ -4,6 +4,7 @@ import { InsufficientStockError } from "@/domain/menu";
 import { hasValidRequestOrigin } from "@/lib/request-origin";
 import { after } from "next/server";
 import { dispatchOrderPush } from "@/lib/order-push";
+export const maxDuration = 120;
 export async function POST(request: Request) {
   try { if (!hasValidRequestOrigin(request)) return Response.json({ error: "Origem inválida." }, { status: 403 });
     if (Number(request.headers.get("content-length") || 0) > 20000) return Response.json({ error: "Pedido muito grande." }, { status: 413 });

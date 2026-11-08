@@ -33,6 +33,17 @@ self.addEventListener("push", event => {
       profile = "fallback";
       try { await self.registration.showNotification(title, basic); displayed = true; } catch {}
     }
+    if (code && !data.test) {
+      try {
+        const panels = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+        for (const panel of panels) {
+          const url = new URL(panel.url);
+          if (url.origin === self.location.origin && (url.pathname === "/admin" || url.pathname.startsWith("/admin/"))) {
+            panel.postMessage({ type: "POINT_NEW_ORDER" });
+          }
+        }
+      } catch {}
+    }
     if (typeof data.receipt === "string") {
       // Inspect the browser's resulting Notification object, not only the options
       // we requested. These fields do not prove that a physical sound played.
@@ -61,7 +72,7 @@ self.addEventListener("push", event => {
         await fetch("https://point-do-hamburguer.vercel.app/api/push-receipt", {
           method: "POST", credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store",
           headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(5000),
-          body: JSON.stringify({ token: data.receipt, revision: "point-push-20261108-5", profile, displayed, diagnostics,
+          body: JSON.stringify({ token: data.receipt, revision: "point-push-20261108-6", profile, displayed, diagnostics,
             canonicalOrigin: self.location.origin === "https://point-do-hamburguer.vercel.app" }),
         });
       } catch {}

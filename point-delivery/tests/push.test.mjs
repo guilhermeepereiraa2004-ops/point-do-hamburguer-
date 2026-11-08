@@ -6,7 +6,7 @@ import vm from "node:vm";
 import { generateVAPIDKeys, generateRequestDetails } from "web-push";
 import { postgresFixture } from "./postgres-fixture.mjs";
 import { pushDeviceLabel, validatePushDeviceName, validatePushTarget } from "../domain/push.ts";
-import { claimPushDeliveries, finishPushDelivery, hasPushTarget, listPushDevices, pushDeviceId, removePushDevice, removePushTarget, renamePushDevice, savePushTarget } from "../db/push.ts";
+import { claimPushDeliveries, confirmPushDelivery, finishPushDelivery, hasPushTarget, listPushDevices, pushDeviceId, removePushDevice, removePushTarget, renamePushDevice, savePushTarget } from "../db/push.ts";
 import { reserveOrder } from "../db/order-reservation.ts";
 import { createPushReceipt, pushReceiptResponse } from "../lib/push-receipt.ts";
 
@@ -27,8 +27,8 @@ test("push validates browser services and encrypts a signed payload without exte
   assert.ok(Buffer.isBuffer(details.body));
 });
 
-async function fixture(t) {
-  const db = await postgresFixture(t, true);
+async function fixture(t, withConfirmation = true) {
+  const db = await postgresFixture(t, true, withConfirmation);
   await db.batch([
     db.prepare(`INSERT INTO auth_user(id,name,email,"emailVerified") VALUES ('admin','Teste','admin@example.test',true)`),
     db.prepare("INSERT INTO admin_access(user_id,must_change_password) VALUES ('admin',0)"),
@@ -76,6 +76,66 @@ test("revoked administrators stop receiving push and expired or removed devices 
   assert.equal(await hasPushTarget(db, "admin", target.endpoint), true);
   await removePushTarget(db, "admin", target.endpoint);
   assert.equal(await hasPushTarget(db, "admin", target.endpoint), false);
+});
+
+test("provider acceptance retries until an authenticated display receipt confirms the exact delivery", async t => {
+  const { db, order } = await fixture(t), now = Date.now();
+  await reserveOrder(db, order, []);
+  const [delivery] = await claimPushDeliveries(db, now);
+  await finishPushDelivery(db, delivery, "sent", now);
+  assert.equal((await claimPushDeliveries(db, now + 29999)).length, 0);
+  const [retry] = await claimPushDeliveries(db, now + 31000);
+  assert.ok(retry);
+  const secret = "test-only-push-receipt-secret-not-used-in-production";
+  const reference = { orderId: delivery.order_id, subscriptionId: delivery.subscription_id };
+  const receipt = createPushReceipt(secret, "standard", now, reference), records = [], confirmed = [];
+  const body = { token: receipt.token, revision: "point-push-20261108-6", profile: "standard", displayed: false, canonicalOrigin: true,
+    delivery: { orderId: crypto.randomUUID(), subscriptionId: "a".repeat(64) } };
+  const request = value => new Request("https://point.example/api/push-receipt", { method: "POST", body: JSON.stringify(value) });
+  const confirm = async ref => { confirmed.push(ref); await confirmPushDelivery(db, ref, now + 32000); };
+  assert.equal((await pushReceiptResponse(request(body), secret, event => records.push(event), now + 31000, confirm)).status, 204);
+  assert.equal(confirmed.length, 0);
+  assert.equal((await pushReceiptResponse(request({ ...body, displayed: true }), secret, event => records.push(event), now + 31000, confirm)).status, 204);
+  assert.deepEqual(confirmed, [reference]);
+  assert.equal(JSON.stringify(records).includes(delivery.order_id), false);
+  await finishPushDelivery(db, retry, "sent", now + 33000);
+  await confirmPushDelivery(db, reference, now + 40000);
+  assert.deepEqual(await db.prepare("SELECT sent_at,confirmed_at,attempts FROM push_deliveries").first(), { sent_at: now, confirmed_at: now + 32000, attempts: 2 });
+  assert.equal((await claimPushDeliveries(db, now + 70000)).length, 0);
+  assert.equal((await pushReceiptResponse(request({ ...body, displayed: true }), secret, () => {}, now + 3600000, async () => {})).status, 204);
+  assert.equal((await pushReceiptResponse(request({ ...body, displayed: true }), secret, () => {}, now + 25 * 3600000, confirm)).status, 404);
+  const late = { ...order, id: crypto.randomUUID(), idempotencyKey: crypto.randomUUID() };
+  await reserveOrder(db, late, []);
+  assert.equal((await claimPushDeliveries(db, now + 23 * 3600000)).length, 1);
+  assert.equal((await claimPushDeliveries(db, now + 25 * 3600000)).length, 0);
+});
+
+test("confirmation migration preserves legacy sends without replaying old orders", async t => {
+  const { db, order } = await fixture(t, false), acceptedAt = Date.now();
+  await reserveOrder(db, order, []);
+  await db.prepare("UPDATE push_deliveries SET sent_at=?,attempts=1").bind(acceptedAt).run();
+  const sql = readFileSync(new URL("../drizzle-pg/0009_push_confirmation.sql", import.meta.url), "utf8");
+  for (const statement of sql.split(/;\s*(?:\r?\n|$)/).map(s => s.trim()).filter(Boolean)) await db.prepare(statement).run();
+  assert.deepEqual(await db.prepare("SELECT confirmed_at,confirmation_required FROM push_deliveries").first(), { confirmed_at: null, confirmation_required: 0 });
+  assert.equal((await claimPushDeliveries(db)).length, 0);
+  await reserveOrder(db, { ...order, id: crypto.randomUUID(), idempotencyKey: crypto.randomUUID() }, []);
+  assert.equal((await claimPushDeliveries(db)).length, 1);
+});
+
+test("a worker push prompts only this origin's open admin panels to fetch new orders", async () => {
+  const handlers = {}, messages = [];
+  const panel = url => ({ url, postMessage: message => messages.push({ url, message }) });
+  const self = { location: { origin: "https://point.example" }, addEventListener: (name, handler) => { handlers[name] = handler; },
+    registration: { showNotification: async () => {} },
+    clients: { matchAll: async () => [panel("https://point.example/admin"), panel("https://point.example/"), panel("https://other.example/admin")] } };
+  vm.runInNewContext(readFileSync(new URL("../public/admin-notifications-sw.js", import.meta.url), "utf8"), { self, URL });
+  async function push(data) { let done; handlers.push({ data: { json: () => data }, waitUntil: task => { done = task; } }); await done; }
+  await push({ code: "NEW123" });
+  assert.equal(messages.length, 1);
+  assert.equal(messages[0].url, "https://point.example/admin");
+  assert.equal(JSON.stringify(messages[0].message), JSON.stringify({ type: "POINT_NEW_ORDER" }));
+  await push({ test: true, code: "TEST" });
+  assert.equal(messages.length, 1);
 });
 
 test("device management lists only this administrator's registrations and removal cancels only the selected delivery", async t => {
@@ -228,7 +288,7 @@ test("tests use the same alert as orders, fall back after rejected options and a
   assert.equal("vibrate" in notifications[0].options, false);
   assert.equal(reports[0].profile, "standard");
   assert.equal(reports[0].displayed, true);
-  assert.equal(reports[0].revision, "point-push-20261108-5");
+  assert.equal(reports[0].revision, "point-push-20261108-6");
   assert.equal(reports[0].canonicalOrigin, true);
   rejectOptions = true;
   await push({ code: "ABC123", receipt: "signed-receipt", tag: "order-1" });

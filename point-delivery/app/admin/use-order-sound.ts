@@ -58,14 +58,23 @@ export function useOrderSound(pendingIds: string[]) {
     };
     try { restore(localStorage.getItem(preferenceKey)); } catch {}
     const unlock = () => { if (preference.current && audio.current?.state !== "running") resumeSound(); };
+    const recover = () => { if (document.visibilityState === "visible") unlock(); };
     const sync = (event: StorageEvent) => { if (event.key === preferenceKey || event.key === null) restore(event.newValue); };
     window.addEventListener("pointerup", unlock);
     window.addEventListener("keydown", unlock);
     window.addEventListener("storage", sync);
+    window.addEventListener("focus", recover);
+    window.addEventListener("pageshow", recover);
+    window.addEventListener("online", recover);
+    document.addEventListener("visibilitychange", recover);
     return () => {
       window.removeEventListener("pointerup", unlock);
       window.removeEventListener("keydown", unlock);
       window.removeEventListener("storage", sync);
+      window.removeEventListener("focus", recover);
+      window.removeEventListener("pageshow", recover);
+      window.removeEventListener("online", recover);
+      document.removeEventListener("visibilitychange", recover);
       const context = audio.current;
       audio.current = null;
       if (context) {
@@ -91,5 +100,5 @@ export function useOrderSound(pendingIds: string[]) {
     if (preference.current) resumeSound(true);
   }
 
-  return { enabled, ready, error, toggleSound, unlockSound: () => resumeSound() };
+  return { enabled, ready, error, toggleSound, unlockSound: () => resumeSound(true) };
 }

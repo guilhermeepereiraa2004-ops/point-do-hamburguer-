@@ -64,6 +64,13 @@
       "when": 1794164400000,
       "tag": "0008_cash_change",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1794170400000,
+      "tag": "0009_push_confirmation",
+      "breakpoints": true
     }
   ]
 }

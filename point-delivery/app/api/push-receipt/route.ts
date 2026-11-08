@@ -1,8 +1,11 @@
 import { pushReceiptResponse } from "@/lib/push-receipt";
+import { confirmPushDelivery } from "@/db/push";
+import { getStore } from "@/db";
 
 export async function POST(request: Request) {
   return pushReceiptResponse(request, process.env.WEB_PUSH_PRIVATE_KEY || "",
-    event => console.info("[push-receipt]", JSON.stringify(event)));
+    event => console.info("[push-receipt]", JSON.stringify(event)), Date.now(),
+    delivery => confirmPushDelivery(getStore(), delivery));
 }
 
 export function OPTIONS() {

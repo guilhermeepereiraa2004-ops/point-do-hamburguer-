@@ -59,6 +59,13 @@ export default function AdminPanel(){
    }
  },[]);
  useEffect(()=>{try{ack.current=new Set(JSON.parse(localStorage.getItem('point-ack')||'[]'));}catch{}void load();const timer=setInterval(()=>void load(),5000);return()=>clearInterval(timer);},[load]);
+ useEffect(()=>{
+   const refresh=()=>{if(document.visibilityState==='visible')void load();};
+   const pushed=(event:MessageEvent)=>{if(event.data?.type==='POINT_NEW_ORDER')void load();};
+   window.addEventListener('online',refresh);window.addEventListener('focus',refresh);window.addEventListener('pageshow',refresh);
+   document.addEventListener('visibilitychange',refresh);navigator.serviceWorker?.addEventListener('message',pushed);
+   return()=>{window.removeEventListener('online',refresh);window.removeEventListener('focus',refresh);window.removeEventListener('pageshow',refresh);document.removeEventListener('visibilitychange',refresh);navigator.serviceWorker?.removeEventListener('message',pushed);};
+ },[load]);
  function acknowledge(ids:string[]){ids.forEach(id=>ack.current.add(id));localStorage.setItem('point-ack',JSON.stringify([...ack.current]));setUnseen(s=>s.filter(id=>!ids.includes(id)));}
  async function mutate(input:Record<string,unknown>){
    if(busy)return 'Aguarde a operação atual.';
@@ -90,7 +97,7 @@ export default function AdminPanel(){
   <header className="admin-topbar">
    <span className="workspace-breadcrumb"><span className="admin-topbar-icon"><LayoutDashboard size={17} aria-hidden="true"/></span> Gestão <span className="admin-breadcrumb-divider">/</span><b>{adminSectionLabel(tab)}</b></span>
    <div className="workspace-mobile-title"><span className="workspace-brand-icon"><Hamburger size={21} aria-hidden="true"/></span><span><small>Point do Hambúrguer</small><strong>{adminSectionLabel(tab)}</strong></span></div>
-   <div className="admin-topbar-actions"><span className={connection?"admin-status is-connected":"admin-status"}><i/>{connection?"Atualizado ao vivo":"Reconectando"}</span><button type="button" onClick={toggleSound} aria-pressed={enabled} aria-label="Sineta de pedidos" className={enabled?"sound-button enabled":"sound-button"}>{enabled?<Bell size={16} aria-hidden="true"/>:<BellOff size={16} aria-hidden="true"/>}<span>{enabled?"Sineta ativada":"Ativar sineta"}</span></button></div>
+   <div className="admin-topbar-actions"><span className={connection?"admin-status is-connected":"admin-status"}><i/>{connection?"Atualizado ao vivo":"Reconectando"}</span><button type="button" onClick={enabled?unlockSound:toggleSound} aria-pressed={enabled} aria-label="Sineta de pedidos" className={enabled?"sound-button enabled":"sound-button"}>{enabled?<Bell size={16} aria-hidden="true"/>:<BellOff size={16} aria-hidden="true"/>}<span>{enabled?(soundReady?"Sineta ativada":"Liberar som"):"Ativar sineta"}</span></button>{enabled&&<button type="button" className="sound-button" onClick={toggleSound} aria-label="Desativar sineta" title="Desativar sineta"><BellOff size={16} aria-hidden="true"/></button>}</div>
   </header>
   <div className="admin-content"><div className="admin-page-title"><div className="eyebrow">POINT DO HAMBÚRGUER</div><h1 ref={headingRef} tabIndex={-1}>{pageHeadings[tab].title}</h1><p>{pageHeadings[tab].description}</p></div>
  {connectionIssue&&<div className="notice error" role="status"><span>{connectionIssue.message} {connectionIssue.signIn&&<a href="/sign-in">Entrar no painel</a>}</span></div>}

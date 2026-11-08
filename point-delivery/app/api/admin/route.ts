@@ -7,6 +7,7 @@ import { after } from "next/server";
 import { dispatchOrderPush } from "@/lib/order-push";
 import type { Status } from "@/domain/menu";
 import { hasValidRequestOrigin } from "@/lib/request-origin";
+export const maxDuration = 120;
 async function checkAdmin(): Promise<Response | null> {
   try {
     return await isAdmin() ? null : Response.json({ error: "Acesso restrito." }, { status: 403 });

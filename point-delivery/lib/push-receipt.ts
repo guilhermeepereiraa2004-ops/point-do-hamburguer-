@@ -1,7 +1,9 @@
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { PUSH_RETENTION_MS } from "../domain/push.ts";
 
 export type PushAlertProfile = "standard" | "system-default";
-type Receipt = { probe: string; expires: number; profile: PushAlertProfile };
+export type PushDeliveryReference = { orderId: string; subscriptionId: string };
+type Receipt = { probe: string; expires: number; profile: PushAlertProfile; delivery?: PushDeliveryReference };
 type PushDiagnostics = {
   browser: "chrome" | "edge" | "firefox" | "safari" | "other"; browserMajor: number;
   platform: "android" | "ios" | "desktop" | "other"; notificationRead: boolean;
@@ -15,9 +17,9 @@ export type PushReceiptEvent = {
 const lifetime = 20 * 60 * 1000;
 const signature = (payload: string, secret: string) => createHmac("sha256", secret).update(`point:push-receipt:v1:${payload}`).digest("base64url");
 
-export function createPushReceipt(secret: string, profile: PushAlertProfile = "standard", now = Date.now()) {
+export function createPushReceipt(secret: string, profile: PushAlertProfile = "standard", now = Date.now(), delivery?: PushDeliveryReference) {
   if (secret.length < 32) throw new Error("Notificações não configuradas.");
-  const receipt: Receipt = { probe: randomUUID(), expires: now + lifetime, profile };
+  const receipt: Receipt = { probe: randomUUID(), expires: now + (delivery ? PUSH_RETENTION_MS : lifetime), profile, ...(delivery ? { delivery } : {}) };
   const payload = Buffer.from(JSON.stringify(receipt)).toString("base64url");
   return { probe: receipt.probe, token: `${payload}.${signature(payload, secret)}` };
 }
@@ -29,8 +31,10 @@ function verifyReceipt(token: unknown, secret: string, now: number): Receipt | n
   try {
     const receipt = JSON.parse(Buffer.from(match[1], "base64url").toString("utf8")) as Receipt;
     if (!/^[0-9a-f-]{36}$/.test(receipt.probe) || !Number.isSafeInteger(receipt.expires) ||
-        receipt.expires <= now || receipt.expires > now + lifetime ||
+        receipt.expires <= now || receipt.expires > now + (receipt.delivery ? PUSH_RETENTION_MS : lifetime) ||
         !["standard", "system-default"].includes(receipt.profile)) return null;
+    if (receipt.delivery && (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/.test(receipt.delivery.orderId) ||
+        !/^[0-9a-f]{64}$/.test(receipt.delivery.subscriptionId))) return null;
     return receipt;
   } catch { return null; }
 }
@@ -38,7 +42,7 @@ function verifyReceipt(token: unknown, secret: string, now: number): Receipt | n
 // Only a recipient of a short-lived encrypted push can submit a display receipt.
 // No endpoint, user identifier, order or customer data is included in this log.
 export async function pushReceiptResponse(request: Request, secret: string,
-  record: (event: PushReceiptEvent) => void, now = Date.now()) {
+  record: (event: PushReceiptEvent) => void, now = Date.now(), confirm?: (delivery: PushDeliveryReference) => Promise<void>) {
   const headers = { "Cache-Control": "no-store", "Access-Control-Allow-Origin": "*" };
   const invalid = () => new Response(null, { status: 404, headers });
   if (Number(request.headers.get("content-length") || 0) > 1024) return invalid();
@@ -47,7 +51,7 @@ export async function pushReceiptResponse(request: Request, secret: string,
     if (body.length > 1024) return invalid();
     const input = JSON.parse(body);
     const receipt = verifyReceipt(input.token, secret, now);
-    if (!receipt || !["point-push-20261108-2", "point-push-20261108-3", "point-push-20261108-4", "point-push-20261108-5"].includes(input.revision) ||
+    if (!receipt || !["point-push-20261108-2", "point-push-20261108-3", "point-push-20261108-4", "point-push-20261108-5", "point-push-20261108-6"].includes(input.revision) ||
         !["standard", "system-default", "fallback"].includes(input.profile) ||
         typeof input.displayed !== "boolean" || typeof input.canonicalOrigin !== "boolean") return invalid();
     const details = input.diagnostics;
@@ -64,6 +68,7 @@ export async function pushReceiptResponse(request: Request, secret: string,
         notificationRead: details.notificationRead, notificationCount: details.notificationCount,
         actualSilent: details.actualSilent, actualRenotify: details.actualRenotify };
     }
+    if (input.displayed && receipt.delivery && confirm) await confirm(receipt.delivery);
     record({ probe: receipt.probe, revision: input.revision, requestedProfile: receipt.profile,
       displayedProfile: input.profile, displayed: input.displayed, canonicalOrigin: input.canonicalOrigin,
       ...(diagnostics ? { diagnostics } : {}) });

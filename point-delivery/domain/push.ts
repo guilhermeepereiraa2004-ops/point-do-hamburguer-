@@ -1,5 +1,7 @@
 export type PushTarget = { endpoint: string; keys: { p256dh: string; auth: string } };
 export type PushDevice = { id: string; label: string; updatedAt: number };
+export const PUSH_RETENTION_MS = 24 * 60 * 60 * 1000;
+export const PUSH_ACK_WAIT_MS = 30_000;
 
 export function validatePushDeviceName(input: unknown): string {
   if (typeof input !== "string" || !input.trim() || input.trim().length > 60 || /[\u0000-\u001f\u007f]/.test(input)) {
