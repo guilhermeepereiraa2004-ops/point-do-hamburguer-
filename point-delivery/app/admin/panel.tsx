@@ -11,6 +11,7 @@ import { OrderBoard } from "./order-board";
 import { AdminNavigation, adminSectionLabel, type AdminSection } from "./admin-navigation";
 import { ManagementDialog, Overview, FinanceView, ProductCatalogView, type Receipt } from "./management-panels";
 import { CustomerView } from './customer-view';
+import { useOrderSound } from "./use-order-sound";
 import type { CustomerProfile, MonthlyReport } from "@/domain/reporting";
 import type { ManualEntry } from "@/domain/management";
 
@@ -22,7 +23,8 @@ export default function AdminPanel(){
  const [connectionIssue,setConnectionIssue]=useState<{message:string; signIn:boolean}|null>(null);
  const [notice,setNotice]=useState<{message:string; error:boolean}|null>(null);
  const connection=data!==null && connectionIssue===null;
- const [edit,setEdit]=useState<{kind:string;id?:string;label:string;value:number|null}|null>(null),[enabled,setEnabled]=useState(false),[unseen,setUnseen]=useState<string[]>([]);
+ const [edit,setEdit]=useState<{kind:string;id?:string;label:string;value:number|null}|null>(null),[unseen,setUnseen]=useState<string[]>([]);
+ const { enabled, ready: soundReady, error: soundError, toggleSound, unlockSound } = useOrderSound(unseen);
  const [stockSearch,setStockSearch]=useState('');
  const headingRef=useRef<HTMLHeadingElement>(null);
  function navigate(section:AdminSection){
@@ -30,7 +32,7 @@ export default function AdminPanel(){
    window.scrollTo({top:0,behavior:'instant'});
    requestAnimationFrame(()=>headingRef.current?.focus({preventScroll:true}));
  }
- const audio=useRef<AudioContext|null>(null),ack=useRef<Set<string>>(new Set());
+ const ack=useRef<Set<string>>(new Set());
  const loadSequence=useRef(0), appliedLoad=useRef(0);
  const load=useCallback(async()=>{
    const sequence=++loadSequence.current;
@@ -54,8 +56,6 @@ export default function AdminPanel(){
    }
  },[]);
  useEffect(()=>{try{ack.current=new Set(JSON.parse(localStorage.getItem('point-ack')||'[]'));}catch{}void load();const timer=setInterval(()=>void load(),5000);return()=>clearInterval(timer);},[load]);
- function bell(){const ctx=audio.current;if(!ctx||ctx.state!=='running')return;[1050,1580,2100].forEach((frequency,i)=>{const osc=ctx.createOscillator(),gain=ctx.createGain();osc.type='sine';osc.frequency.value=frequency;gain.gain.setValueAtTime(0,ctx.currentTime);gain.gain.linearRampToValueAtTime(.22/(i+1),ctx.currentTime+.012);gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+1.7);osc.connect(gain);gain.connect(ctx.destination);osc.start();osc.stop(ctx.currentTime+1.8);});}
- useEffect(()=>{if(!enabled||!unseen.length)return;bell();const t=setInterval(bell,4000);return()=>clearInterval(t);},[enabled,unseen.join(',')]);
  function acknowledge(ids:string[]){ids.forEach(id=>ack.current.add(id));localStorage.setItem('point-ack',JSON.stringify([...ack.current]));setUnseen(s=>s.filter(id=>!ids.includes(id)));}
  async function mutate(input:Record<string,unknown>){
    if(busy)return 'Aguarde a operação atual.';
@@ -78,7 +78,6 @@ export default function AdminPanel(){
      return message;
    }finally{setBusy(false);}
  }
- async function toggleSound(){if(enabled){setEnabled(false);return;}try{audio.current||=new AudioContext();await audio.current.resume();setEnabled(true);bell();}catch{setNotice({message:'Não foi possível ativar o áudio. Verifique o navegador.',error:true});}}
  function save(e:FormEvent<HTMLFormElement>){e.preventDefault();const f=new FormData(e.currentTarget);const value=Number(String(f.get('value')).replace(',','.'));void mutate({kind:edit?.kind,id:edit?.id,value:edit?.kind==='stock'?value:Math.round(value*100),reason:f.get('reason')});}
  const pending=data?.orders.filter(o=>!['concluido','cancelado'].includes(o.status))||[];
  const stockItems=(data?.catalog.ingredients||[]).filter(item=>item.category!=='Complementos'&&item.name.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').includes(stockSearch.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR').trim()));
@@ -92,8 +91,10 @@ export default function AdminPanel(){
   </header>
   <div className="admin-content"><div className="admin-page-title"><div className="eyebrow">POINT DO HAMBÚRGUER</div><h1 ref={headingRef} tabIndex={-1}>{pageHeadings[tab].title}</h1><p>{pageHeadings[tab].description}</p></div>
  {connectionIssue&&<div className="notice error" role="status"><span>{connectionIssue.message} {connectionIssue.signIn&&<a href="/sign-in">Entrar no painel</a>}</span></div>}
+ {soundError&&<div className="notice error" role="status">{soundError}</div>}
+ {enabled&&!soundReady&&<div className="notice" role="status"><span>Sineta ativada. Toque no painel para liberar o som neste navegador.</span><button type="button" onClick={unlockSound}>Liberar som</button></div>}
  {notice&&<div className={`notice${notice.error?' error':''}`} role="status">{notice.message}<button onClick={()=>setNotice(null)} aria-label="Dispensar aviso"><X size={13}/></button></div>}
- {unseen.length>0&&<div className="new-order-alert"><Bell size={22}/><div><strong>{unseen.length} pedido{unseen.length>1?'s novos':' novo'} no point!</strong><p>{enabled?'A sineta toca até você reconhecer o alerta.':'Ative a sineta para receber o aviso sonoro.'}</p></div><button className="button primary" onClick={()=>acknowledge(unseen)}><Check size={15}/> Estou ciente</button></div>}
+ {unseen.length>0&&<div className="new-order-alert"><Bell size={22}/><div><strong>{unseen.length} pedido{unseen.length>1?'s novos':' novo'} no point!</strong><p>{enabled?(soundReady?'A sineta toca até você reconhecer o alerta.':'Toque no painel para liberar o aviso sonoro.'):'Ative a sineta para receber o aviso sonoro.'}</p></div><button className="button primary" onClick={()=>acknowledge(unseen)}><Check size={15}/> Estou ciente</button></div>}
  {!data?<div className="loading-state">{connectionIssue?(connectionIssue.signIn?'Aguardando acesso ao painel.':'Aguardando conexão com o painel…'):'Carregando seu painel…'}</div>:<>
  {tab==='dashboard'&&<Overview report={data.report}/>}
  {tab==='cardapio'&&<ProductCatalogView items={data.catalog.ingredients.filter(i=>i.category==='Complementos')} busy={busy} mutate={mutate} adjustStock={item=>setEdit({kind:'stock',id:item.id,label:'Ajustar '+item.name,value:item.stock})}/>}
