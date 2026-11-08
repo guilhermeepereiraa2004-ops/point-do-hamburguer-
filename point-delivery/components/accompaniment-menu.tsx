@@ -8,6 +8,7 @@ const groups = [
   { id: "bebidas", title: "Bebidas", description: "Refrigerantes e sucos", icon: CupSoda },
   { id: "outros", title: "Outros acompanhamentos", description: "Mais opções do seu point", icon: Utensils },
 ];
+const friesPhotos = new Set(["tradicional", "bacon", "calabresa", "cheddar", "bacon-calabresa", "bacon-cheddar", "calabresa-cheddar", "completa"].map(flavor => `batata-frita-${flavor}`));
 export function accompanimentGroup(item: Ingredient) {
   const type = item.extraType || item.id;
   return type === "batata-frita" ? "batatas" : ["refrigerante", "suco"].includes(type) ? "bebidas" : "outros";
@@ -28,7 +29,9 @@ export function AccompanimentMenu({ items, selection, disabled, onChange }: { it
         {!products.length && <p className="accompaniment-empty">Novas opções em breve.</p>}
         {products.map(item => {
           const value = selection[item.id] || 0, available = isIngredientAvailable(item) && item.price !== null;
-          return <div className={`compact-product ${value ? "is-selected" : ""} ${!available ? "sold-out" : ""}`} key={item.id}>
+          const photo = friesPhotos.has(item.id) ? `/images/accompaniments/${item.id}.webp` : null;
+          return <div className={`compact-product ${photo ? "has-photo" : ""} ${value ? "is-selected" : ""} ${!available ? "sold-out" : ""}`} key={item.id}>
+            {photo && <div className="accompaniment-photo"><img src={photo} alt="" width={144} height={144} loading="lazy" decoding="async"/></div>}
             <div className="compact-product-info"><h5>{item.name}</h5>{item.description && <p>{item.description}</p>}
               <div className="compact-product-price"><strong>{item.price === null ? "Preço a configurar" : money(item.price)}</strong>{!available && <span>Indisponível</span>}</div>
               {!item.featured && value > 0 && <small>Retirado do cardápio. Remova para continuar.</small>}
