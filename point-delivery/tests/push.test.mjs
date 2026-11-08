@@ -8,6 +8,7 @@ import { postgresFixture } from "./postgres-fixture.mjs";
 import { pushDeviceLabel, validatePushDeviceName, validatePushTarget } from "../domain/push.ts";
 import { claimPushDeliveries, finishPushDelivery, hasPushTarget, listPushDevices, pushDeviceId, removePushDevice, removePushTarget, renamePushDevice, savePushTarget } from "../db/push.ts";
 import { reserveOrder } from "../db/order-reservation.ts";
+import { createPushReceipt, pushReceiptResponse } from "../lib/push-receipt.ts";
 
 const vapid = generateVAPIDKeys();
 const target = { endpoint: "https://fcm.googleapis.com/fcm/send/fixture", keys: { p256dh: vapid.publicKey, auth: randomBytes(16).toString("base64url") } };
@@ -169,4 +170,75 @@ test("service worker activates updates immediately and displays an alert with no
   handlers.notificationclick({ notification: { close() {} }, waitUntil: work => { completion = work; } });
   await completion;
   assert.deepEqual(opened, ["https://point.example/admin?section=pedidos"]);
+});
+
+test("display receipts require a valid unexpired signature and log only bounded diagnostic fields", async () => {
+  const secret = "test-only-push-receipt-secret-not-used-in-production";
+  const now = Date.now(), receipt = createPushReceipt(secret, "system-default", now), records = [];
+  const report = { token: receipt.token, revision: "point-push-20261108-2", profile: "system-default",
+    displayed: true, canonicalOrigin: true, endpoint: "PRIVATE", customer: "PRIVATE" };
+  const request = body => new Request("https://point.example/api/push-receipt", { method: "POST", body: JSON.stringify(body) });
+  const response = await pushReceiptResponse(request(report), secret, event => records.push(event), now);
+  assert.equal(response.status, 204);
+  assert.equal(response.headers.get("cache-control"), "no-store");
+  assert.deepEqual(records, [{ probe: receipt.probe, revision: report.revision, requestedProfile: "system-default",
+    displayedProfile: "system-default", displayed: true, canonicalOrigin: true }]);
+  records.length = 0;
+  const candidates = [undefined, "invalid", receipt.token.slice(0, -1) + (receipt.token.endsWith("A") ? "B" : "A"),
+    createPushReceipt(secret + "other", "system-default", now).token,
+    createPushReceipt(secret, "system-default", now - 21 * 60000).token,
+    createPushReceipt(secret, "system-default", now + 60000).token];
+  for (const token of candidates) {
+    assert.equal((await pushReceiptResponse(request({ ...report, token }), secret, event => records.push(event), now)).status, 404);
+  }
+  for (const changes of [{ revision: "untrusted\nlog" }, { displayed: "yes" }, { profile: "unknown" }, { canonicalOrigin: "true" }]) {
+    assert.equal((await pushReceiptResponse(request({ ...report, ...changes }), secret, event => records.push(event), now)).status, 404);
+  }
+  assert.equal((await pushReceiptResponse(request(null), secret, event => records.push(event), now)).status, 404);
+  assert.equal((await pushReceiptResponse(request({ ...report, extra: "x".repeat(1024) }), secret, event => records.push(event), now)).status, 404);
+  assert.equal(records.length, 0);
+});
+
+test("worker compares native alerts, falls back after rejected options and acknowledges the actual display", async () => {
+  const handlers = {}, notifications = [], reports = [];
+  let rejectOptions = false, rejectReceipt = false;
+  const self = { addEventListener: (type, handler) => { handlers[type] = handler; },
+    location: { origin: "https://point-do-hamburguer.vercel.app" },
+    registration: { showNotification: async (title, options) => {
+      if (rejectOptions && "silent" in options) throw new TypeError("Unsupported alert setting");
+      notifications.push({ title, options });
+    } },
+  };
+  vm.runInNewContext(readFileSync(new URL("../public/admin-notifications-sw.js", import.meta.url), "utf8"), {
+    self, URL, AbortSignal, fetch: async (url, init) => {
+      assert.equal(url, "https://point-do-hamburguer.vercel.app/api/push-receipt");
+      assert.equal(init.credentials, "omit");
+      reports.push(JSON.parse(init.body));
+      if (rejectReceipt) throw new Error("Offline receipt");
+      return { ok: true };
+    },
+  });
+  async function push(data) {
+    let completion;
+    handlers.push({ data: { json: () => data }, waitUntil: work => { completion = work; } });
+    await completion;
+  }
+  await push({ test: true, profile: "system-default", receipt: "signed-receipt", tag: "test-1" });
+  assert.equal("silent" in notifications[0].options, false);
+  assert.equal("vibrate" in notifications[0].options, false);
+  assert.equal(reports[0].profile, "system-default");
+  assert.equal(reports[0].displayed, true);
+  assert.equal(reports[0].revision, "point-push-20261108-2");
+  assert.equal(reports[0].canonicalOrigin, true);
+  rejectOptions = true;
+  await push({ code: "ABC123", receipt: "signed-receipt", tag: "order-1" });
+  assert.match(notifications[1].options.body, /ABC123/);
+  assert.equal(reports[1].profile, "fallback");
+  assert.equal(reports[1].displayed, true);
+  rejectOptions = false;
+  rejectReceipt = true;
+  await push({ code: "ABC124", receipt: "signed-receipt", tag: "order-2" });
+  assert.equal(notifications.length, 3);
+  assert.equal(notifications[2].options.silent, false);
+  assert.equal(reports[2].profile, "standard");
 });

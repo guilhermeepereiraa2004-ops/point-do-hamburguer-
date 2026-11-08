@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { sendNotification } from "web-push";
 import { getStore } from "@/db";
 import { claimPushDeliveries, finishPushDelivery, readPushTarget } from "@/db/push";
+import { createPushReceipt } from "./push-receipt";
 
 export function getPushConfig() {
   const publicKey = process.env.WEB_PUSH_PUBLIC_KEY;
@@ -15,7 +16,9 @@ export async function sendPushTest(userId: string, endpoint: string) {
   const config = getPushConfig();
   const target = await readPushTarget(getStore(), userId, endpoint);
   if (!config || !target) throw new Error("Ative as notificações neste aparelho primeiro.");
-  await sendNotification(target, JSON.stringify({ test: true, tag: `point-push-test-${randomUUID()}` }),
+  const receipt = createPushReceipt(config.privateKey, "system-default");
+  await sendNotification(target, JSON.stringify({ test: true, profile: "system-default",
+    tag: `point-push-test-${randomUUID()}`, receipt: receipt.token }),
     { vapidDetails: config, TTL: 60, urgency: "high", timeout: 7000 });
 }
 
@@ -30,7 +33,8 @@ export async function dispatchOrderPush() {
       const results = await Promise.allSettled(deliveries.map(async delivery => {
         try {
           await sendNotification({ endpoint: delivery.endpoint, keys: { p256dh: delivery.p256dh, auth: delivery.auth } },
-            JSON.stringify({ code: delivery.code, tag: `point-order-${delivery.order_id}` }),
+            JSON.stringify({ code: delivery.code, tag: `point-order-${delivery.order_id}`,
+              receipt: createPushReceipt(config.privateKey).token }),
             { vapidDetails: config, TTL: 900, urgency: "high", timeout: 7000 });
         } catch (error) {
           const status = (error as { statusCode?: number }).statusCode;
