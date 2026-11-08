@@ -1,6 +1,13 @@
 export type PushTarget = { endpoint: string; keys: { p256dh: string; auth: string } };
 export type PushDevice = { id: string; label: string; updatedAt: number };
 
+export function validatePushDeviceName(input: unknown): string {
+  if (typeof input !== "string" || !input.trim() || input.trim().length > 60 || /[\u0000-\u001f\u007f]/.test(input)) {
+    throw new Error("Informe um nome de 1 a 60 caracteres para o aparelho.");
+  }
+  return input.trim();
+}
+
 export function pushDeviceLabel(userAgent: string) {
   const browser = /SamsungBrowser\//.test(userAgent) ? "Samsung Internet" :
     /(?:OPR|OPiOS)\//.test(userAgent) ? "Opera" :

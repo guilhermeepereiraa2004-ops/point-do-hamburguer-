@@ -5,8 +5,8 @@ import { readFileSync } from "node:fs";
 import vm from "node:vm";
 import { generateVAPIDKeys, generateRequestDetails } from "web-push";
 import { postgresFixture } from "./postgres-fixture.mjs";
-import { pushDeviceLabel, validatePushTarget } from "../domain/push.ts";
-import { claimPushDeliveries, finishPushDelivery, hasPushTarget, listPushDevices, pushDeviceId, removePushDevice, removePushTarget, savePushTarget } from "../db/push.ts";
+import { pushDeviceLabel, validatePushDeviceName, validatePushTarget } from "../domain/push.ts";
+import { claimPushDeliveries, finishPushDelivery, hasPushTarget, listPushDevices, pushDeviceId, removePushDevice, removePushTarget, renamePushDevice, savePushTarget } from "../db/push.ts";
 import { reserveOrder } from "../db/order-reservation.ts";
 
 const vapid = generateVAPIDKeys();
@@ -108,6 +108,37 @@ test("device labels identify browser and system without retaining the raw user a
   assert.equal(pushDeviceLabel("Mozilla/5.0 (Windows NT 10.0) Chrome/130 Safari/537.36 Edg/130"), "Edge · Windows");
   assert.equal(pushDeviceLabel("Mozilla/5.0 (Linux; Android 14) SamsungBrowser/27 Chrome/130 Safari/537.36"), "Samsung Internet · Android");
   assert.equal(pushDeviceLabel(""), "Navegador");
+});
+
+test("device names accept descriptive names and reject empty, oversized and control-character input", () => {
+  assert.equal(validatePushDeviceName("  Celular da cozinha  "), "Celular da cozinha");
+  assert.equal(validatePushDeviceName("Caixa · João"), "Caixa · João");
+  assert.equal(validatePushDeviceName("a".repeat(60)).length, 60);
+  for (const value of [null, 12, {}, "", "   ", "a".repeat(61), "Caixa\ncozinha", "Caixa\u0000"]) {
+    assert.throws(() => validatePushDeviceName(value));
+  }
+});
+
+test("renaming is private, survives reactivation and preserves activation date and pending alerts", async t => {
+  const { db, order } = await fixture(t);
+  const firstId = await pushDeviceId(db, "admin", target.endpoint);
+  const before = (await listPushDevices(db, "admin"))[0];
+  await reserveOrder(db, order, []);
+  assert.equal(await renamePushDevice(db, "other-admin", firstId, "Outro nome"), false);
+  assert.equal(await renamePushDevice(db, "admin", "a".repeat(64), "Inexistente"), false);
+  assert.deepEqual((await listPushDevices(db, "admin"))[0], before);
+  assert.equal(await renamePushDevice(db, "admin", firstId, " Celular do caixa "), true);
+  assert.deepEqual((await listPushDevices(db, "admin"))[0], { ...before, label: "Celular do caixa" });
+  assert.equal((await claimPushDeliveries(db)).length, 1);
+  await savePushTarget(db, "admin", target, "Chrome · Android");
+  assert.equal((await listPushDevices(db, "admin"))[0].label, "Celular do caixa");
+  await assert.rejects(renamePushDevice(db, "admin", firstId, " "));
+  assert.equal((await listPushDevices(db, "admin"))[0].label, "Celular do caixa");
+  await db.prepare(`INSERT INTO auth_user(id,name,email,"emailVerified") VALUES ('admin2','Teste 2','second@example.test',true)`).run();
+  await db.prepare("INSERT INTO admin_access(user_id,must_change_password) VALUES ('admin2',0)").run();
+  await savePushTarget(db, "admin2", target, "Chrome · Android");
+  assert.deepEqual(await listPushDevices(db, "admin"), []);
+  assert.equal((await listPushDevices(db, "admin2"))[0].label, "Chrome · Android");
 });
 
 test("service worker displays push with no open page and notification click opens the order board", async () => {

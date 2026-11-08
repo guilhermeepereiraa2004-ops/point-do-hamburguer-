@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { BellRing } from "lucide-react";
 import { readAdminResponse } from "@/lib/admin-api-response";
 import type { PushDevice } from "@/domain/push";
+import { validatePushDeviceName } from "@/domain/push";
 import { ManagementDialog } from "./management-panels";
 import "./push-notifications.css";
 
@@ -35,6 +36,10 @@ export function PushNotifications() {
   const [currentDeviceId, setCurrentDeviceId] = useState<string | null>(null);
   const [removing, setRemoving] = useState<PushDevice | null>(null);
   const [removalError, setRemovalError] = useState("");
+  const [renaming, setRenaming] = useState<PushDevice | null>(null);
+  const [deviceName, setDeviceName] = useState("");
+  const [nameError, setNameError] = useState("");
+  const nameInput = useRef<HTMLInputElement>(null);
   const devicesHeading = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
@@ -138,6 +143,26 @@ export function PushNotifications() {
     finally { setBusy(false); }
   }
 
+  async function renameDevice(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!renaming || busy) return;
+    setNameError("");
+    let name: string;
+    try { name = validatePushDeviceName(deviceName); }
+    catch { setNameError("Informe um nome de 1 a 60 caracteres para o aparelho."); nameInput.current?.focus(); return; }
+    setBusy(true);
+    try {
+      await post({ kind: "rename-device", id: renaming.id, name });
+      setDevices(value => value?.map(device => device.id === renaming.id ? { ...device, label: name } : device) ?? null);
+      setRenaming(null);
+      setMessage("Nome do aparelho salvo.");
+    } catch (error) {
+      setNameError(error instanceof Error ? error.message : "Não foi possível salvar o nome. Tente novamente.");
+      requestAnimationFrame(() => nameInput.current?.focus());
+    }
+    finally { setBusy(false); }
+  }
+
   return <section className="push-settings" aria-label="Notificações com o painel fechado">
     <div className="push-settings-description">
       <BellRing size={22} aria-hidden="true"/>
@@ -161,8 +186,12 @@ export function PushNotifications() {
       {devices?.length ? <ul>{devices.map(device => <li key={device.id}>
         <div><strong>{device.label}</strong>{device.id === currentDeviceId && <span className="push-current-device">Este aparelho</span>}
           <small>Cadastro {device.id.slice(0, 8)} · Última ativação {deviceDate.format(device.updatedAt)}</small></div>
-        <button type="button" disabled={busy || loading} aria-label={`Remover ${device.label}, cadastro ${device.id.slice(0, 8)}`}
-          onClick={() => { setRemovalError(""); setRemoving(device); }}>Remover</button>
+        <div className="push-device-actions">
+          <button type="button" disabled={busy || loading} aria-label={`Editar nome de ${device.label}, cadastro ${device.id.slice(0, 8)}`}
+            onClick={() => { setNameError(""); setDeviceName(device.label); setRenaming(device); }}>Editar nome</button>
+          <button type="button" disabled={busy || loading} aria-label={`Remover ${device.label}, cadastro ${device.id.slice(0, 8)}`}
+            onClick={() => { setRemovalError(""); setRemoving(device); }}>Remover</button>
+        </div>
       </li>)}</ul> : devices && <p>Nenhum aparelho cadastrado para receber avisos nesta conta.</p>}
     </div>
     {removing && <ManagementDialog title="Remover aparelho" closeLabel="Fechar confirmação" busy={busy} onClose={() => setRemoving(null)}>
@@ -172,6 +201,19 @@ export function PushNotifications() {
       <button className="button primary" type="button" disabled={busy} onClick={() => void removeDevice()}>
         {busy ? "Removendo…" : "Confirmar remoção"}
       </button>
+    </ManagementDialog>}
+    {renaming && <ManagementDialog title="Nome do aparelho" busy={busy} onClose={() => setRenaming(null)}>
+      <form onSubmit={renameDevice}>
+        <p className="management-intro">Escolha um nome fácil de reconhecer, como Celular do caixa ou Celular da cozinha.</p>
+        <label>Nome do aparelho<input ref={nameInput} name="deviceName" value={deviceName} onChange={event => setDeviceName(event.target.value)}
+          maxLength={60} required disabled={busy} autoComplete="off" placeholder="Ex.: Celular do caixa"
+          aria-invalid={Boolean(nameError)} aria-describedby={nameError ? "push-device-name-error" : undefined}/></label>
+        {nameError && <p id="push-device-name-error" className="notice error" role="alert">{nameError}</p>}
+        <div className="push-name-actions">
+          <button className="button outline" type="button" disabled={busy} onClick={() => setRenaming(null)}>Cancelar</button>
+          <button className="button primary" type="submit" disabled={busy}>{busy ? "Salvando…" : "Salvar nome"}</button>
+        </div>
+      </form>
     </ManagementDialog>}
   </section>;
 }

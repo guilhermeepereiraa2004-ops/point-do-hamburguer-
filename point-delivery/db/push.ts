@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import type { Database } from "./contracts";
 import type { PushDevice, PushTarget } from "../domain/push";
+import { validatePushDeviceName } from "../domain/push.ts";
 
 const targetId = (endpoint: string) => createHash("sha256").update(endpoint).digest("hex");
 
@@ -11,7 +12,8 @@ export async function savePushTarget(db: Database, userId: string, target: PushT
       (SELECT count(*) FROM push_subscriptions WHERE user_id=?) < 20 OR
       EXISTS(SELECT 1 FROM push_subscriptions WHERE id=?)
     ON CONFLICT(id) DO UPDATE SET user_id=excluded.user_id,p256dh=excluded.p256dh,
-      auth=excluded.auth,updated_at=excluded.updated_at,device_label=excluded.device_label
+      auth=excluded.auth,updated_at=excluded.updated_at,
+      device_label=CASE WHEN push_subscriptions.user_id=excluded.user_id THEN push_subscriptions.device_label ELSE excluded.device_label END
   `).bind(targetId(target.endpoint), userId, target.endpoint, target.keys.p256dh, target.keys.auth, Date.now(), label,
     userId, targetId(target.endpoint)).run();
   const saved = await pushDeviceId(db, userId, target.endpoint);
@@ -35,6 +37,13 @@ export async function listPushDevices(db: Database, userId: string): Promise<Pus
 
 export async function removePushDevice(db: Database, userId: string, id: string) {
   await db.prepare("DELETE FROM push_subscriptions WHERE id=? AND user_id=?").bind(id, userId).run();
+}
+
+export async function renamePushDevice(db: Database, userId: string, id: string, name: unknown) {
+  const label = validatePushDeviceName(name);
+  const row = await db.prepare("UPDATE push_subscriptions SET device_label=? WHERE id=? AND user_id=? RETURNING id")
+    .bind(label, id, userId).first<{ id: string }>();
+  return row !== null;
 }
 
 export async function pushDeviceId(db: Database, userId: string, endpoint: string) {

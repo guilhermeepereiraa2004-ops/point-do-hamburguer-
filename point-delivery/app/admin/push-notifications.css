@@ -27,10 +27,17 @@
 .push-devices ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
 .push-devices li { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px; background: #fff; border: 1px solid #e8ddd6; border-radius: 10px; }
 .push-devices li > div { min-width: 0; overflow-wrap: anywhere; }
+.push-device-actions { display: flex; flex-wrap: wrap; gap: 8px; flex-shrink: 0; }
+.push-name-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.push-devices button:disabled { opacity: .55; }
 .push-devices strong { font-size: 13px; color: #382e27; }
 .push-devices small { display: block; margin-top: 5px; font-size: 11px; line-height: 1.6; color: #68594f; }
 .push-current-device { display: inline-block; margin-left: 8px; padding: 2px 6px; border-radius: 5px; background: #e6f5ec; color: #275743; font-size: 10px; }
 @media(max-width: 600px) {
   .push-settings { padding: 15px; }
   .push-settings-actions, .push-settings-actions button { flex: 1 1 100%; }
+  .push-devices li { flex-wrap: wrap; }
+  .push-device-actions { width: 100%; }
+  .push-device-actions button { flex: 1; }
+  .push-name-actions .button { flex: 1; min-height: 44px; }
 }
