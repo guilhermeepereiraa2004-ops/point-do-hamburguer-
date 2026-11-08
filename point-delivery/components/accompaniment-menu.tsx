@@ -11,13 +11,16 @@ const groups = [
 ];
 const friesPhotos = new Set(["tradicional", "bacon", "calabresa", "cheddar", "bacon-calabresa", "bacon-cheddar", "calabresa-cheddar", "completa"].map(flavor => `batata-frita-${flavor}`));
 const juicePhotos = new Set(["maracuja", "acerola", "caja", "laranja", "cacau"].map(flavor => `suco-${flavor}-300ml`));
+const productTypeOrder: Record<string, number> = { "batata-frita": 0, refrigerante: 1, suco: 2 };
 export function accompanimentGroup(item: Ingredient) {
   const type = item.extraType || item.id;
   return type === "batata-frita" ? "batatas" : ["refrigerante", "suco"].includes(type) ? "bebidas" : "outros";
 }
 export function AccompanimentMenu({ items, selection, disabled, onChange }: { items: Ingredient[]; selection: Selection; disabled: boolean; onChange: (item: Ingredient, delta: number) => void }) {
   const [filter, setFilter] = useState("todos");
-  const products = items.filter(item => filter === "todos" || accompanimentGroup(item) === filter);
+  const products = items
+    .filter(item => filter === "todos" || accompanimentGroup(item) === filter)
+    .sort((a, b) => (productTypeOrder[a.extraType || a.id] ?? 3) - (productTypeOrder[b.extraType || b.id] ?? 3));
   const [motionChoice, setMotionChoice] = useState<"on" | "off">("on");
   const motion = motionChoice === "on";
   return <div className="accompaniment-menu" data-motion={motionChoice}><button type="button" className="accompaniment-motion" aria-pressed={!motion} onClick={() => setMotionChoice(motion ? "off" : "on")}>{motion ? <Pause size={12}/> : <Play size={12}/>} {motion ? "Pausar movimento" : "Ativar movimento"}</button>

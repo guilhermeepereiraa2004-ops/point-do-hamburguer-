@@ -121,3 +121,5 @@ Sem etapa de aceite e sem categorias recolhidas. Filtro inicial Todos; filtros B
 
 ## Sucos300ml — 08/11/2026
 Saboresautorizados: Maracujá,Acerola,Cajá,Laranja eCacau. Cada copo300ml porR$5,00, estoqueinicial50por sabor, com cadastrosindependentes. Publicados emBebidas/Acompanhamentos, fotosgeradas comalpha e movimentoautomatico, controlesdepreco/estoque/pausa noadmin. Receita/faturamento/baixa seguem mesmas regras dosoutros acompanhamentos. Cadastro generico suco continua fora daoferta. Fonte de dados: point-delivery/data/juices-menu.json; prompts/assets emdocs/assets/juices-prompts.md.
+
+Ordem de exibição dos acompanhamentos: batatas fritas, refrigerantes, sucos e outros produtos. Os filtros mantêm essa ordem e a sequência existente dentro de cada tipo.
