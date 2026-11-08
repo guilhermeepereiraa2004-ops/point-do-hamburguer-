@@ -2,7 +2,7 @@ export type Ingredient = { id: string; name: string; category: string; unit: str
 export const isAccompanimentFeatured = (item: Ingredient) => item.category === "Complementos" && Boolean(item.featured);
 const offered = (item: Ingredient) => item.active && (item.category !== "Complementos" || isAccompanimentFeatured(item));
 export const isIngredientAvailable = (item: Ingredient) => offered(item) && item.stock > 0;
-export type Catalog = { ingredients: Ingredient[]; prices: Record<string, number>; deliveryFee: number | null };
+export type Catalog = { ingredients: Ingredient[]; prices: Record<string, number>; deliveryFee: number | null; storeOpen?: boolean };
 export type Selection = Record<string, number>;
 export const accompanimentChoices = (items: Ingredient[], selection: Selection) => items.filter(item => item.category === "Complementos" && (isAccompanimentFeatured(item) || (selection[item.id] || 0) > 0));
 export type StockShortage = { id: string; name: string; unit: string; requested: number; available: number };
@@ -59,4 +59,4 @@ export function validateSelection(selection: Selection, catalog: Catalog) {
 export function canTransition(from: Status, to: Status) {
   return from === to || ({ recebido: ["preparo", "cancelado"], preparo: ["entrega", "cancelado"], entrega: ["concluido", "cancelado"], concluido: [], cancelado: [] } as Record<Status, string[]>)[from]?.includes(to);
 }
-export type Order = { id: string; code: string; customer: string; phone: string; address: string; reference: string; notes: string; status: Status; subtotal: number; deliveryFee: number; total: number; createdAt: number; burgers?: { price: number; items: { name: string; quantity: number }[] }[]; extras?: { name: string; quantity: number }[]; items: { name: string; quantity: number }[] };
+export type Order = { id: string; code: string; customer: string; phone: string; address: string; reference: string; notes: string; status: Status; subtotal: number; deliveryFee: number; total: number; createdAt: number; burgers?: { recipient?: string; price: number; items: { name: string; quantity: number }[] }[]; extras?: { name: string; quantity: number }[]; items: { name: string; quantity: number }[] };

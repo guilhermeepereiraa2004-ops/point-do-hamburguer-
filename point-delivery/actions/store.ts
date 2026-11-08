@@ -1,5 +1,6 @@
 import { getDb, getStore } from "@/db";
-import { validateCart } from "@/domain/cart";
+import { StoreClosedError } from "@/domain/store-status";
+import { validateCart, validateBurgerRecipients } from "@/domain/cart";
 import { reserveOrder } from "@/db/order-reservation";
 import { getTrackingSecret, orderConfirmation } from "@/lib/order-tracking";
 import { ingredients, prices, settings, orders, orderItems, movements, finance, manualFinance } from "@/db/pg-schema";
@@ -11,8 +12,8 @@ import { canTransition, getStockShortages, InsufficientStockError, validateSelec
 
 export async function getCatalog(): Promise<Catalog> {
   const db = getDb();
-  const [items, tiers, fee] = await Promise.all([db.select().from(ingredients), db.select().from(prices), db.select().from(settings).where(eq(settings.key, "deliveryFee"))]);
-  return { ingredients: items.map(item => ({ ...item, active: Boolean(item.active), featured: Boolean(item.featured) })), prices: Object.fromEntries(tiers.map(p => [String(p.count), p.value])), deliveryFee: fee[0]?.value ?? null };
+  const [items, tiers, fee] = await Promise.all([db.select().from(ingredients), db.select().from(prices), db.select().from(settings)]);
+  return { ingredients: items.map(item => ({ ...item, active: Boolean(item.active), featured: Boolean(item.featured) })), prices: Object.fromEntries(tiers.map(p => [String(p.count), p.value])), deliveryFee: fee.find(setting => setting.key === "deliveryFee")?.value ?? null, storeOpen: fee.find(setting => setting.key === "storeOpen")?.value !== 0 };
 }
 function stringField(value: unknown, label: string, min: number, max: number) {
   if (typeof value !== "string" || value.trim().length < min || value.trim().length > max) throw new Error(`Confira o campo ${label}.`);
@@ -21,12 +22,14 @@ function stringField(value: unknown, label: string, min: number, max: number) {
 export async function placeOrder(input: Record<string, unknown>) {
   const trackingSecret = getTrackingSecret();
   const idempotencyKey = stringField(input.key, "identificador", 16, 80);
-  const fingerprint = JSON.stringify({ selection: input.selection, burgers: input.burgers, extras: input.extras, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal });
+  const fingerprint = JSON.stringify({ selection: input.selection, burgers: input.burgers, recipients: input.recipients, extras: input.extras, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal });
   const db = getDb();
   const existing = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
   if (existing[0]) { if (existing[0].fingerprint !== fingerprint) throw new Error("Este identificador já pertence a outro pedido. Recarregue a página."); return orderConfirmation(existing[0], trackingSecret); }
   const catalog = await getCatalog();
-  const cart = input.burgers !== undefined ? validateCart(input.burgers, input.extras ?? {}, catalog) : null;
+  if (!catalog.storeOpen) throw new StoreClosedError();
+  if (Array.isArray(input.burgers)) validateBurgerRecipients(input.recipients, input.burgers.length, input.burgers.length > 1);
+  const cart = input.burgers !== undefined ? validateCart(input.burgers, input.extras ?? {}, catalog, input.recipients) : null;
   const selection = cart?.selection ?? input.selection as Selection;
   const summary = cart ?? validateSelection(selection, catalog);
   if (catalog.deliveryFee === null) throw new Error("A taxa de entrega ainda precisa ser configurada pela hamburgueria.");
@@ -40,9 +43,10 @@ export async function placeOrder(input: Record<string, unknown>) {
   const raw = getStore();
   try {
     await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt, ...(cart ? { burgers: JSON.stringify(cart.snapshots) } : {}) }, cart?.lines ?? catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
-  } catch {
+  } catch (error) {
     const duplicate = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
     if (duplicate[0]?.fingerprint === fingerprint) return orderConfirmation(duplicate[0], trackingSecret);
+    if (String(error).includes("POINT_STORE_CLOSED")) throw new StoreClosedError();
     const shortages = getStockShortages(selection, await getCatalog());
     if (shortages.length) throw new InsufficientStockError(shortages);
     console.error("[orders] reservation persistence failed");
@@ -76,6 +80,12 @@ export async function updateCatalog(input: Record<string, unknown>) {
   const raw = getStore();
   const kind = input.kind;
   const value = input.value;
+  if (kind === "store-status") {
+    if (typeof value !== "boolean") throw new Error("Informe se a loja deve ficar aberta ou fechada.");
+    const result = await raw.prepare("UPDATE settings SET value=? WHERE key='storeOpen'").bind(value ? 1 : 0).run();
+    if (!result.meta.changes) throw new Error("Controle da loja ainda não configurado.");
+    return;
+  }
   if (kind === "featured") {
     if (typeof input.id !== "string" || typeof value !== "boolean") throw new Error("Informe o produto e se deve aparecer nos acompanhamentos.");
     await setProductFeatured(raw, input.id, value);

@@ -1,7 +1,7 @@
 import { getStockShortages, InsufficientStockError, summarize, validateSelection, type Catalog, type Selection } from "./menu.ts";
 
 export const MAX_BURGERS = 10;
-export type BurgerSnapshot = { price: number; items: { name: string; quantity: number }[] };
+export type BurgerSnapshot = { recipient?: string; price: number; items: { name: string; quantity: number }[] };
 export function combineSelections(selections: Selection[]): Selection {
   const result: Selection = {};
   for (const selection of selections) for (const [id, quantity] of Object.entries(selection)) result[id] = (result[id] || 0) + quantity;
@@ -13,9 +13,10 @@ export function summarizeCart(burgers: Selection[], extras: Selection, catalog: 
   return { valid: burgers.length > 0 && burgers.length <= MAX_BURGERS && summaries.every(s => s.burgerPrice !== undefined) && burgers.every(burger => catalog.ingredients.filter(i => i.category === "Pães").reduce((sum, item) => sum + (burger[item.id] || 0), 0) === 1),
     subtotal: summaries.reduce((sum, s) => sum + (s.burgerPrice || 0), 0) + extrasPrice, extrasPrice, summaries };
 }
-export function validateCart(burgers: unknown, extras: unknown, catalog: Catalog) {
+export function validateCart(burgers: unknown, extras: unknown, catalog: Catalog, recipients?: unknown) {
   if (!Array.isArray(burgers) || !burgers.length || burgers.length > MAX_BURGERS) throw new Error(`Monte de 1 a ${MAX_BURGERS} hambúrgueres por pedido.`);
   if (!extras || typeof extras !== "object" || Array.isArray(extras)) throw new Error("Confira os acompanhamentos.");
+  const names = validateBurgerRecipients(recipients, burgers.length);
   const choices = burgers as Selection[], sides = extras as Selection;
   const recipeRules = { ...catalog, ingredients: catalog.ingredients.map(item => ({ ...item, stock: Number.MAX_SAFE_INTEGER, active: true, featured: true })) };
   for (const burger of choices) {
@@ -31,8 +32,17 @@ export function validateCart(burgers: unknown, extras: unknown, catalog: Catalog
   const shortages = getStockShortages(selection, catalog);
   if (shortages.length) throw new InsufficientStockError(shortages);
   const summary = summarizeCart(choices, sides, catalog);
-  const snapshots: BurgerSnapshot[] = choices.map((burger, index) => ({ price: summary.summaries[index].burgerPrice!, items: catalog.ingredients.filter(i => burger[i.id]).map(i => ({ name: i.name, quantity: burger[i.id] })) }));
+  const snapshots: BurgerSnapshot[] = choices.map((burger, index) => ({ ...(names[index] ? { recipient: names[index] } : {}), price: summary.summaries[index].burgerPrice!, items: catalog.ingredients.filter(i => burger[i.id]).map(i => ({ name: i.name, quantity: burger[i.id] })) }));
   // Keep each burger's lines separate: per-ingredient limits apply per burger, not to the whole cart.
   const lines = [...choices, sides].flatMap(part => catalog.ingredients.filter(i => part[i.id]).map(i => ({ id: i.id, name: i.name, quantity: part[i.id] })));
   return { ...summary, selection, snapshots, lines };
+}
+
+export function validateBurgerRecipients(input: unknown, count: number, required = false): string[] {
+  if (input === undefined && !required) return Array(count).fill("");
+  if (!Array.isArray(input) || input.length !== count) throw new Error("Informe para quem é cada hambúrguer.");
+  return input.map((value, index) => {
+    if (typeof value !== "string" || value.trim().length > 60 || /[\u0000-\u001f\u007f]/.test(value) || (count > 1 && !value.trim())) throw new Error(`Informe o nome de quem vai receber o hambúrguer ${index + 1} (até 60 caracteres).`);
+    return value.trim();
+  });
 }

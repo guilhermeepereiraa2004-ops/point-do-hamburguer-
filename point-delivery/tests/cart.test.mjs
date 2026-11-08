@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { validateCart, summarizeCart } from '../domain/cart.ts';
+import { validateCart, summarizeCart, validateBurgerRecipients } from '../domain/cart.ts';
 import { InsufficientStockError } from '../domain/menu.ts';
 import { reserveOrder } from '../db/order-reservation.ts';
 import { postgresFixture } from './postgres-fixture.mjs';
@@ -90,7 +90,7 @@ test('combined stock shortages include every burger and side before reserving',(
 });
 
 test('multi-burger reservations preserve recipes and historical prices, cancel all portions once and never duplicate revenue',async t=>{
- const db=await fixture(t),cart=validateCart([heavy,heavy],{refri:2},catalog),input=order(cart);
+ const db=await fixture(t),cart=validateCart([heavy,heavy],{refri:2},catalog,["Ana","Bruno"]),input=order(cart);
  await reserveOrder(db,input,cart.lines);
  assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='carne'").first()).stock,22);
  assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='pao'").first()).stock,28);
@@ -113,4 +113,16 @@ test('a stale multi-burger cart rolls back every line if another customer takes 
  await assert.rejects(reserveOrder(db,order(cart),cart.lines),/constraint/i);
  for(const table of ['orders','order_items','movements','finance'])assert.equal((await db.prepare(`SELECT count(*) AS count FROM ${table}`).first()).count,0);
  assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='carne'").first()).stock,30);
+});
+
+test('recipient names are trimmed, checked independently of recipes and preserved in snapshots',()=>{
+  assert.deepEqual(validateBurgerRecipients(undefined,1),['']);
+  assert.throws(()=>validateBurgerRecipients(undefined,2,true),/cada hambúrguer/);
+  for(const invalid of [[],['Ana'],['Ana','  '],['Ana',7],['Ana','x'.repeat(61)],['Ana','B\nC']]) assert.throws(()=>validateCart([first,second],{},catalog,invalid));
+  const named=validateCart([first,second],{},catalog,['  Ana  ','Bruno']);
+  assert.deepEqual(named.snapshots.map(b=>b.recipient),['Ana','Bruno']);
+  const original=validateCart([first,second],{},catalog);
+  assert.equal(named.subtotal,original.subtotal);
+  assert.deepEqual(named.lines,original.lines);
+  assert.equal(validateCart([first],{},catalog).snapshots[0].recipient,undefined);
 });

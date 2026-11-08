@@ -1,3 +1,4 @@
+import { StoreClosedError } from "@/domain/store-status";
 import { placeOrder } from "@/actions/store";
 import { InsufficientStockError } from "@/domain/menu";
 import { hasValidRequestOrigin } from "@/lib/request-origin";
@@ -10,6 +11,7 @@ export async function POST(request: Request) {
     after(dispatchOrderPush);
     return Response.json(result);
   } catch (e) {
+    if (e instanceof StoreClosedError) return Response.json({ error: e.message, code: "STORE_CLOSED" }, { status: 409 });
     if (e instanceof InsufficientStockError) return Response.json({ error: e.message, code: "INSUFFICIENT_STOCK", shortages: e.shortages }, { status: 409 });
     return Response.json({ error: e instanceof Error ? e.message : "Não foi possível enviar seu pedido." }, { status: 400 });
   }

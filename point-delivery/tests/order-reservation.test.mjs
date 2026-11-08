@@ -103,3 +103,23 @@ test("shortages name every missing ingredient, partial quantity and bread withou
   const inactive = { ...catalog, ingredients: catalog.ingredients.map(i => i.id === "cheddar" ? { ...i, active: false } : i) };
   assert.equal(getStockShortages(selection, inactive)[0].id, "cheddar");
 });
+
+test("closed store blocks stale reservations without stock, finance or push effects; reopening restores orders", async t => {
+  const db = await postgresFixture(t, true);
+  await db.batch(catalog.ingredients.map(i => db.prepare("INSERT INTO ingredients(id,name,category,unit,stock,max_qty,price) VALUES(?,?,?,?,?,?,?)").bind(i.id,i.name,i.category,i.unit,i.stock,i.maxQty,i.price)));
+  assert.equal((await db.prepare("SELECT value FROM settings WHERE key='storeOpen'").first()).value, 1);
+  const accepted = order();
+  await reserveOrder(db, accepted, items);
+  await db.prepare("UPDATE settings SET value=0 WHERE key='storeOpen'").run();
+  const before = await db.prepare("SELECT id,stock FROM ingredients ORDER BY id").all();
+  const tables = ['orders','order_items','movements','finance','push_deliveries'];
+  const counts = await Promise.all(tables.map(table => db.prepare('SELECT COUNT(*) AS count FROM '+table).first()));
+  await assert.rejects(reserveOrder(db, order(), items), /POINT_STORE_CLOSED/);
+  assert.deepEqual(await db.prepare("SELECT id,stock FROM ingredients ORDER BY id").all(), before);
+  assert.deepEqual(await Promise.all(tables.map(table => db.prepare('SELECT COUNT(*) AS count FROM '+table).first())), counts);
+  for(const status of ['preparo','entrega','concluido']) await db.prepare('UPDATE orders SET status=? WHERE id=?').bind(status,accepted.id).run();
+  assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM finance').first()).count, 1);
+  await db.prepare("UPDATE settings SET value=1 WHERE key='storeOpen'").run();
+  await reserveOrder(db, order(), items);
+  assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM orders').first()).count, 2);
+});
