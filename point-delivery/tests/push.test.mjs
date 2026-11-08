@@ -228,7 +228,7 @@ test("tests use the same alert as orders, fall back after rejected options and a
   assert.equal("vibrate" in notifications[0].options, false);
   assert.equal(reports[0].profile, "standard");
   assert.equal(reports[0].displayed, true);
-  assert.equal(reports[0].revision, "point-push-20261108-3");
+  assert.equal(reports[0].revision, "point-push-20261108-5");
   assert.equal(reports[0].canonicalOrigin, true);
   rejectOptions = true;
   await push({ code: "ABC123", receipt: "signed-receipt", tag: "order-1" });
@@ -260,4 +260,35 @@ test("order and test alert options exactly match the last deployment before the 
   for (const payload of [{ code: "ABC123", tag: "point-order-fixture" }, { test: true, tag: "point-push-test" }]) {
     assert.deepEqual(await render(current, payload), await render(previous, payload));
   }
+});
+
+test("remote diagnostics read actual browser flags and keep device details out of logs", async () => {
+  const secret = "test-only-push-receipt-secret-not-used-in-production";
+  const receipt = createPushReceipt(secret), handlers = {}, reports = [];
+  let currentNotice = { tag: "order-diag", silent: true, renotify: false };
+  const self = { location: { origin: "https://point-do-hamburguer.vercel.app" },
+    addEventListener: (name, handler) => { handlers[name] = handler; },
+    registration: { showNotification: async () => {}, getNotifications: async () => [currentNotice] } };
+  vm.runInNewContext(readFileSync(new URL("../public/admin-notifications-sw.js", import.meta.url), "utf8"), {
+    self, URL, AbortSignal, navigator: { userAgent: "Mozilla/5.0 (Linux; Android 10; PRIVATE_MODEL) Chrome/142.0.0.0 Mobile Safari/537.36" },
+    fetch: async (_url, init) => { reports.push(JSON.parse(init.body)); return { ok: true }; },
+  });
+  async function push() { let complete; handlers.push({ data: { json: () => ({ code: "ABC123", tag: "order-diag", receipt: receipt.token }) }, waitUntil: task => { complete = task; } }); await complete; }
+  await push();
+  const expected = { browser: "chrome", browserMajor: 142, platform: "android", notificationRead: true,
+    notificationCount: 1, actualSilent: true, actualRenotify: false };
+  assert.deepEqual(reports[0].diagnostics, expected);
+  assert.equal(JSON.stringify(reports).includes("PRIVATE_MODEL"), false);
+  const records = [], request = data => new Request("https://point.example/api/push-receipt", { method: "POST", body: JSON.stringify(data) });
+  assert.equal((await pushReceiptResponse(request({ ...reports[0], diagnostics: { ...expected, endpoint: "PRIVATE", userAgent: "PRIVATE" } }), secret, event => records.push(event))).status, 204);
+  assert.deepEqual(records[0].diagnostics, expected);
+  assert.equal(JSON.stringify(records).includes("PRIVATE"), false);
+  for (const changes of [{ browser: "untrusted\nvalue" }, { browserMajor: 1000 }, { notificationCount: -1 }, { actualSilent: "false" }, { actualRenotify: {} }]) {
+    assert.equal((await pushReceiptResponse(request({ ...reports[0], diagnostics: { ...expected, ...changes } }), secret, () => {})).status, 404);
+  }
+  self.registration.getNotifications = async () => { throw new Error("Unsupported"); };
+  await push();
+  assert.equal(reports[1].displayed, true);
+  assert.equal(reports[1].diagnostics.notificationRead, false);
+  assert.equal(reports[1].diagnostics.actualSilent, null);
 });

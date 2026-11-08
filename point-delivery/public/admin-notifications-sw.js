@@ -34,11 +34,34 @@ self.addEventListener("push", event => {
       try { await self.registration.showNotification(title, basic); displayed = true; } catch {}
     }
     if (typeof data.receipt === "string") {
+      // Inspect the browser's resulting Notification object, not only the options
+      // we requested. These fields do not prove that a physical sound played.
+      const diagnostics = { browser: "other", browserMajor: 0, platform: "other",
+        notificationRead: false, notificationCount: 0, actualSilent: null, actualRenotify: null };
+      try {
+        const agent = navigator.userAgent || "";
+        const browser = agent.match(/(EdgA?|Chrome|CriOS|Firefox|FxiOS|Version)\/(\d+)/);
+        if (browser) {
+          diagnostics.browser = /Edg/.test(browser[1]) ? "edge" : /Chrome|CriOS/.test(browser[1]) ? "chrome" : /Firefox|FxiOS/.test(browser[1]) ? "firefox" : "safari";
+          diagnostics.browserMajor = Math.min(Number(browser[2]), 999);
+        }
+        diagnostics.platform = /Android/.test(agent) ? "android" : /iPhone|iPad|iPod/.test(agent) ? "ios" : /Windows|Macintosh|Linux/.test(agent) ? "desktop" : "other";
+      } catch {}
+      try {
+        const notices = await self.registration.getNotifications();
+        diagnostics.notificationRead = true;
+        diagnostics.notificationCount = Math.min(notices.length, 100);
+        const notice = notices.find(item => item.tag === basic.tag);
+        if (notice) {
+          diagnostics.actualSilent = typeof notice.silent === "boolean" ? notice.silent : null;
+          diagnostics.actualRenotify = typeof notice.renotify === "boolean" ? notice.renotify : null;
+        }
+      } catch {}
       try {
         await fetch("https://point-do-hamburguer.vercel.app/api/push-receipt", {
           method: "POST", credentials: "omit", referrerPolicy: "no-referrer", cache: "no-store",
           headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(5000),
-          body: JSON.stringify({ token: data.receipt, revision: "point-push-20261108-3", profile, displayed,
+          body: JSON.stringify({ token: data.receipt, revision: "point-push-20261108-5", profile, displayed, diagnostics,
             canonicalOrigin: self.location.origin === "https://point-do-hamburguer.vercel.app" }),
         });
       } catch {}
