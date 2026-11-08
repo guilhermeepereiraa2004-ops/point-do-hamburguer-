@@ -11,6 +11,7 @@ export const ingredients = sqliteTable("ingredients", {
 export const prices = sqliteTable("prices", { count: integer("count").primaryKey(), value: integer("value").notNull() }, t => [check("valid_price", sql`${t.value} >= 0`)]);
 export const settings = sqliteTable("settings", { key: text("key").primaryKey(), value: integer("value") });
 export const orders = sqliteTable("orders", {
+  paymentMethod: text("payment_method"),
   id: text("id").primaryKey(), idempotencyKey: text("idempotency_key").notNull().unique(), fingerprint: text("fingerprint").notNull(), code: text("code").notNull(),
   customer: text("customer").notNull(), phone: text("phone").notNull(), address: text("address").notNull(), reference: text("reference").notNull(), notes: text("notes").notNull(),
   status: text("status").notNull().default("recebido"), subtotal: integer("subtotal").notNull(), deliveryFee: integer("delivery_fee").notNull(), total: integer("total").notNull(), createdAt: integer("created_at").notNull(),

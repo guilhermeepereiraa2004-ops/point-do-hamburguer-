@@ -90,3 +90,4 @@
   .board-stage-switch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .board-stage-switch button { font-size: 11px; }
 }
+.admin-app .board-card-payment{display:flex;align-items:center;gap:7px;margin:10px 0 0;padding:9px 11px;border-radius:9px;background:#fff3e8;color:#8b4b27;font-size:12px;line-height:1.5;overflow-wrap:anywhere}

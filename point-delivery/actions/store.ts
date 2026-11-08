@@ -1,5 +1,6 @@
 import { getDb, getStore } from "@/db";
 import { StoreClosedError } from "@/domain/store-status";
+import { validatePaymentMethod } from "@/domain/payment";
 import { validateCart, validateBurgerRecipients } from "@/domain/cart";
 import { reserveOrder } from "@/db/order-reservation";
 import { getTrackingSecret, orderConfirmation } from "@/lib/order-tracking";
@@ -22,10 +23,11 @@ function stringField(value: unknown, label: string, min: number, max: number) {
 export async function placeOrder(input: Record<string, unknown>) {
   const trackingSecret = getTrackingSecret();
   const idempotencyKey = stringField(input.key, "identificador", 16, 80);
-  const fingerprint = JSON.stringify({ selection: input.selection, burgers: input.burgers, recipients: input.recipients, extras: input.extras, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal });
+  const fingerprint = JSON.stringify({ selection: input.selection, burgers: input.burgers, recipients: input.recipients, extras: input.extras, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal, paymentMethod: input.paymentMethod });
   const db = getDb();
   const existing = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
   if (existing[0]) { if (existing[0].fingerprint !== fingerprint) throw new Error("Este identificador já pertence a outro pedido. Recarregue a página."); return orderConfirmation(existing[0], trackingSecret); }
+  const paymentMethod = validatePaymentMethod(input.paymentMethod);
   const catalog = await getCatalog();
   if (!catalog.storeOpen) throw new StoreClosedError();
   if (Array.isArray(input.burgers)) validateBurgerRecipients(input.recipients, input.burgers.length, input.burgers.length > 1);
@@ -42,7 +44,7 @@ export async function placeOrder(input: Record<string, unknown>) {
   const id = crypto.randomUUID(), code = id.slice(0, 6).toUpperCase(), createdAt = Date.now();
   const raw = getStore();
   try {
-    await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt, ...(cart ? { burgers: JSON.stringify(cart.snapshots) } : {}) }, cart?.lines ?? catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
+    await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, paymentMethod, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt, ...(cart ? { burgers: JSON.stringify(cart.snapshots) } : {}) }, cart?.lines ?? catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
   } catch (error) {
     const duplicate = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
     if (duplicate[0]?.fingerprint === fingerprint) return orderConfirmation(duplicate[0], trackingSecret);

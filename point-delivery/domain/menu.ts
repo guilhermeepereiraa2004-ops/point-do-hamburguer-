@@ -1,3 +1,4 @@
+import type { PaymentMethod } from "./payment";
 export type Ingredient = { id: string; name: string; category: string; unit: string; stock: number; lowStock: number; maxQty: number; price: number | null; active: boolean; extraType?: string | null; productName?: string | null; flavor?: string | null; size?: string | null; featured?: boolean; description?: string | null };
 export const isAccompanimentFeatured = (item: Ingredient) => item.category === "Complementos" && Boolean(item.featured);
 const offered = (item: Ingredient) => item.active && (item.category !== "Complementos" || isAccompanimentFeatured(item));
@@ -59,4 +60,4 @@ export function validateSelection(selection: Selection, catalog: Catalog) {
 export function canTransition(from: Status, to: Status) {
   return from === to || ({ recebido: ["preparo", "cancelado"], preparo: ["entrega", "cancelado"], entrega: ["concluido", "cancelado"], concluido: [], cancelado: [] } as Record<Status, string[]>)[from]?.includes(to);
 }
-export type Order = { id: string; code: string; customer: string; phone: string; address: string; reference: string; notes: string; status: Status; subtotal: number; deliveryFee: number; total: number; createdAt: number; burgers?: { recipient?: string; price: number; items: { name: string; quantity: number }[] }[]; extras?: { name: string; quantity: number }[]; items: { name: string; quantity: number }[] };
+export type Order = { paymentMethod?: PaymentMethod | null; id: string; code: string; customer: string; phone: string; address: string; reference: string; notes: string; status: Status; subtotal: number; deliveryFee: number; total: number; createdAt: number; burgers?: { recipient?: string; price: number; items: { name: string; quantity: number }[] }[]; extras?: { name: string; quantity: number }[]; items: { name: string; quantity: number }[] };

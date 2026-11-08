@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { Miniflare } from "miniflare";
 import { reserveOrder } from "../db/order-reservation.ts";
+import { paymentMethods, paymentLabel, validatePaymentMethod } from "../domain/payment.ts";
 import { ingredientNames, validateSelection, getStockShortages, InsufficientStockError } from "../domain/menu.ts";
 
 const selection = { "carne-hamburguer": 1, queijo: 1, cheddar: 1, presunto: 1, ovo: 1, salsicha: 1, ervilha: 1, salada: 2, "batata-palha": 1, pao: 1 };
@@ -35,6 +36,30 @@ test("the reported recipe reserves every quantity including two salads and bread
   for (const item of items) assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id=?").bind(item.id).first()).stock, 50 - item.quantity);
   assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM order_items").first()).count, items.length);
   assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM movements WHERE created_at>0").first()).count, items.length);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM finance").first()).count, 0);
+});
+
+test("payment choices are required, saved with each order and cannot corrupt reservations", async t => {
+  for (const invalid of [undefined, null, "", "boleto", "PIX", {}, 1]) assert.throws(() => validatePaymentMethod(invalid), /forma de pagamento/);
+  assert.equal(paymentLabel(null), "Pagamento não informado");
+  const db = await postgresFixture(t);
+  await db.prepare("INSERT INTO ingredients(id,name,category,unit,stock) VALUES('payment-test','Produto de teste','Proteínas','unidade',10)").run();
+  const line = [{ id: "payment-test", name: "Produto de teste", quantity: 1 }];
+  const legacy = order();
+  await reserveOrder(db, legacy, line);
+  assert.equal((await db.prepare("SELECT payment_method FROM orders WHERE id=?").bind(legacy.id).first()).payment_method, null);
+  for (const method of paymentMethods) {
+    const input = { ...order(), paymentMethod: validatePaymentMethod(method) };
+    await reserveOrder(db, input, line);
+    await assert.rejects(reserveOrder(db, input, line), /unique/i);
+    assert.equal((await db.prepare("SELECT payment_method FROM orders WHERE id=?").bind(input.id).first()).payment_method, method);
+    await db.prepare("UPDATE orders SET status='preparo' WHERE id=?").bind(input.id).run();
+    assert.equal((await db.prepare("SELECT payment_method FROM orders WHERE id=?").bind(input.id).first()).payment_method, method);
+  }
+  await assert.rejects(reserveOrder(db, { ...order(), paymentMethod: "boleto" }, line), /check/i);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM orders").first()).count, 5);
+  assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='payment-test'").first()).stock, 5);
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM movements").first()).count, 5);
   assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM finance").first()).count, 0);
 });
 

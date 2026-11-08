@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { ArrowRight, ChevronDown, ClipboardList, GripVertical } from "lucide-react";
+import { ArrowRight, ChevronDown, ClipboardList, CreditCard, GripVertical } from "lucide-react";
+import { paymentLabel } from "@/domain/payment";
 import { money, statusLabels, type Order, type Status } from "@/domain/menu";
 import { OrderContents } from "./order-contents";
 import "./order-board.css";
@@ -41,6 +42,7 @@ function OrderCard({ order, busy, dragging, grip, onAdvance, onCancel }: {
       </span>}
     </div>
     <div className="board-card-customer"><h4>{order.customer}</h4><strong>{money(order.total)}</strong></div>
+    <p className="board-card-payment"><CreditCard size={15} aria-hidden="true"/><span>{paymentLabel(order.paymentMethod)}</span></p>
     <details className="board-card-details">
       <summary>Detalhes do pedido <ChevronDown size={16} aria-hidden="true"/></summary>
       <a href={`tel:${order.phone}`}>{order.phone}</a>
