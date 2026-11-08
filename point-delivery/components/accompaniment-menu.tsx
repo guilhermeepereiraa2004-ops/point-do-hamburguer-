@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ChevronDown, CupSoda, Minus, Plus, Utensils } from "lucide-react";
+import { ChevronDown, CupSoda, Minus, Pause, Play, Plus, Utensils } from "lucide-react";
 import { isIngredientAvailable, money, type Ingredient, type Selection } from "@/domain/menu";
 
 const groups = [
@@ -15,7 +15,8 @@ export function accompanimentGroup(item: Ingredient) {
 }
 export function AccompanimentMenu({ items, selection, disabled, onChange }: { items: Ingredient[]; selection: Selection; disabled: boolean; onChange: (item: Ingredient, delta: number) => void }) {
   const [open, setOpen] = useState<string | null>(null);
-  return <div className="accompaniment-menu">{groups.map(group => {
+  const [motion, setMotion] = useState(true);
+  return <div className="accompaniment-menu" data-motion={motion ? "on" : "off"}><button type="button" className="accompaniment-motion" aria-pressed={!motion} onClick={() => setMotion(value => !value)}>{motion ? <Pause size={12}/> : <Play size={12}/>} {motion ? "Pausar movimento" : "Ativar movimento"}</button>{groups.map(group => {
     const products = items.filter(item => accompanimentGroup(item) === group.id);
     if (!products.length && group.id === "outros") return null;
     const quantity = products.reduce((sum, item) => sum + (selection[item.id] || 0), 0);
@@ -27,11 +28,11 @@ export function AccompanimentMenu({ items, selection, disabled, onChange }: { it
       </button></h4>
       <div id={`category-${group.id}`} hidden={open !== group.id} className="menu-category-products">
         {!products.length && <p className="accompaniment-empty">Novas opções em breve.</p>}
-        {products.map(item => {
+        {products.map((item, index) => {
           const value = selection[item.id] || 0, available = isIngredientAvailable(item) && item.price !== null;
-          const photo = friesPhotos.has(item.id) ? `/images/accompaniments/${item.id}.webp` : null;
+          const photo = friesPhotos.has(item.id) ? `/images/accompaniments/baskets-v2/${item.id}.webp` : item.id === "refrigerante" ? "/images/accompaniments/baskets-v2/refrigerante.webp" : null;
           return <div className={`compact-product ${photo ? "has-photo" : ""} ${value ? "is-selected" : ""} ${!available ? "sold-out" : ""}`} key={item.id}>
-            {photo && <div className="accompaniment-photo"><img src={photo} alt="" width={144} height={144} loading="lazy" decoding="async"/></div>}
+            {photo && <div className={`accompaniment-photo ${item.id === "refrigerante" ? "is-drink" : ""}`}><img src={photo} alt="" width={144} height={144} loading="lazy" decoding="async" style={{animationDelay: `${index * -.65}s`}}/></div>}
             <div className="compact-product-info"><h5>{item.name}</h5>{item.description && <p>{item.description}</p>}
               <div className="compact-product-price"><strong>{item.price === null ? "Preço a configurar" : money(item.price)}</strong>{!available && <span>Indisponível</span>}</div>
               {!item.featured && value > 0 && <small>Retirado do cardápio. Remova para continuar.</small>}
