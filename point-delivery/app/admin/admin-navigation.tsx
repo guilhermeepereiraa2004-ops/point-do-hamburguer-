@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, BookOpen, ClipboardList, Ellipsis, Hamburger, LayoutDashboard, Package, Settings2, TrendingUp, Users, X } from "lucide-react";
+import { ArrowUpRight, Bell, BookOpen, ClipboardList, Ellipsis, Hamburger, LayoutDashboard, Package, Settings2, TrendingUp, Users, X } from "lucide-react";
 import { AdminAccount } from "@/components/admin-account";
 import "./admin-navigation.css";
 
@@ -13,13 +13,14 @@ const sections = {
   financeiro: { label: "Financeiro", icon: TrendingUp },
   clientes: { label: "Clientes", icon: Users },
   precos: { label: "Preços", icon: Settings2 },
+  notificacoes: { label: "Notificações", icon: Bell },
 };
 export type AdminSection = keyof typeof sections;
 export const adminSectionLabel = (section: AdminSection) => sections[section].label;
 const groups = [
   { label: "Visão geral", sections: ["dashboard"] },
   { label: "Operação", sections: ["pedidos", "cardapio", "estoque"] },
-  { label: "Gestão", sections: ["financeiro", "clientes", "precos"] },
+  { label: "Gestão", sections: ["financeiro", "clientes", "precos", "notificacoes"] },
 ] as const;
 const shortcuts = ["dashboard", "pedidos", "estoque", "financeiro"] as const;
 const pendingLabel = (count: number) => `${count} ${count === 1 ? "pedido" : "pedidos"} em andamento`;
