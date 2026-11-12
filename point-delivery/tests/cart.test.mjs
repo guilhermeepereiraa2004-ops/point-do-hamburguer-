@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { validateCart, summarizeCart, validateBurgerRecipients } from '../domain/cart.ts';
-import { InsufficientStockError } from '../domain/menu.ts';
+import { burgerPriceForCount, ingredientNames, InsufficientStockError } from '../domain/menu.ts';
 import { reserveOrder } from '../db/order-reservation.ts';
 import { postgresFixture } from './postgres-fixture.mjs';
 import { resizeBurgerDrafts, nextUnfinishedBurger, burgerIsFinished, repeatBurgerRecipe } from '../domain/assembly-flow.ts';
@@ -9,6 +10,41 @@ import { resizeBurgerDrafts, nextUnfinishedBurger, burgerIsFinished, repeatBurge
 const item = (id, category, extra = {}) => ({ id, name: id, category, unit: 'unidade', stock: 30, maxQty: 4, active: true, price: null, ...extra });
 const catalog = { ingredients: [item('pao','Pães',{maxQty:1}),item('carne','Proteínas'),item('queijo','Queijos'),item('bacon','Extras'),item('refri','Complementos',{featured:true,extraType:'refrigerante',price:700})], prices:{3:1300,4:1400,6:1600},deliveryFee:500 };
 const first = {pao:1,carne:1,queijo:1,bacon:1}, second = {pao:1,carne:2,queijo:2}, heavy = {pao:1,carne:4,queijo:2};
+test('burger prices start at fourteen for three items and keep increasing beyond thirty reais',()=>{
+ const prices=Object.fromEntries(Array.from({length:17},(_,index)=>[index+3,(index+14)*100]));
+ for(const [count,expected] of [[3,1400],[4,1500],[19,3000],[20,3100],[21,3200],[60,7100]]) assert.equal(burgerPriceForCount(count,prices),expected);
+ for(const count of [0,1,2,3.5,NaN,Infinity]) assert.equal(burgerPriceForCount(count,prices),undefined);
+ assert.equal(burgerPriceForCount(20,{}),undefined);
+ assert.equal(burgerPriceForCount(5,{3:1800,4:2200}),2300);
+ assert.equal(burgerPriceForCount(4,{3:1800,5:2500}),undefined);
+ const largeCatalog={...catalog,prices,ingredients:[item('pao','Pães',{maxQty:1}),...ingredientNames.map(([id,name,category])=>item(id,category,{name})),item('refri','Complementos',{featured:true,price:500})]};
+ const recipe={pao:1,...Object.fromEntries(ingredientNames.map(([id])=>[id,4]))};
+ const result=validateCart([recipe,recipe],{refri:1},largeCatalog);
+ assert.deepEqual(result.snapshots.map(burger=>burger.price),[7100,7100]);
+ assert.equal(result.subtotal,14700);
+ assert.equal(result.selection.pao,2);
+});
+test('the new pricing migration preserves old order values, stock and completed revenue',async t=>{
+ const db=await fixture(t),oldCart=validateCart([first],{},catalog),input=order(oldCart);
+ await db.prepare('INSERT INTO prices(count,value) VALUES(3,1300)').run();
+ await reserveOrder(db,input,oldCart.lines);
+ for(const status of ['preparo','entrega','concluido']) await db.prepare('UPDATE orders SET status=? WHERE id=?').bind(status,input.id).run();
+ const migration=readFileSync(new URL('../drizzle-pg/0010_burger_pricing.sql',import.meta.url),'utf8');
+ await db.prepare(migration).run();
+ const rows=(await db.prepare('SELECT count,value FROM prices ORDER BY count').all()).results;
+ assert.equal(rows.length,17);
+ assert.deepEqual(rows[0],{count:3,value:1400});
+ assert.deepEqual(rows.at(-1),{count:19,value:3000});
+ const saved=await db.prepare('SELECT subtotal,total,burgers FROM orders WHERE id=?').bind(input.id).first();
+ assert.equal(saved.subtotal,1300);
+ assert.equal(saved.total,1800);
+ assert.deepEqual(JSON.parse(saved.burgers),oldCart.snapshots);
+ assert.equal((await db.prepare('SELECT value FROM finance WHERE order_id=?').bind(input.id).first()).value,1800);
+ assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='carne'").first()).stock,29);
+ const currentCatalog={...catalog,prices:Object.fromEntries(rows.map(row=>[row.count,row.value]))};
+ assert.equal(validateCart([first],{},currentCatalog).subtotal,1400);
+ assert.equal(validateCart([second],{},currentCatalog).subtotal,1500);
+});
 test('quantity creates independent drafts with one included bread and preserves only the requested recipes',()=>{
  const initial=resizeBurgerDrafts([],3);
  assert.deepEqual(initial,[{pao:1},{pao:1},{pao:1}]);

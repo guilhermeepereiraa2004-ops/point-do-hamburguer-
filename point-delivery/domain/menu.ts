@@ -36,9 +36,15 @@ export const ingredientNames = [
 export function countItems(selection: Selection, catalog: Catalog) {
   return catalog.ingredients.filter(i => ["Proteínas", "Queijos", "Extras"].includes(i.category)).reduce((n, i) => n + (selection[i.id] || 0), 0);
 }
+export function burgerPriceForCount(count: number, prices: Catalog["prices"]) {
+  if (!Number.isSafeInteger(count) || count < 3) return undefined;
+  const lastCount = Math.max(0, ...Object.keys(prices).map(Number));
+  if (lastCount >= 3 && count > lastCount) return prices[String(lastCount)] + (count - lastCount) * 100;
+  return prices[String(count)];
+}
 export function summarize(selection: Selection, catalog: Catalog) {
   const count = countItems(selection, catalog);
-  const burgerPrice = catalog.prices[String(count)];
+  const burgerPrice = burgerPriceForCount(count, catalog.prices);
   const extras = catalog.ingredients.filter(i => i.category === "Complementos").reduce((n, i) => n + (selection[i.id] || 0) * (i.price || 0), 0);
   return { count, burgerPrice, extras, subtotal: (burgerPrice || 0) + extras };
 }
@@ -54,7 +60,8 @@ export function validateSelection(selection: Selection, catalog: Catalog) {
   const bread = catalog.ingredients.filter(i => i.category === "Pães").reduce((n, i) => n + (selection[i.id] || 0), 0);
   if (bread !== 1) throw new Error("Selecione um pão.");
   const summary = summarize(selection, catalog);
-  if (summary.burgerPrice === undefined) throw new Error("Escolha entre 3 e 15 itens para usar a tabela de preços.");
+  if (summary.count < 3) throw new Error("Escolha pelo menos 3 itens para montar seu hambúrguer.");
+  if (summary.burgerPrice === undefined) throw new Error("O preço desta montagem ainda não foi configurado.");
   return summary;
 }
 export function canTransition(from: Status, to: Status) {

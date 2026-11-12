@@ -34,6 +34,10 @@
 .storefront .assembly-actions { display: flex; gap: 14px; align-items: center; }
 .storefront .steps button:disabled { opacity: .45; }
 .storefront .repeat-burger { margin: 0 0 22px; border: 1px dashed #e8c9ad; border-radius: 14px; padding: 16px; background: #fff9f1; }
+.storefront .repeat-previous { padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid #efddca; }
+.storefront .repeat-previous button { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 14px; border: 1px solid #df9c6a; border-radius: 11px; background: #fff0df; color: #99401b; font-size: 12px; font-weight: 600; text-align: left; }
+.storefront .repeat-previous button svg { flex-shrink: 0; }
+.storefront .repeat-previous p { margin: 9px 0 0; color: #886a53; font-size: 10px; line-height: 1.7; }
 .storefront .repeat-burger-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
 .storefront .repeat-burger-heading>div { min-width: 0; }
 .storefront .repeat-burger-heading strong { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 600; }
@@ -53,6 +57,16 @@
 .storefront .repeat-hint { color: #9b7d63; font-size: 10px; line-height: 1.7; margin: 12px 0; }
 .storefront .repeat-apply { width: 100%; min-height: 46px; font-size: 11px; }
 .storefront .repeat-confirmation { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; color: #738653; font-size: 10px; line-height: 1.8; }
+.storefront .finished-burgers { margin-bottom: 22px; padding: 20px; border: 1px solid #efdecb; border-radius: 16px; background: #fffbf6; }
+.storefront .finished-burgers h4 { margin: 0; font-size: 15px; }
+.storefront .finished-burgers>p { margin: 6px 0 16px; font-size: 11px; line-height: 1.7; color: #886a53; }
+.storefront .finished-burgers article { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 14px 0; border-top: 1px solid #efdfce; }
+.storefront .finished-burgers article>div { min-width: 0; }
+.storefront .finished-burgers strong { display: block; font-size: 12px; overflow-wrap: anywhere; }
+.storefront .finished-burgers small { display: block; margin-top: 5px; font-size: 11px; color: #886a53; }
+.storefront .finished-burger-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.storefront .finished-burger-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 10px 12px; border: 1px solid #e8bf9c; border-radius: 9px; background: white; color: #a84318; font-size: 11px; font-weight: 600; }
+.storefront :is(.repeat-previous,.finished-burger-actions) button:disabled { opacity: .5; }
 @media (max-width: 760px) {
   .storefront .builder-controls { scroll-margin-top: 270px; }
   .storefront .is-quantity-step .builder-controls { scroll-margin-top: 22px; }
@@ -78,4 +92,7 @@
   .storefront .repeat-burger-heading strong { font-size: 11px; }
   .storefront .repeat-burger-heading p { font-size: 9px; }
   .storefront .repeat-targets { grid-template-columns: 1fr; }
+  .storefront .finished-burgers { padding: 16px; }
+  .storefront .finished-burgers article { align-items: stretch; flex-direction: column; gap: 12px; }
+  .storefront .finished-burger-actions button { flex: 1; }
 }

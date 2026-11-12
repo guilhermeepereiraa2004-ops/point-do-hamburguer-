@@ -71,6 +71,13 @@
       "when": 1794170400000,
       "tag": "0009_push_confirmation",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1794441600000,
+      "tag": "0010_burger_pricing",
+      "breakpoints": true
     }
   ]
 }

@@ -28,25 +28,29 @@ O administrador pode pausar e liberar manualmente qualquer ingrediente sem modif
 
 ## Tabela de preços do sanduíche
 
-Valores em reais; persistência proposta em centavos inteiros.
+Tabela atualizada por solicitação do responsável em 12/11/2026. Valores persistidos em centavos inteiros.
 
 | Quantidade total de itens | Valor |
 |---|---|
-| 3 | R$ 13,00 |
-| 4 | R$ 14,00 |
-| 5 | R$ 15,00 |
-| 6 | R$ 16,00 |
-| 7 | R$ 17,00 |
-| 8 | R$ 18,00 |
-| 9 | R$ 19,00 |
-| 10 | R$ 20,00 |
-| 11 | R$ 21,00 |
-| 12 | R$ 22,00 |
-| 13 | R$ 23,00 |
-| 14 | R$ 24,00 |
-| 15 | R$ 25,00 |
+| 3 | R$ 14,00 |
+| 4 | R$ 15,00 |
+| 5 | R$ 16,00 |
+| 6 | R$ 17,00 |
+| 7 | R$ 18,00 |
+| 8 | R$ 19,00 |
+| 9 | R$ 20,00 |
+| 10 | R$ 21,00 |
+| 11 | R$ 22,00 |
+| 12 | R$ 23,00 |
+| 13 | R$ 24,00 |
+| 14 | R$ 25,00 |
+| 15 | R$ 26,00 |
+| 16 | R$ 27,00 |
+| 17 | R$ 28,00 |
+| 18 | R$ 29,00 |
+| 19 | R$ 30,00 |
 
-Embora a tabela inicial siga `R$ 10 + quantidade`, cada faixa deve ser editável individualmente no admin. Não fixar a fórmula no sistema.
+As faixas continuam editáveis individualmente no admin. Acima da última faixa cadastrada, cada item acrescenta R$ 1,00 ao preço dessa faixa. Com a tabela atual, 20 itens custam R$ 31,00. R$ 30,00 deixa de limitar a montagem. O mínimo permanece em três itens, com pão incluído. Os limites por ingrediente e o estoque continuam sendo verificados. Pedidos anteriores conservam o preço registrado na compra.
 
 ## Complementos e entrega
 
@@ -83,9 +87,9 @@ Cada porção tem preço e estoque independentes, tamanho “Porção” e descr
 
 ## Interpretações propostas, ainda não confirmadas
 
-- A quantidade de itens corresponde à soma das quantidades escolhidas: 2 carnes + 3 queijos = 5 itens, R$ 15,00 antes dos complementos e da entrega.
+- A quantidade de itens corresponde à soma das quantidades escolhidas. Duas carnes e três queijos contam como cinco itens, R$ 16,00 antes dos complementos e da entrega na tabela vigente.
 - O pão faz parte do sanduíche e não entra na contagem da tabela. A imagem não confirma essa regra.
-- A tabela cobre apenas 3 a 15 itens; fora dela a finalização deve aguardar uma faixa cadastrada. Não extrapolar preços.
+- A tabela vigente cobre 3 a 19 itens e permite continuar a montagem acima dela, acrescentando R$ 1,00 por item.
 - O máximo por ingrediente começa em 4, conforme a imagem. O admin poderá revisar essa limitação posteriormente.
 - O estoque de frango é medido em porções, conforme o cardápio; não em gramas sem uma conversão cadastrada.
 
@@ -123,3 +127,9 @@ Sem etapa de aceite e sem categorias recolhidas. Filtro inicial Todos; filtros B
 Saboresautorizados: Maracujá,Acerola,Cajá,Laranja eCacau. Cada copo300ml porR$5,00, estoqueinicial50por sabor, com cadastrosindependentes. Publicados emBebidas/Acompanhamentos, fotosgeradas comalpha e movimentoautomatico, controlesdepreco/estoque/pausa noadmin. Receita/faturamento/baixa seguem mesmas regras dosoutros acompanhamentos. Cadastro generico suco continua fora daoferta. Fonte de dados: point-delivery/data/juices-menu.json; prompts/assets emdocs/assets/juices-prompts.md.
 
 Ordem de exibição dos acompanhamentos: batatas fritas, refrigerantes, sucos e outros produtos. Os filtros mantêm essa ordem e a sequência existente dentro de cada tipo.
+
+## Facilidades para repetir hambúrgueres — 12/11/2026
+
+Após finalizar uma montagem, o próximo lanche oferece o botão Clique aqui para montar o hambúrguer igual ao anterior. A cópia substitui os recheios do lanche atual e permite ajustes antes de finalizar. A opção Repetir permite escolher vários destinos no mesmo pedido. Na revisão antes dos acompanhamentos, cada lanche oferece Pedir mais um igual, que acrescenta uma cópia e abre sua montagem para revisão e identificação. Todos os caminhos verificam estoque agregado, pão e limite de dez hambúrgueres. Cópias têm ingredientes independentes e o nome de cada pessoa é informado separadamente.
+
+A frase principal da hero passa a ser Aqui a montagem é do seu jeito!

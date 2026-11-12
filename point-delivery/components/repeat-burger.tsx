@@ -12,7 +12,7 @@ type Props = {
   catalog: Catalog;
   disabled: boolean;
   validRecipe: boolean;
-  onApply: (targets: number[]) => boolean;
+  onApply: (source: number, targets: number[]) => boolean;
 };
 
 export function RepeatBurger({ burgers, source, finished, catalog, disabled, validRecipe, onApply }: Props) {
@@ -32,19 +32,25 @@ export function RepeatBurger({ burgers, source, finished, catalog, disabled, val
     setTargets((pending.length ? pending : options).map(option => option.index));
     setConfirmation("");setActionError("");setOpen(true);
   }
-  function apply() {
+  function apply(recipeSource: number, destinations: number[]) {
+    setActionError("");
+    setConfirmation("");
     try {
-      if (!onApply(targets)) return;
-      setConfirmation(`Receita copiada para ${targets.map(index => `o hambúrguer ${index + 1}`).join(" e ")}. Revise e finalize cada lanche.`);
+      if (!onApply(recipeSource, destinations)) return;
+      setConfirmation(`Receita copiada para ${destinations.map(index => `o hambúrguer ${index + 1}`).join(" e ")}. Revise e finalize cada lanche.`);
       setOpen(false);setActionError("");
       window.requestAnimationFrame(()=>openButtonRef.current?.focus({preventScroll:true}));
     } catch (error) { setActionError(error instanceof Error ? error.message : "Não foi possível repetir esta receita."); }
   }
   return (
     <section className="repeat-burger" aria-label="Repetir receita">
+      {source > 0 && finished[source - 1] && <div className="repeat-previous">
+        <button type="button" disabled={disabled} onClick={() => apply(source - 1, [source])}><Copy size={18} aria-hidden="true"/><span>Clique aqui para montar o hambúrguer igual ao anterior</span></button>
+        <p>Os ingredientes deste lanche serão substituídos. Depois, você pode ajustar como quiser.</p>
+      </div>}
       <div className="repeat-burger-heading">
         <div><strong><Copy size={16} aria-hidden="true" />Repetir este lanche</strong><p>{validRecipe ? "Use esta combinação em outros hambúrgueres do pedido." : "Monte este lanche para poder repetir a receita."}</p></div>
-        <button ref={openButtonRef} type="button" className="repeat-open" disabled={disabled || !open && !validRecipe} aria-expanded={open} aria-controls="repeat-burger-options" onClick={()=>open?setOpen(false):showOptions}>{open?"Cancelar":"Repetir"}<Copy size={15} aria-hidden="true" /></button>
+        <button ref={openButtonRef} type="button" className="repeat-open" disabled={disabled || !open && !validRecipe} aria-expanded={open} aria-controls="repeat-burger-options" onClick={()=>open?setOpen(false):showOptions()}>{open?"Cancelar":"Repetir"}<Copy size={15} aria-hidden="true" /></button>
       </div>
       {open && <div id="repeat-burger-options" className="repeat-burger-options">
         <fieldset disabled={disabled}><legend>Quais hambúrgueres devem ficar iguais ao {source + 1}?</legend>
@@ -54,9 +60,10 @@ export function RepeatBurger({ burgers, source, finished, catalog, disabled, val
           </label>)}</div>
         </fieldset>
         <p className="repeat-hint">Apenas os lanches marcados serão alterados. Depois, você pode ajustar cada um.</p>
-        {(issue || actionError) && <p className="notice error" role="alert">{issue || actionError}</p>}
-        <button type="button" className="button primary repeat-apply" disabled={disabled || !validRecipe || !targets.length || Boolean(issue)} onClick={apply}>Aplicar em {targets.length} {targets.length===1?"hambúrguer":"hambúrgueres"}<Check size={16}/></button>
+        {issue && <p className="notice error" role="alert">{issue}</p>}
+        <button type="button" className="button primary repeat-apply" disabled={disabled || !validRecipe || !targets.length || Boolean(issue)} onClick={()=>apply(source, targets)}>Aplicar em {targets.length} {targets.length===1?"hambúrguer":"hambúrgueres"}<Check size={16}/></button>
       </div>}
+      {actionError && <p className="notice error" role="alert">{actionError}</p>}
       {confirmation && <p className="repeat-confirmation" role="status"><Check size={16} aria-hidden="true" />{confirmation}</p>}
     </section>
   );

@@ -117,7 +117,7 @@ export async function updateCatalog(input: Record<string, unknown>) {
     const reason = stringField(input.reason, "motivo do ajuste", 3, 200);
     await raw.batch([raw.prepare("INSERT INTO movements (ingredient_id,delta,reason,created_at) SELECT id, ?-stock, ?, ? FROM ingredients WHERE id=?").bind(value, reason, Date.now(), id), raw.prepare("UPDATE ingredients SET stock=? WHERE id=?").bind(value, id)]);
   } else if (kind === "price") {
-    const count = Number(input.id); if (!Number.isInteger(count) || count < 3 || count > 15) throw new Error("Faixa inválida.");
+    const count = Number(input.id); if (!Number.isInteger(count) || count < 3 || count > 19) throw new Error("Faixa inválida.");
     await raw.prepare("INSERT INTO prices (count,value) VALUES (?,?) ON CONFLICT(count) DO UPDATE SET value=excluded.value").bind(count, value).run();
   } else if (kind === "delivery") {
     await raw.prepare("INSERT INTO settings (key,value) VALUES ('deliveryFee',?) ON CONFLICT(key) DO UPDATE SET value=excluded.value").bind(value).run();

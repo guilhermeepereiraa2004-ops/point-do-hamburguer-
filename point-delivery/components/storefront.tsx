@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { InstallApp } from "@/components/install-app";
 import { HowItWorks } from "@/components/how-it-works";
-import { ArrowDown, ArrowLeft, ArrowRight, Check, CheckCircle2, ChefHat, ChevronRight, Flame, Hamburger, Leaf, MapPin, Minus, Plus, ShoppingBag, Sparkles, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, Check, CheckCircle2, ChefHat, ChevronRight, Copy, Flame, Hamburger, Leaf, MapPin, Minus, Plus, ShoppingBag, Sparkles, X } from "lucide-react";
 import { accompanimentChoices, countItems, getStockShortages, isIngredientAvailable, money, summarize, type StockShortage, type Ingredient, type Selection } from "@/domain/menu";
 import { BurgerPreview, IngredientPhoto } from "@/components/burger-preview";
 import { StockAvailability } from "@/components/stock-availability";
@@ -79,13 +79,33 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
   setCompletedSignatures(current=>current.slice(0,quantity));setActiveBurger(current=>Math.min(current,quantity-1));setClosedSignature(null);keyRef.current="";
  }
  function setSelection(update:(current:Selection)=>Selection){setBurgers(current=>current.map((burger,index)=>index===activeBurger?update(burger):burger));keyRef.current="";}
- function repeatCurrentRecipe(targets:number[]){
+ function repeatRecipe(source:number,targets:number[]){
   if(closing||sending||loading)return false;
-  const copies=repeatBurgerRecipe(burgers,activeBurger,targets,catalog);
+  const copies=repeatBurgerRecipe(burgers,source,targets,catalog);
   setBurgers(copies);
   setCompletedSignatures(current=>current.map((signature,index)=>targets.includes(index)?"":signature));
   keyRef.current="";
   return true;
+ }
+ function duplicateBurger(source: number) {
+  if (!isOpen || closing || sending || loading || burgers.length >= quantityLimit) return;
+  setError("");
+  try {
+   const expanded = resizeBurgerDrafts(burgers, burgers.length + 1);
+   const copies = repeatBurgerRecipe(expanded, source, [burgers.length], catalog);
+   setBurgers(copies);
+   setRecipients(current => [...current, ""]);
+   setCompletedSignatures(current => [...current, ""]);
+   setActiveBurger(burgers.length);
+   setClosedSignature(null);
+   setStep(1);
+   setCategory("Todos");
+   setCheckout(false);
+   keyRef.current = "";
+   focusStage();
+  } catch (error) {
+   setError(error instanceof Error ? error.message : "Não foi possível repetir este hambúrguer.");
+  }
  }
  function change(item:Ingredient,delta:number){
   item=catalog.ingredients.find(product=>product.id===item.id)??item;
@@ -144,8 +164,8 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
  }
 
  return <div className={`storefront${fontVariant==="poppins"?" font-poppins":""}`}><header className="site-header"><div className="container header-inner"><a className="brand" href={fontVariant==="poppins"?"/poppins":"/"} aria-label="Point do Hambúrguer, início"><span className="brand-mark"><Hamburger size={29} strokeWidth={2.3}/></span><span>point<span className="brand-small">DO HAMBÚRGUER</span></span><span className="brand-dot">®</span></a><nav className="desktop-nav"><a href="#montar" className="active">Monte seu burger</a><a href="#como-funciona">Como funciona</a></nav><button className="bag-button" onClick={startCheckout} disabled={closing||!isOpen}><ShoppingBag size={18}/><span>Meu pedido</span><b>{burgers.length}</b></button></div></header>
- <main>{!loading&&!isOpen&&<div className="store-closed-banner container" role="status"><strong>Loja fechada no momento</strong><span>Você pode conferir o cardápio. Os pedidos voltam assim que a loja abrir.</span></div>}<section className="hero container"><div className="hero-copy"><div className="eyebrow"><span/> SEU BURGER, SUAS REGRAS</div><h1><span className="hero-line">Do seu jeito.</span><span className="hero-line">Até a última</span><span className="hero-line hero-accent">camada.<svg className="title-spark" viewBox="0 0 70 70" fill="none"><path d="m34 3 3 22 18-13-12 20 23 6-24 3 12 20-19-14-5 20-3-23L6 55l14-19L1 29l23-1-9-20 17 15z" stroke="currentColor" strokeWidth="3"/></svg></span></h1><p>Escolha os ingredientes. Capriche nos favoritos.<br className="desktop-br"/> O próximo burger é a sua criação.</p><a href="#montar" className="button primary hero-cta"><span className="hero-cta-label"><Hamburger size={21} aria-hidden="true"/>Montar meu burger</span><span className="hero-cta-arrow" aria-hidden="true"><ArrowRight size={21}/></span></a><div className="hero-proof"><span><ChefHat size={18}/> Feito na hora</span><i/><span><Flame size={18}/> Sabor sem limites</span></div></div>
- <HeroArtwork price={money(Object.values(catalog.prices).length?Math.min(...Object.values(catalog.prices)):1300)}/></section>
+ <main>{!loading&&!isOpen&&<div className="store-closed-banner container" role="status"><strong>Loja fechada no momento</strong><span>Você pode conferir o cardápio. Os pedidos voltam assim que a loja abrir.</span></div>}<section className="hero container"><div className="hero-copy"><div className="eyebrow"><span/> SEU BURGER, SUAS REGRAS</div><h1><span className="hero-line">Aqui a </span><span className="hero-line">montagem é </span><span className="hero-line hero-accent">do seu jeito!<svg className="title-spark" viewBox="0 0 70 70" fill="none"><path d="m34 3 3 22 18-13-12 20 23 6-24 3 12 20-19-14-5 20-3-23L6 55l14-19L1 29l23-1-9-20 17 15z" stroke="currentColor" strokeWidth="3"/></svg></span></h1><p>Escolha os ingredientes. Capriche nos favoritos.<br className="desktop-br"/> O próximo burger é a sua criação.</p><a href="#montar" className="button primary hero-cta"><span className="hero-cta-label"><Hamburger size={21} aria-hidden="true"/>Montar meu burger</span><span className="hero-cta-arrow" aria-hidden="true"><ArrowRight size={21}/></span></a><div className="hero-proof"><span><ChefHat size={18}/> Feito na hora</span><i/><span><Flame size={18}/> Sabor sem limites</span></div></div>
+ <HeroArtwork price={money(Object.values(catalog.prices).length?Math.min(...Object.values(catalog.prices)):1400)}/></section>
  <HeroDivider/>
 
  <section id="montar" className="builder-section container">
@@ -169,17 +189,29 @@ export default function Home({fontVariant="atual"}:{fontVariant?:"atual"|"poppin
       <div className="assembly-progress" aria-live="polite"><strong>Hambúrguer {activeBurger+1} de {burgers.length}</strong><span>{finished.filter(Boolean).length} de {burgers.length} finalizados</span></div>
       <div className="burger-cart-tabs" role="group" aria-label="Montagens do pedido">{burgers.map((burger,index)=><div key={index} className={`${activeBurger===index?"active":""} ${finished[index]?"is-finished":""}`}><button type="button" aria-label={`Editar hambúrguer ${index+1}`} aria-pressed={activeBurger===index} disabled={closing||!finished[index]&&index!==unfinished&&index!==activeBurger} onClick={()=>editBurger(index)}>{finished[index]?<CheckCircle2 size={16}/>:<Hamburger size={16}/>}<span>Hambúrguer {index+1}{recipients[index]?` · ${recipients[index]}`:""}<small>{finished[index]?"Finalizado":activeBurger===index?"Em montagem":countItems(burger,catalog)>0?"Revisar receita":"A montar"}</small></span></button></div>)}</div>
      </>}
-     <div className="step-title"><div><h3 tabIndex={-1}>{step===0?"Quantos hambúrgueres vão ser?":step===1?`Monte o hambúrguer ${activeBurger+1}.`:"Cardápio de acompanhamentos"}</h3><p>{step===0?"Escolha a quantidade. Depois, monte um de cada vez.":step===1?"Escolha de 3 a 15 itens. O pão já está incluído.":"Seus lanches estão prontos. Você decide o que vem junto."}</p></div><span>{step===0?"PRIMEIRO PASSO":step===1?"ATÉ 4× CADA":"OPCIONAL"}</span></div>
+     <div className="step-title"><div><h3 tabIndex={-1}>{step===0?"Quantos hambúrgueres vão ser?":step===1?`Monte o hambúrguer ${activeBurger+1}.`:"Cardápio de acompanhamentos"}</h3><p>{step===0?"Escolha a quantidade. Depois, monte um de cada vez.":step===1?"Escolha a partir de 3 itens. O pão já está incluído.":"Seus lanches estão prontos. Você decide o que vem junto."}</p></div><span>{step===0?"PRIMEIRO PASSO":step===1?"ATÉ 4× CADA":"OPCIONAL"}</span></div>
      {unavailable.length>0&&<div className="menu-stock-notice" role="status"><strong>A disponibilidade mudou. Revise seu pedido.</strong>{unavailable.map(item=>item.name).join(", ")} — ajuste a quantidade ou os ingredientes para continuar.</div>}
      {step===0&&<BurgerQuantity quantity={burgers.length} available={quantityLimit} onChange={setQuantity} onStart={()=>goToStep(1)}/>}
      {step===1&&<>
-      {burgers.length>1&&<RepeatBurger key={`${activeBurger}-${burgers.length}`} burgers={burgers} source={activeBurger} finished={finished} catalog={catalog} disabled={closing||loading||sending} validRecipe={summary.burgerPrice!==undefined&&selection.pao===1&&getStockShortages(selection,catalog).length===0} onApply={repeatCurrentRecipe}/>}
+      {burgers.length>1&&<RepeatBurger key={`${activeBurger}-${burgers.length}`} burgers={burgers} source={activeBurger} finished={finished} catalog={catalog} disabled={closing||loading||sending} validRecipe={summary.burgerPrice!==undefined&&selection.pao===1&&getStockShortages(selection,catalog).length===0} onApply={repeatRecipe}/>}
       <div className="category-tabs">{["Todos","Proteínas","Queijos","Extras"].map(c=><button key={c} onClick={()=>setCategory(c)} disabled={closing} className={category===c?"selected":""} aria-pressed={category===c}>{c==="Todos"?<Hamburger size={15}/>:c==="Proteínas"?<Flame size={15}/>:c==="Extras"?<Leaf size={15}/>:null}{c}</button>)}</div>
       <div className="ingredients-grid">{assemblyIngredients.map(item=><div key={item.id} className={`ingredient-card ${selection[item.id]?"is-selected":""} ${!isIngredientAvailable(item)?"sold-out":""}`}><div className="food-icon"><IngredientPhoto id={item.id}/></div>{selection[item.id]>0&&<span className="ingredient-picked" aria-hidden="true"><Check size={11}/></span>}<div className="ingredient-info"><h4>{item.name}</h4><p>{hints[item.id]}</p><IngredientAvailability item={item}/></div><Counter item={{...item,stock:Math.max(0,item.stock-(otherSelections[item.id]||0))}} disabled={closing} value={selection[item.id]||0} onChange={delta=>change(item,delta)}/></div>)}</div>
-      <div className="pricing-note"><span><span className="note-icon">!</span> Quanto mais camadas, mais a sua cara.</span><details><summary>Ver tabela de preços <ArrowDown size={13}/></summary><div className="price-table">{Object.entries(catalog.prices).map(([n,p])=><span key={n}>{n} itens <b>{money(p)}</b></span>)}</div></details></div>
-      <div className="builder-bottom"><span>{count<3?(count===2?"Falta 1 item para este lanche":`Faltam ${3-count} itens para este lanche`):count>15?"Retire alguns itens: o máximo é 15":<><CheckCircle2 size={16}/> {count} itens · {money(summary.burgerPrice??0)}</>}</span><div className="assembly-actions"><button type="button" className="builder-back" disabled={closing} onClick={()=>goToStep(0)}><ArrowLeft size={14}/> Quantidade</button><button type="button" className="button primary" disabled={!canFinishBurger} onClick={finishBurger}>{closing?"Finalizando…":finishLabel}<ArrowRight size={17}/></button></div></div>
+      <div className="pricing-note"><span><span className="note-icon">!</span> Cada item a mais acrescenta R$ 1,00.</span><details><summary>Ver tabela de preços <ArrowDown size={13}/></summary><div className="price-table">{Object.entries(catalog.prices).map(([n,p])=><span key={n}>{n} itens <b>{money(p)}</b></span>)}</div></details></div>
+      <div className="builder-bottom"><span>{count<3?(count===2?"Falta 1 item para este lanche":`Faltam ${3-count} itens para este lanche`):<><CheckCircle2 size={16}/> {count} itens · {money(summary.burgerPrice??0)}</>}</span><div className="assembly-actions"><button type="button" className="builder-back" disabled={closing} onClick={()=>goToStep(0)}><ArrowLeft size={14}/> Quantidade</button><button type="button" className="button primary" disabled={!canFinishBurger} onClick={finishBurger}>{closing?"Finalizando…":finishLabel}<ArrowRight size={17}/></button></div></div>
      </>}
      {step===2&&<>
+      <section className="finished-burgers" aria-label="Seus hambúrgueres">
+       <h4>Seus hambúrgueres</h4>
+       <p>Gostou da combinação? Peça mais um igual.</p>
+       {burgers.map((burger,index)=><article key={index}>
+        <div><strong>Hambúrguer {index+1}{recipients[index]?` · ${recipients[index]}`:""}</strong><small>{countItems(burger,catalog)} itens · {money(cart.summaries[index].burgerPrice??0)}</small></div>
+        <div className="finished-burger-actions">
+         <button type="button" disabled={closing||sending} onClick={()=>editBurger(index)}>Editar</button>
+         <button type="button" disabled={!isOpen||closing||sending||loading||burgers.length>=quantityLimit} onClick={()=>duplicateBurger(index)} aria-label={`Pedir mais um igual ao hambúrguer ${index+1}`}><Copy size={15} aria-hidden="true"/>Pedir mais um igual</button>
+        </div>
+       </article>)}
+       {error&&<p className="notice error" role="alert">{error}</p>}
+      </section>
       <button type="button" className="skip-accompaniments" disabled={!isOpen||closing||sending||loading||!allBurgersFinished||!cart.valid||getStockShortages(combineSelections(burgers),catalog).length>0} onClick={skipAccompaniments}>Não quero acompanhamentos<ArrowRight size={16}/></button>
       <AccompanimentMenu items={accompaniments} selection={extras} disabled={closing||sending} onChange={change}/>
       <div className="builder-bottom"><span>Total do pedido: <strong>{money(total)}</strong></span><div className="assembly-actions"><button type="button" className="builder-back" onClick={()=>editBurger(activeBurger)}><ArrowLeft size={14}/> Lanches</button><button type="button" className="button primary" disabled={!canReview} onClick={startCheckout}>Continuar para entrega<ArrowRight size={17}/></button></div></div>
