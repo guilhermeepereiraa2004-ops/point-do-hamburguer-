@@ -126,10 +126,20 @@ Sem etapa de aceite e sem categorias recolhidas. Filtro inicial Todos; filtros B
 ## Sucos300ml — 08/11/2026
 Saboresautorizados: Maracujá,Acerola,Cajá,Laranja eCacau. Cada copo300ml porR$5,00, estoqueinicial50por sabor, com cadastrosindependentes. Publicados emBebidas/Acompanhamentos, fotosgeradas comalpha e movimentoautomatico, controlesdepreco/estoque/pausa noadmin. Receita/faturamento/baixa seguem mesmas regras dosoutros acompanhamentos. Cadastro generico suco continua fora daoferta. Fonte de dados: point-delivery/data/juices-menu.json; prompts/assets emdocs/assets/juices-prompts.md.
 
-Ordem de exibição dos acompanhamentos: batatas fritas, refrigerantes, sucos e outros produtos. Os filtros mantêm essa ordem e a sequência existente dentro de cada tipo.
+Os acompanhamentos aparecem na sequência batatas fritas, refrigerantes, sucos e outros produtos. As batatas são ordenadas por preço crescente, com a Tradicional primeiro em caso de empate. Produtos sem preço vão ao fim do grupo. Os filtros mantêm essa ordem.
 
 ## Facilidades para repetir hambúrgueres — 12/11/2026
 
 Após finalizar uma montagem, o próximo lanche oferece o botão Clique aqui para montar o hambúrguer igual ao anterior. A cópia substitui os recheios do lanche atual e permite ajustes antes de finalizar. A opção Repetir permite escolher vários destinos no mesmo pedido. Na revisão antes dos acompanhamentos, cada lanche oferece Pedir mais um igual, que acrescenta uma cópia e abre sua montagem para revisão e identificação. Todos os caminhos verificam estoque agregado, pão e limite de dez hambúrgueres. Cópias têm ingredientes independentes e o nome de cada pessoa é informado separadamente.
 
 A frase principal da hero passa a ser Aqui a montagem é do seu jeito!
+
+16/11/2026 — Na montagem do cliente, os ingredientes aparecem em duas colunas, com os pares carne e frango, queijo e presunto, cheddar e catupiry, bacon e ovo, calabresa e salsicha, milho e ervilha, cebola e salada. Batata palha ocupa a última linha centralizada, com a largura de um cartão.
+
+## Bebidas atualizadas — 22/11/2026
+
+A seleção de bebidas passa a usar grupos expansíveis na sequência refrigerantes de 1 litro, Coca-Cola 600 ml, Monster, refrigerantes em lata, água, refrigerantes mini PET, Del Valle e Skinka e sucos da fruta. As marcas e os sabores seguem a ordem fornecida pelo responsável. Preços e variantes estão em point-delivery/data/beverages-menu.json. Água e energético possuem categorias próprias no admin e aparecem no filtro Bebidas.
+
+Del Valle e Skinka são produtos separados, ambos de laranja por enquanto, a R$ 6,00 cada. As novas opções começam com dez unidades, com movimento de cadastro auditado. Os saldos de produtos já existentes são preservados. As embalagens sem volume informado usam Lata, Mini PET ou Unidade. Os sucos da fruta mantêm o copo de 300 ml já configurado. Cacau sai dos acompanhamentos da lista atual e permanece no cadastro administrativo com seu saldo e histórico.
+
+A migração 0011_beverage_menu cria as novas variantes e atualiza os preços e nomes dos registros existentes. A repetição da migração não repõe estoque nem duplica movimentos. Pedidos anteriores preservam os nomes e valores registrados na compra.

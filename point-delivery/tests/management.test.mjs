@@ -9,8 +9,49 @@ import { saveAccompaniment, addManualEntry, setProductFeatured } from "../db/man
 import { reserveOrder } from "../db/order-reservation.ts";
 import { readCustomerOrders } from "../db/customer-orders.ts";
 import { validateSelection, accompanimentChoices, isIngredientAvailable, getStockShortages } from "../domain/menu.ts";
+import { beverageGroup, beverageGroups } from "../domain/beverages.ts";
 
 const now = Date.parse("2026-10-20T15:00:00Z");
+test("beverage menu follows the owner's packaging and brand order and accepts water and energy drinks", () => {
+  const menu = JSON.parse(readFileSync(new URL('../data/beverages-menu.json', import.meta.url), 'utf8'));
+  assert.equal(menu.length, 28);
+  assert.equal(new Set(menu.map(item => item.id)).size, 28);
+  assert.deepEqual([...new Set(menu.map(item => item.group))], beverageGroups.slice(0, 8).map(group => group.id));
+  for (const item of menu) {
+    const validated = validateAccompaniment({ ...item, stock: 10, lowStock: 5, maxQty: 4 });
+    assert.equal(beverageGroup(validated), item.group);
+    assert.equal(validated.price, item.price);
+  }
+  assert.deepEqual(menu.filter(item => item.group === 'lata').map(item => [item.productName,item.flavor,item.price]), [
+    ['Coca-Cola','Original',600],['Coca-Cola','Zero',600],['Guaraná','Original',600],['Guaraná','Zero',600],['Pepsi','Original',600],['Fanta','Original',600],
+  ]);
+  assert.deepEqual(menu.filter(item => item.group === 'sucos-fruta').map(item => [item.flavor,item.price]), [
+    ['Laranja',800],['Maracujá',700],['Cajá',600],['Cupuaçu',600],['Acerola',600],['Graviola',600],['Goiaba',600],
+  ]);
+  assert.deepEqual(menu.filter(item => item.group === 'sucos-prontos').map(item => item.flavor), ['Laranja','Laranja']);
+});
+test("beverage migration retains existing balances and history and new variants reserve independent stock", async t => {
+  const db = await postgresFixture(t);
+  await db.prepare("INSERT INTO ingredients(id,name,category,unit,stock,max_qty,price,extra_type,featured) VALUES('refrigerante','Coca antiga','Complementos','unidade',7,4,500,'refrigerante',1)").run();
+  await db.prepare("INSERT INTO ingredients(id,name,category,unit,stock,price,extra_type,featured) VALUES('suco-cacau-300ml','Cacau','Complementos','unidade',8,500,'suco',1)").run();
+  const original = { id: 'old-drink-order', idempotencyKey: 'old-drink-order', fingerprint: 'test', code: 'TESTE', customer: 'TESTE', phone: '00000000000', address: 'Teste local', reference: 'Sem entrega', notes: '', status: 'recebido', subtotal: 500, deliveryFee: 0, total: 500, createdAt: now };
+  await reserveOrder(db, original, [{ id: 'refrigerante', name: 'Coca antiga', quantity: 1 }]);
+  const sql = readFileSync(new URL('../drizzle-pg/0011_beverage_menu.sql', import.meta.url), 'utf8');
+  const apply = () => db.batch(sql.split(';').map(part => part.trim()).filter(Boolean).map(part => db.prepare(part)));
+  await apply();
+  await apply();
+  assert.deepEqual(await db.prepare("SELECT stock,price FROM ingredients WHERE id='refrigerante'").first(), { stock: 6, price: 600 });
+  assert.deepEqual(await db.prepare("SELECT stock,featured FROM ingredients WHERE id='suco-cacau-300ml'").first(), { stock: 8, featured: 0 });
+  assert.equal((await db.prepare("SELECT total FROM orders WHERE id='old-drink-order'").first()).total, 500);
+  assert.equal((await db.prepare("SELECT name FROM order_items WHERE order_id='old-drink-order'").first()).name, 'Coca antiga');
+  assert.equal((await db.prepare("SELECT COUNT(*) AS count FROM movements WHERE reason='Cadastro de acompanhamento'").first()).count, 27);
+  for (const id of ['coca-zero-lata','coca-600ml','suco-del-valle-laranja','agua-com-gas','monster']) {
+    assert.equal((await db.prepare('SELECT stock FROM ingredients WHERE id=?').bind(id).first()).stock, 10);
+  }
+  await reserveOrder(db, { ...original, id: 'new-drink-order', idempotencyKey: 'new-drink-order', subtotal: 1400, total: 1400 }, [{ id: 'coca-zero-lata', name: 'Coca-Cola Zero Lata', quantity: 1 }, { id: 'coca-600ml', name: 'Coca-Cola 600 ml', quantity: 1 }]);
+  for (const id of ['coca-zero-lata','coca-600ml']) assert.equal((await db.prepare('SELECT stock FROM ingredients WHERE id=?').bind(id).first()).stock, 9);
+  assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='refrigerante'").first()).stock, 6);
+});
 test("clientes são identificados só pelo telefone e usam os dados da compra mais recente", () => {
   const latest = { orderId: "new", customer: "João Silva", phone: "(71) 99999-0101", address: "Rua Nova, 10", value: 2500, orderedAt: now, createdAt: now + 1 };
   const older = { ...latest, orderId: "old", customer: "João", phone: "+55 71 99999-0101", address: "Rua Antiga, 25", value: 1500, orderedAt: now - 1, createdAt: now + 2 };
@@ -277,17 +318,17 @@ test("the additive star migration preserves existing menu products, prices and q
   assert.equal(beverage({ extraType: "outros", productName: "Produto de teste", flavor: undefined, size: "Unidade" }).name, "Produto de teste · Unidade");
 });
 
-test("five 300 ml juices keep separate stock, safe retries and historic revenue", async t => {
+test("seven fruit juices keep separate stock, safe retries and historic revenue", async t => {
  const db=await postgresFixture(t);
  const menu=JSON.parse(readFileSync(new URL('../data/juices-menu.json',import.meta.url),'utf8'));
- assert.deepEqual(menu.map(i=>i.flavor),['Maracujá','Acerola','Cajá','Laranja','Cacau']);
- for(const row of menu){const item=validateAccompaniment({...row,extraType:'suco',lowStock:5,maxQty:4});assert.equal(item.size,'300 ml');assert.equal(item.price,500);assert.equal(item.stock,50);await saveAccompaniment(db,item,true);await setProductFeatured(db,item.id,true);}
+ assert.deepEqual(menu.map(i=>[i.flavor,i.price]),[['Laranja',800],['Maracujá',700],['Cajá',600],['Cupuaçu',600],['Acerola',600],['Graviola',600],['Goiaba',600]]);
+ for(const row of menu){const item=validateAccompaniment({...row,extraType:'suco',lowStock:5,maxQty:4});assert.equal(item.size,'300 ml');assert.equal(item.stock,10);await saveAccompaniment(db,item,true);await setProductFeatured(db,item.id,true);}
  const lines=menu.map((item,index)=>({id:item.id,name:'Suco · '+item.flavor+' · 300 ml',quantity:index%2?2:1}));
- const total=lines.reduce((sum,line)=>sum+line.quantity*500,0),first=order(crypto.randomUUID(),total);
+ const total=lines.reduce((sum,line,index)=>sum+line.quantity*menu[index].price,0),first=order(crypto.randomUUID(),total);
  await reserveOrder(db,first,lines);await assert.rejects(reserveOrder(db,first,lines),/unique/i);
- for(const line of lines)assert.equal((await db.prepare('SELECT stock FROM ingredients WHERE id=?').bind(line.id).first()).stock,50-line.quantity);
+ for(const line of lines)assert.equal((await db.prepare('SELECT stock FROM ingredients WHERE id=?').bind(line.id).first()).stock,10-line.quantity);
  for(let i=0;i<2;i++)await db.prepare("UPDATE orders SET status='cancelado' WHERE id=?").bind(first.id).run();
- for(const line of lines)assert.equal((await db.prepare('SELECT stock FROM ingredients WHERE id=?').bind(line.id).first()).stock,50);
+ for(const line of lines)assert.equal((await db.prepare('SELECT stock FROM ingredients WHERE id=?').bind(line.id).first()).stock,10);
  assert.equal((await db.prepare('SELECT COUNT(*) AS count FROM finance').first()).count,0);
  const completed=order(crypto.randomUUID(),total);await reserveOrder(db,completed,lines);
  await db.prepare('UPDATE ingredients SET price=999 WHERE id=?').bind(menu[0].id).run();

@@ -87,7 +87,8 @@
 .storefront .category-tabs{gap:7px;margin-bottom:17px;flex-wrap:wrap}
 .storefront .category-tabs button{padding:9px 11px;border:1px solid transparent;background:#f8f5f0;font-size:10px;color:#937c69;border-radius:8px}
 .storefront .category-tabs button.selected{background:#36271e;color:#fff}
-.storefront .ingredients-grid{gap:11px}
+.storefront .ingredients-grid{--ingredient-gap:11px;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ingredient-gap)}
+.storefront .ingredients-grid>[data-ingredient="batata-palha"]:last-child:nth-child(odd){grid-column:1/-1;justify-self:center;width:calc((100% - var(--ingredient-gap))/2)}
 .storefront .ingredient-card{display:grid;grid-template-columns:88px minmax(0,1fr);grid-template-areas:"photo info" "photo counter";padding:18px 13px 14px;gap:8px 10px;min-height:144px;border-radius:14px;border-color:#eee5db;background:#fffefb;transition:border-color .2s,box-shadow .2s,background .2s}
 .storefront .ingredient-card:hover{border-color:#e6c19b;box-shadow:0 4px 13px #9c62290a}
 .storefront .ingredient-card.is-selected{border-color:#eda367;background:#fff9f1;box-shadow:inset 0 0 0 1px #f8d6b0}
@@ -211,7 +212,7 @@
  .storefront .steps button{padding:11px 5px;font-size:9px;gap:5px}.storefront .steps button>span{font-size:8px}
  .storefront .step-title{margin-bottom:19px}.storefront .step-title h3{font-size:22px;letter-spacing:-.6px;line-height:1.15}.storefront .step-title p{font-size:10px;margin-top:8px}.storefront .step-title>span{display:none}
  .storefront .category-tabs{gap:5px;flex-wrap:nowrap;margin-bottom:15px}.storefront .category-tabs button{padding:9px 8px;gap:5px;font-size:9px}.storefront .category-tabs svg{width:13px}
- .storefront .ingredients-grid{gap:9px}
+ .storefront .ingredients-grid{--ingredient-gap:9px}
  .storefront .ingredient-card{grid-template-columns:1fr;grid-template-areas:"photo" "info" "counter";min-height:208px;padding:14px 11px 12px;gap:8px;align-content:stretch}
  .storefront .ingredient-card .food-icon{width:94px;max-width:100%;height:62px;justify-self:center;margin:0;align-self:center}
  .storefront .ingredient-card .ingredient-info{align-self:start;min-width:0}.storefront .ingredient-info h4{font-size:12px;line-height:1.3;padding:0}.storefront .ingredient-info p{font-size:9px;line-height:1.5;margin-top:5px}

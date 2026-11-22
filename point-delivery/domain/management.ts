@@ -1,4 +1,4 @@
-export const accompanimentTypes = { refrigerante: "Refrigerante", suco: "Suco", "batata-frita": "Batata frita", outros: "Outros produtos" } as const;
+export const accompanimentTypes = { refrigerante: "Refrigerante", suco: "Suco", agua: "Água", energetico: "Energético", "batata-frita": "Batata frita", outros: "Outros produtos" } as const;
 export type AccompanimentType = keyof typeof accompanimentTypes;
 export type AccompanimentInput = { id: string; productName: string; name: string; extraType: AccompanimentType; flavor: string; size: string; description: string; price: number; stock: number; lowStock: number; maxQty: number };
 export type ManualEntry = { id: string; type: "entrada" | "saida"; description: string; value: number; occurredAt: number; createdAt: number };

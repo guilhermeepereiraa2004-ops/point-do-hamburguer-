@@ -1,0 +1,254 @@
+[
+  {
+    "id": "refrigerante-1-litro",
+    "productName": "Coca-Cola",
+    "flavor": "Original",
+    "size": "1 litro",
+    "extraType": "refrigerante",
+    "price": 1000,
+    "group": "litro"
+  },
+  {
+    "id": "coca-zero-1-litro",
+    "productName": "Coca-Cola",
+    "flavor": "Zero",
+    "size": "1 litro",
+    "extraType": "refrigerante",
+    "price": 1000,
+    "group": "litro"
+  },
+  {
+    "id": "fanta-1-litro",
+    "productName": "Fanta",
+    "flavor": "Original",
+    "size": "1 litro",
+    "extraType": "refrigerante",
+    "price": 1000,
+    "group": "litro"
+  },
+  {
+    "id": "guarana-1-litro",
+    "productName": "Guaraná",
+    "flavor": "Original",
+    "size": "1 litro",
+    "extraType": "refrigerante",
+    "price": 1000,
+    "group": "litro"
+  },
+  {
+    "id": "pepsi-1-litro",
+    "productName": "Pepsi",
+    "flavor": "Original",
+    "size": "1 litro",
+    "extraType": "refrigerante",
+    "price": 1000,
+    "group": "litro"
+  },
+  {
+    "id": "coca-600ml",
+    "productName": "Coca-Cola",
+    "flavor": "Original",
+    "size": "600 ml",
+    "extraType": "refrigerante",
+    "price": 800,
+    "group": "600ml"
+  },
+  {
+    "id": "monster",
+    "productName": "Monster",
+    "flavor": "",
+    "size": "Unidade",
+    "extraType": "energetico",
+    "price": 1300,
+    "group": "energeticos"
+  },
+  {
+    "id": "refrigerante",
+    "productName": "Coca-Cola",
+    "flavor": "Original",
+    "size": "Lata",
+    "extraType": "refrigerante",
+    "price": 600,
+    "group": "lata"
+  },
+  {
+    "id": "coca-zero-lata",
+    "productName": "Coca-Cola",
+    "flavor": "Zero",
+    "size": "Lata",
+    "extraType": "refrigerante",
+    "price": 600,
+    "group": "lata"
+  },
+  {
+    "id": "guarana-lata",
+    "productName": "Guaraná",
+    "flavor": "Original",
+    "size": "Lata",
+    "extraType": "refrigerante",
+    "price": 600,
+    "group": "lata"
+  },
+  {
+    "id": "guarana-zero-lata",
+    "productName": "Guaraná",
+    "flavor": "Zero",
+    "size": "Lata",
+    "extraType": "refrigerante",
+    "price": 600,
+    "group": "lata"
+  },
+  {
+    "id": "pepsi-lata",
+    "productName": "Pepsi",
+    "flavor": "Original",
+    "size": "Lata",
+    "extraType": "refrigerante",
+    "price": 600,
+    "group": "lata"
+  },
+  {
+    "id": "fanta-lata",
+    "productName": "Fanta",
+    "flavor": "Original",
+    "size": "Lata",
+    "extraType": "refrigerante",
+    "price": 600,
+    "group": "lata"
+  },
+  {
+    "id": "agua-sem-gas",
+    "productName": "Água sem gás",
+    "flavor": "",
+    "size": "Unidade",
+    "extraType": "agua",
+    "price": 300,
+    "group": "aguas"
+  },
+  {
+    "id": "agua-com-gas",
+    "productName": "Água com gás",
+    "flavor": "",
+    "size": "Unidade",
+    "extraType": "agua",
+    "price": 500,
+    "group": "aguas"
+  },
+  {
+    "id": "coca-mini-pet",
+    "productName": "Coca-Cola",
+    "flavor": "Original",
+    "size": "Mini PET",
+    "extraType": "refrigerante",
+    "price": 300,
+    "group": "mini-pet"
+  },
+  {
+    "id": "fanta-mini-pet",
+    "productName": "Fanta",
+    "flavor": "Original",
+    "size": "Mini PET",
+    "extraType": "refrigerante",
+    "price": 300,
+    "group": "mini-pet"
+  },
+  {
+    "id": "guarana-mini-pet",
+    "productName": "Guaraná",
+    "flavor": "Original",
+    "size": "Mini PET",
+    "extraType": "refrigerante",
+    "price": 300,
+    "group": "mini-pet"
+  },
+  {
+    "id": "pepsi-mini-pet",
+    "productName": "Pepsi",
+    "flavor": "Original",
+    "size": "Mini PET",
+    "extraType": "refrigerante",
+    "price": 300,
+    "group": "mini-pet"
+  },
+  {
+    "id": "suco-del-valle-laranja",
+    "productName": "Del Valle",
+    "flavor": "Laranja",
+    "size": "Unidade",
+    "extraType": "suco",
+    "price": 600,
+    "group": "sucos-prontos"
+  },
+  {
+    "id": "suco-skinka-laranja",
+    "productName": "Skinka",
+    "flavor": "Laranja",
+    "size": "Unidade",
+    "extraType": "suco",
+    "price": 600,
+    "group": "sucos-prontos"
+  },
+  {
+    "id": "suco-laranja-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Laranja",
+    "size": "300 ml",
+    "extraType": "suco",
+    "price": 800,
+    "group": "sucos-fruta"
+  },
+  {
+    "id": "suco-maracuja-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Maracujá",
+    "size": "300 ml",
+    "extraType": "suco",
+    "price": 700,
+    "group": "sucos-fruta"
+  },
+  {
+    "id": "suco-caja-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Cajá",
+    "size": "300 ml",
+    "extraType": "suco",
+    "price": 600,
+    "group": "sucos-fruta"
+  },
+  {
+    "id": "suco-cupuacu-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Cupuaçu",
+    "size": "300 ml",
+    "extraType": "suco",
+    "price": 600,
+    "group": "sucos-fruta"
+  },
+  {
+    "id": "suco-acerola-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Acerola",
+    "size": "300 ml",
+    "extraType": "suco",
+    "price": 600,
+    "group": "sucos-fruta"
+  },
+  {
+    "id": "suco-graviola-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Graviola",
+    "size": "300 ml",
+    "extraType": "suco",
+    "price": 600,
+    "group": "sucos-fruta"
+  },
+  {
+    "id": "suco-goiaba-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Goiaba",
+    "size": "300 ml",
+    "extraType": "suco",
+    "price": 600,
+    "group": "sucos-fruta"
+  }
+]

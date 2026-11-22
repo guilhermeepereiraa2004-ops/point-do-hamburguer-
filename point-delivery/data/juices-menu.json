@@ -1,42 +1,58 @@
 [
   {
-    "id": "suco-maracuja-300ml",
-    "productName": "Suco",
-    "flavor": "Maracujá",
+    "id": "suco-laranja-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Laranja",
     "size": "300 ml",
-    "price": 500,
-    "stock": 50
+    "price": 800,
+    "stock": 10
   },
   {
-    "id": "suco-acerola-300ml",
-    "productName": "Suco",
-    "flavor": "Acerola",
+    "id": "suco-maracuja-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Maracujá",
     "size": "300 ml",
-    "price": 500,
-    "stock": 50
+    "price": 700,
+    "stock": 10
   },
   {
     "id": "suco-caja-300ml",
-    "productName": "Suco",
+    "productName": "Suco da fruta",
     "flavor": "Cajá",
     "size": "300 ml",
-    "price": 500,
-    "stock": 50
+    "price": 600,
+    "stock": 10
   },
   {
-    "id": "suco-laranja-300ml",
-    "productName": "Suco",
-    "flavor": "Laranja",
+    "id": "suco-cupuacu-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Cupuaçu",
     "size": "300 ml",
-    "price": 500,
-    "stock": 50
+    "price": 600,
+    "stock": 10
   },
   {
-    "id": "suco-cacau-300ml",
-    "productName": "Suco",
-    "flavor": "Cacau",
+    "id": "suco-acerola-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Acerola",
     "size": "300 ml",
-    "price": 500,
-    "stock": 50
+    "price": 600,
+    "stock": 10
+  },
+  {
+    "id": "suco-graviola-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Graviola",
+    "size": "300 ml",
+    "price": 600,
+    "stock": 10
+  },
+  {
+    "id": "suco-goiaba-300ml",
+    "productName": "Suco da fruta",
+    "flavor": "Goiaba",
+    "size": "300 ml",
+    "price": 600,
+    "stock": 10
   }
 ]
