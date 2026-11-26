@@ -164,6 +164,8 @@ Remoções são persistidas, sacola vazia elimina o registro, e confirmação de
 
 ## Apresentação de Seu pedido — 26/11/2026
 
-O resumo passa a se chamar Seu pedido, também na navbar e no nome acessível do botão flutuante. O painel usa fundo branco, fotografias maiores, preço por unidade e total por produto, controles de quantidade e rodapé com subtotal, entrega e total sempre visíveis. No celular ocupa a tela; no desktop aparece como painel lateral com margens e cantos arredondados. O estado vazio tem acesso direto ao cardápio sem rodapé de cobrança. Abertura suave respeita movimento reduzido. Edição, nomes individuais, persistência e regras de validação permanecem nos fluxos existentes.
+O resumo passa a se chamar Seu pedido, também no nome acessível do botão flutuante. O painel usa fundo branco, fotografias maiores, preço por unidade e total por produto, controles de quantidade e rodapé com subtotal, entrega e total sempre visíveis. No celular ocupa a tela; no desktop aparece como painel lateral com margens e cantos arredondados. O estado vazio tem acesso direto ao cardápio sem rodapé de cobrança. Abertura suave respeita movimento reduzido. Edição, nomes individuais, persistência e regras de validação permanecem nos fluxos existentes.
 
 O botão flutuante mostra apenas a embalagem com a logo, em círculo branco de 82 px no desktop e 72 px no celular, sem rótulo ou seta visíveis. O contador aparece somente com produtos; nome acessível Seu pedido e abertura do resumo preservados.
+
+A sacola flutuante só aparece quando a hero saiu completamente pela parte superior da tela. Ao voltar para a hero, ela fica oculta novamente, mesmo com produtos no pedido. O antigo botão de pedido do cabeçalho foi removido no desktop e no celular. A visibilidade acompanha a posição real da hero via IntersectionObserver, sem consultas contínuas de rolagem; montagem, nomes, checkout e pedido salvo continuam nos fluxos existentes.
