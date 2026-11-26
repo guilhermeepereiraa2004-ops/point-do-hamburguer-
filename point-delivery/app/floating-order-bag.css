@@ -1,42 +1,27 @@
 .storefront .floating-order-bag {
-  position: fixed;
-  z-index: 40;
-  right: max(24px, env(safe-area-inset-right));
-  bottom: calc(22px + env(safe-area-inset-bottom));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  width: 94px;
-  padding: 0;
-  border: 0;
-  border-radius: 20px;
-  background: transparent;
-  color: #9c451d;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform .22s, filter .22s;
+  position: fixed; z-index: 40; right: max(24px, env(safe-area-inset-right)); bottom: calc(22px + env(safe-area-inset-bottom));
+  display: grid; place-items: center; width: 82px; height: 82px; padding: 0;
+  border: 1px solid #f0ddca; border-radius: 50%; background: #fffdf9;
+  box-shadow: 0 8px 26px #6b391d1c, 0 2px 5px #6b391d08, inset 0 0 0 5px #fff7ed;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform .2s, box-shadow .2s;
 }
-.storefront .floating-order-bag-art { position: relative; display: block; width: 88px; height: 96px; filter: drop-shadow(0 7px 10px #6b361d26); }
+.storefront .floating-order-bag-art { position: relative; display: block; width: 52px; height: 58px; filter: drop-shadow(0 3px 3px #6b361d14); }
 .storefront .floating-order-bag-art>svg { width: 100%; height: 100%; }
-.storefront .floating-order-bag-art .point-logo { position: absolute; width: 59px; height: 59px; left: 50%; top: 31px; transform: translateX(-50%); }
-.storefront .floating-order-bag-count { position: absolute; top: 20px; right: -1px; display: grid; place-items: center; min-width: 26px; height: 26px; padding: 0 5px; border: 3px solid #fffefa; border-radius: 50px; background: #d54e14; color: white; font-size: 10px; font-weight: 700; line-height: 1; }
-.storefront .floating-order-bag-label { display: block; padding: 5px 11px; border: 1px solid #f1dac7; border-radius: 30px; background: #fffdf9; box-shadow: 0 3px 12px #69370e0d; font-size: 10px; font-weight: 600; white-space: nowrap; }
+.storefront .floating-order-bag-art .point-logo { position: absolute; width: 37px; height: 37px; left: 50%; top: 19px; transform: translateX(-50%); }
+.storefront .floating-order-bag-count { position: absolute; top: -9px; right: -13px; display: grid; place-items: center; min-width: 25px; height: 25px; padding: 0 5px; border: 3px solid #fffdf9; border-radius: 50px; background: #ef6427; color: white; font-size: 10px; font-weight: 700; line-height: 1; }
 .storefront .floating-order-bag .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.storefront .floating-order-bag:focus-visible { outline: 3px solid #ee8c50; outline-offset: 4px; }
 .storefront .floating-order-bag:disabled { cursor: wait; opacity: .7; }
 .storefront footer { padding-bottom: 110px; }
-@media(hover: hover) and (prefers-reduced-motion: no-preference) {
-  .storefront .floating-order-bag:hover:not(:disabled) { transform: translateY(-4px) rotate(-3deg); }
-  .storefront .floating-order-bag:active:not(:disabled) { transform: translateY(-1px) scale(.96); }
+@media(hover:hover) and (prefers-reduced-motion:no-preference) {
+  .storefront .floating-order-bag:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 12px 30px #6b391d26, inset 0 0 0 5px #fff3e3; }
+  .storefront .floating-order-bag:active:not(:disabled) { transform: translateY(0) scale(.96); }
 }
-@media(max-width: 760px) {
-  .storefront .floating-order-bag { right: max(12px, env(safe-area-inset-right)); bottom: calc(14px + env(safe-area-inset-bottom)); width: 78px; gap: 2px; }
-  .storefront .floating-order-bag-art { width: 72px; height: 80px; }
-  .storefront .floating-order-bag-art .point-logo { width: 49px; height: 49px; top: 26px; }
-  .storefront .floating-order-bag-count { top: 16px; right: -2px; min-width: 24px; height: 24px; font-size: 9px; }
-  .storefront .floating-order-bag-label { padding: 4px 8px; font-size: 9px; }
+@media(max-width:760px) {
+  .storefront .floating-order-bag { right: max(14px, env(safe-area-inset-right)); bottom: calc(16px + env(safe-area-inset-bottom)); width: 72px; height: 72px; }
+  .storefront .floating-order-bag-art { width: 46px; height: 51px; }
+  .storefront .floating-order-bag-art .point-logo { width: 33px; height: 33px; top: 17px; }
+  .storefront .floating-order-bag-count { top: -7px; right: -11px; min-width: 23px; height: 23px; font-size: 9px; }
   .storefront footer { padding-bottom: 100px; }
 }
-@media(prefers-reduced-motion: reduce) {
-  .storefront .floating-order-bag { transition: none; }
-}
+@media(prefers-reduced-motion:reduce) { .storefront .floating-order-bag { transition: none; } }

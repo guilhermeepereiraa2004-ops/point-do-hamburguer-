@@ -161,3 +161,9 @@ Receitas incompletas ficam como Em montagem, sem cobrança, com opções continu
 A sacola e as montagens em andamento ficam no localStorage do mesmo navegador/aparelho, sob a chave versionada point:order-bag:v1. São salvos IDs/quantidades, receitas concluídas ou em rascunho, nomes associados aos lanches e etapa/lanche ativo. Dados de contato, endereço, pagamento, preços, estoque e credenciais não fazem parte do registro. A recuperação aguarda o catálogo atual: preços/entrega são recalculados; produtos pausados/sem estoque permanecem visíveis para ajuste. Produtos removidos e novos limites são reconciliados, com aviso para revisão e receita alterada voltando à montagem. Dados corrompidos/incompatíveis são descartados sem impedir uso do site.
 
 Remoções são persistidas, sacola vazia elimina o registro, e confirmação de pedido limpa a sacola salva antes do redirecionamento ao acompanhamento. Abas do mesmo endereço sincronizam as alterações/limpeza. O armazenamento local não reserva ingredientes nem altera as regras de validação e baixa de estoque no servidor.
+
+## Apresentação de Seu pedido — 26/11/2026
+
+O resumo passa a se chamar Seu pedido, também na navbar e no nome acessível do botão flutuante. O painel usa fundo branco, fotografias maiores, preço por unidade e total por produto, controles de quantidade e rodapé com subtotal, entrega e total sempre visíveis. No celular ocupa a tela; no desktop aparece como painel lateral com margens e cantos arredondados. O estado vazio tem acesso direto ao cardápio sem rodapé de cobrança. Abertura suave respeita movimento reduzido. Edição, nomes individuais, persistência e regras de validação permanecem nos fluxos existentes.
+
+O botão flutuante mostra apenas a embalagem com a logo, em círculo branco de 82 px no desktop e 72 px no celular, sem rótulo ou seta visíveis. O contador aparece somente com produtos; nome acessível Seu pedido e abertura do resumo preservados.
