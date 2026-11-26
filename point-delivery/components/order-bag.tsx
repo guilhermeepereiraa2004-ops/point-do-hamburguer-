@@ -12,7 +12,7 @@ import "@/app/order-bag.css";
 
 type Props = {
   open: boolean; catalog: Catalog; burgers: Selection[]; recipients: string[]; groups: BagBurgerGroup[]; drafts: number[]; extras: Selection;
-  disabled: boolean; storeOpen: boolean; error: string;
+  disabled: boolean; storeOpen: boolean; error: string; notice?: string;
   onClose: () => void; onBrowse: () => void; onCheckout: () => void;
   onQuantity: (source: number, quantity: number) => void; onRemoveBurger: (index: number) => void; onEdit: (index: number) => void;
   onRecipient: (index: number, name: string) => void; onExtra: (item: Ingredient, delta: number) => void;
@@ -43,6 +43,7 @@ export function OrderBag(props: Props) {
     <form className="order-bag-panel" onSubmit={event => { event.preventDefault(); props.onCheckout(); }}>
       <header className="order-bag-header"><BrandLogo variant="icon" decorative/><div><span>POINT DO HAMBÚRGUER</span><h2 id="order-bag-title">Sua sacola</h2><p aria-live="polite">{count} {count === 1 ? "item adicionado" : "itens adicionados"}</p></div><button type="button" className="order-bag-close" aria-label="Fechar sacola" onClick={props.onClose} autoFocus><X size={21}/></button></header>
       <div className="order-bag-body">
+        {props.notice && <p className="order-bag-notice" role="status">{props.notice}</p>}
         {!count && !props.drafts.length && <div className="order-bag-empty"><span><ShoppingBag size={35} strokeWidth={1.4}/></span><h3>Sua sacola está vazia</h3><p>Monte seu hambúrguer ou escolha algo para acompanhar.</p><button type="button" className="button primary" onClick={props.onBrowse}>Escolher produtos<ArrowRight size={17}/></button></div>}
         {props.groups.map(group => {
           const source = group.indices[0], title = `Hambúrguer ${source + 1}`, quantity = group.indices.length;

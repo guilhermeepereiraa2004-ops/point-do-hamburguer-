@@ -7,10 +7,94 @@ import { reserveOrder } from '../db/order-reservation.ts';
 import { postgresFixture } from './postgres-fixture.mjs';
 import { resizeBurgerDrafts, nextUnfinishedBurger, burgerIsFinished, repeatBurgerRecipe } from '../domain/assembly-flow.ts';
 import { groupBagBurgers, changeBagBurgerQuantity, removeBagBurger } from '../domain/order-bag.ts';
+import { BAG_STORAGE_KEY, createBagStorage, emptySavedBag, restoreSavedBag, serializeSavedBag } from '../domain/saved-bag.ts';
 
 const item = (id, category, extra = {}) => ({ id, name: id, category, unit: 'unidade', stock: 30, maxQty: 4, active: true, price: null, ...extra });
 const catalog = { ingredients: [item('pao','Pães',{maxQty:1}),item('carne','Proteínas'),item('queijo','Queijos'),item('bacon','Extras'),item('refri','Complementos',{featured:true,extraType:'refrigerante',price:700})], prices:{3:1300,4:1400,6:1600},deliveryFee:500 };
 const first = {pao:1,carne:1,queijo:1,bacon:1}, second = {pao:1,carne:2,queijo:2}, heavy = {pao:1,carne:4,queijo:2};
+
+test('saved bag restores multiple recipes, quantities and names without storing contact, payment, prices or stock',()=>{
+ const source={burgers:[first,second],recipients:['Ana','Bia'],signatures:[JSON.stringify(first),JSON.stringify(second)],active:1,extras:{refri:2},menuOnly:false,step:2,phone:'not-to-store',address:'not-to-store',paymentMethod:'not-to-store',prices:{3:99999},stock:99999};
+ const raw=serializeSavedBag(source), stored=JSON.parse(raw), restored=restoreSavedBag(raw,catalog);
+ assert.equal(stored.version,1);
+ assert.ok(!raw.includes('not-to-store')&&!raw.includes('99999'));
+ assert.deepEqual(restored.recipients,['Ana','Bia']);
+ assert.deepEqual(restored.extras,{refri:2});
+ assert.equal(restored.active,1);
+ assert.equal(restored.step,2);
+ assert.equal(restored.changed,false);
+ assert.equal(groupBagBurgers(restored).length,2);
+ assert.equal(summarizeCart(restored.burgers,restored.extras,catalog).subtotal,4100);
+ assert.equal(serializeSavedBag(restored),raw);
+});
+
+test('saved bag retains unfinished recipes and standalone sides, while an empty bag has no stored charge',()=>{
+ assert.equal(serializeSavedBag(emptySavedBag()),null);
+ const draft={...emptySavedBag(),burgers:[{pao:1,carne:1}],step:1};
+ const restored=restoreSavedBag(serializeSavedBag(draft),catalog);
+ assert.deepEqual(restored.burgers,[{carne:1,pao:1}]);
+ assert.deepEqual(groupBagBurgers(restored),[]);
+ assert.equal(restored.step,1);
+ const sideOnly={...emptySavedBag(),extras:{refri:2},menuOnly:true};
+ const sides=restoreSavedBag(serializeSavedBag(sideOnly),catalog);
+ assert.equal(sides.menuOnly,true);
+ assert.equal(summarizeCart([] ,sides.extras,catalog).subtotal,1400);
+ assert.equal(serializeSavedBag({...sides,extras:{refri:0}}),null);
+ assert.equal(restoreSavedBag(serializeSavedBag({...emptySavedBag(),burgers:[{pao:1},{pao:1}]}),catalog).burgers.length,2);
+});
+
+test('saved bag uses current prices and keeps depleted or paused products visible for correction',()=>{
+ const source={...emptySavedBag(),burgers:[first],signatures:[JSON.stringify(first)],extras:{refri:2},step:2};
+ const current={...catalog,prices:{3:2000},ingredients:catalog.ingredients.map(item=>item.id==='refri'?{...item,price:900,stock:1,active:false}:item.id==='carne'?{...item,stock:0}:item)};
+ const restored=restoreSavedBag(serializeSavedBag(source),current);
+ assert.equal(groupBagBurgers(restored).length,1);
+ assert.deepEqual(restored.extras,{refri:2});
+ assert.equal(summarizeCart(restored.burgers,restored.extras,current).subtotal,3800);
+ assert.throws(()=>validateCart(restored.burgers,restored.extras,current),InsufficientStockError);
+});
+
+test('saved bag removes retired IDs, applies current limits and requires review of changed recipes',()=>{
+ const source={...emptySavedBag(),burgers:[first],signatures:[JSON.stringify(first)],extras:{refri:3,retired:1},step:2};
+ const changed={...catalog,ingredients:catalog.ingredients.filter(item=>item.id!=='bacon').map(item=>item.id==='refri'?{...item,maxQty:1}:item)};
+ const restored=restoreSavedBag(serializeSavedBag(source),changed);
+ assert.equal(restored.changed,true);
+ assert.equal(restored.burgers[0].bacon,undefined);
+ assert.deepEqual(restored.extras,{refri:1});
+ assert.deepEqual(groupBagBurgers(restored),[]);
+ assert.equal(restored.step,0);
+});
+
+test('saved bag rejects corrupt, oversized, incompatible and unsafe stored input',()=>{
+ const valid=JSON.parse(serializeSavedBag({...emptySavedBag(),extras:{refri:1}}));
+ for(const raw of [null,'{bad',JSON.stringify({...valid,version:2}),'x'.repeat(64001),JSON.stringify({...valid,burgers:Array(11).fill(valid.burgers[0])})])assert.equal(restoreSavedBag(raw,catalog),null);
+ for(const quantity of [-1,1.5,100,Number.MAX_SAFE_INTEGER])assert.equal(restoreSavedBag(JSON.stringify({...valid,extras:{refri:quantity}}),catalog),null);
+ for(const id of ['__proto__','constructor','prototype'])assert.equal(restoreSavedBag(JSON.stringify({...valid,extras:JSON.parse(`{"${id}":1}`)}),catalog),null);
+ const forged=JSON.stringify({...valid,burgers:[{items:{pao:1,carne:1},recipient:'',finished:true}],step:2});
+ assert.deepEqual(groupBagBurgers(restoreSavedBag(forged,catalog)),[]);
+});
+
+test('saved bag writes only changes and clearing a confirmed order survives an immediate page-hide flush',()=>{
+ const values=new Map(),writes=[];
+ const port={getItem:key=>values.get(key)??null,setItem:(key,value)=>{values.set(key,value);writes.push('set');},removeItem:key=>{values.delete(key);writes.push('remove');}};
+ const storage=createBagStorage(()=>port), raw=serializeSavedBag({...emptySavedBag(),extras:{refri:2}});
+ assert.equal(storage.read(),null);
+ storage.save(raw);storage.save(raw);storage.flush();
+ assert.deepEqual(writes,['set']);
+ assert.equal(restoreSavedBag(createBagStorage(()=>port).read(),catalog).extras.refri,2);
+ storage.clear();storage.flush();
+ assert.equal(values.has(BAG_STORAGE_KEY),false);
+ assert.deepEqual(writes,['set','remove']);
+ storage.acceptRemote(raw);storage.flush();
+ assert.deepEqual(writes,['set','remove']);
+});
+
+test('saved bag remains usable when storage access is blocked or the quota is exhausted',()=>{
+ const unavailable=createBagStorage(()=>{throw new Error('blocked');});
+ assert.equal(unavailable.read(),null);
+ assert.doesNotThrow(()=>{unavailable.save('draft');unavailable.clear();unavailable.flush();});
+ const quota=createBagStorage(()=>({getItem:()=>null,setItem:()=>{throw new Error('quota');},removeItem:()=>{throw new Error('quota');}}));
+ assert.doesNotThrow(()=>{quota.save('draft');quota.flush();quota.clear();});
+});
 
 test('bag groups only completed recipes, independent of ingredient insertion order and recipient names',()=>{
  const reordered={bacon:1,queijo:1,carne:1,pao:1,unused:0};
