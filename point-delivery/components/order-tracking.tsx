@@ -69,7 +69,7 @@ export function OrderTracking({ id }: { id: string }) {
     catch { setCopyMessage("Copie o endereço completo na barra do navegador para guardar este acompanhamento."); }
   }
   return <div className="tracking-page">
-    <header className="tracking-header"><a href="/" aria-label="Point do Hambúrguer, início" className="point-brand"><BrandLogo decorative eager/></a><a href="/"><ArrowLeft size={16}/> Cardápio</a></header>
+    <header className="tracking-header"><a href="/" aria-label="Point do Hambúrguer, início" className="point-brand"><BrandLogo variant="icon" decorative eager/><span className="point-brand-name" aria-hidden="true"><strong>Point do</strong><span>Hambúrguer</span></span></a><a href="/" aria-label="Voltar ao cardápio"><ArrowLeft size={16}/><span>Cardápio</span></a></header>
     <main className="tracking-main">
       <div className="tracking-intro"><span>SEU POINT, SEM SAIR DAQUI</span><h1>Seu pedido, de perto<span>.</span></h1><p>Da nossa chapa até você. Acompanhe cada etapa por aqui.</p></div>
       {!order ? <section className="tracking-card tracking-empty" aria-live="polite"><span className="tracking-status-icon"><ClipboardCheck size={32}/></span><h2>{unavailable ? "Não encontramos este acompanhamento" : error ? "Vamos tentar de novo?" : "Buscando seu pedido…"}</h2><p>{error || "Só um instante. Estamos consultando a hamburgueria."}</p>{!unavailable && <button type="button" disabled={loading} onClick={()=>refreshRef.current?.()}><RefreshCw size={17}/> {loading ? "Consultando…" : "Tentar novamente"}</button>}<a href="/">Voltar ao cardápio <ArrowLeft size={16}/></a></section> : <>

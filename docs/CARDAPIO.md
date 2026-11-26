@@ -169,3 +169,9 @@ O resumo passa a se chamar Seu pedido, também no nome acessível do botão flut
 O botão flutuante mostra apenas a embalagem com a logo, em círculo branco de 82 px no desktop e 72 px no celular, sem rótulo ou seta visíveis. O contador aparece somente com produtos; nome acessível Seu pedido e abertura do resumo preservados.
 
 A sacola flutuante só aparece quando a hero saiu completamente pela parte superior da tela. Ao voltar para a hero, ela fica oculta novamente, mesmo com produtos no pedido. O antigo botão de pedido do cabeçalho foi removido no desktop e no celular. A visibilidade acompanha a posição real da hero via IntersectionObserver, sem consultas contínuas de rolagem; montagem, nomes, checkout e pedido salvo continuam nos fluxos existentes.
+
+## Espaço útil do resumo e marca do acompanhamento — 26/11/2026
+
+Seu pedido usa cabeçalho e rodapé compactos para priorizar a lista rolável de produtos, inclusive em janelas baixas. Acompanhamentos exibem foto, nome, preço da linha e controles de quantidade juntos; o preço por unidade aparece quando há várias unidades. Hambúrgueres preservam ingredientes, edição e nomes individuais. Produtos, entrega e total permanecem visíveis no rodapé, ao lado do botão Continuar, que abre a mesma revisão de entrega. Adicionar mais itens fica no fim da lista. Ao abrir ou reabrir o resumo, a lista começa no primeiro item.
+
+O cabeçalho do acompanhamento usa o ícone PH e o nome Point do Hambúrguer com a mesma fonte, cores e proporções da navbar principal. Em telas estreitas o acesso de volta ao cardápio mostra a seta, mantendo seu nome acessível. A identificação e proteção do acompanhamento não foram alteradas.
