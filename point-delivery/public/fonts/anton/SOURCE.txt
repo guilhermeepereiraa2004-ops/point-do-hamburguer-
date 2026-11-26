@@ -1,0 +1,5 @@
+Anton Regular, official Google Fonts subset for O MELHOR DA CIDADE.
+CSS: https://fonts.googleapis.com/css2?family=Anton&display=swap&text=O%20MELHOR%20DA%20CIDADE
+Asset: https://fonts.gstatic.com/l/font?kit=1Ptgg87LROyAm0K06iEIC-IrQLjXiRZdsw&skey=3e16a04254d4c9b3&v=v27
+License: https://github.com/google/fonts/blob/main/ofl/anton/OFL.txt
+Downloaded 2026-11-24.

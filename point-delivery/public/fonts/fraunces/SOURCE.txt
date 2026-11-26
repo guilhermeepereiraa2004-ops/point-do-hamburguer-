@@ -1,0 +1,5 @@
+Fraunces italic, weight600, optical size144. Official Google Fonts subset for the loader phrase.
+CSS: https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@1,144,600&display=swap&text=O%20MELHOR%20DA%20CIDADEomelhordacidade
+Asset: https://fonts.gstatic.com/l/font?kit=6NVf8FyLNQOQZAnv9ZwNjucMHVn85Ni7emAe9lKqZTnbB-gzTK0K1ChJdt9vIVYX9G37lod_sPEKsxx664UJf1iVSv7Wv19udnahEieRGd-Pi8U0fOfbl5KwupQ&skey=a711426ad14db1be&v=v38
+License: https://github.com/google/fonts/blob/main/ofl/fraunces/OFL.txt
+Downloaded 2026-11-24.

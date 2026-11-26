@@ -14,9 +14,9 @@ export function GET() {
     background_color: "#fffaf5",
     theme_color: "#f36524",
     icons: [
-      { src: "/icons/point-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icons/point-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/icons/point-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icons/ph-192-v2.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/ph-512-v2.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/ph-maskable-512-v2.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };
   return Response.json(manifest, { headers: { "Content-Type": "application/manifest+json; charset=utf-8" } });

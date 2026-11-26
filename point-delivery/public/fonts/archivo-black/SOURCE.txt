@@ -1,0 +1,4 @@
+Archivo Black Regular. Official Google Fonts subset for O MELHOR DA CIDADE.
+Asset: https://fonts.gstatic.com/l/font?kit=HTxqL289NzCGg4MzN6KJ7eW6OYuX8DaynDWz9OBPJ_Ue&skey=f0fab067ca5e2347&v=v23
+License: https://raw.githubusercontent.com/google/fonts/main/ofl/archivoblack/OFL.txt
+Downloaded 2026-11-24. Served locally; no runtime Google Fonts request.

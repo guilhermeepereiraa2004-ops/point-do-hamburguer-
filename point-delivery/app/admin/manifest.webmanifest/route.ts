@@ -11,8 +11,8 @@ export function GET() {
     background_color: "#f5f6f9",
     theme_color: "#f36524",
     icons: [
-      { src: "/icons/point-192.png", sizes: "192x192", type: "image/png" },
-      { src: "/icons/point-512.png", sizes: "512x512", type: "image/png" },
+      { src: "/icons/ph-192-v2.png", sizes: "192x192", type: "image/png" },
+      { src: "/icons/ph-512-v2.png", sizes: "512x512", type: "image/png" },
     ],
   };
   return Response.json(manifest, {

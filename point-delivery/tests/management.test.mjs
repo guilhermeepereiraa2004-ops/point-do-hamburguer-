@@ -16,7 +16,7 @@ test("beverage menu follows the owner's packaging and brand order and accepts wa
   const menu = JSON.parse(readFileSync(new URL('../data/beverages-menu.json', import.meta.url), 'utf8'));
   assert.equal(menu.length, 28);
   assert.equal(new Set(menu.map(item => item.id)).size, 28);
-  assert.deepEqual([...new Set(menu.map(item => item.group))], beverageGroups.slice(0, 8).map(group => group.id));
+  assert.deepEqual([...new Set(menu.map(item => item.group))], beverageGroups.filter(group => group.id !== 'outras-bebidas').map(group => group.id));
   for (const item of menu) {
     const validated = validateAccompaniment({ ...item, stock: 10, lowStock: 5, maxQty: 4 });
     assert.equal(beverageGroup(validated), item.group);
@@ -25,10 +25,18 @@ test("beverage menu follows the owner's packaging and brand order and accepts wa
   assert.deepEqual(menu.filter(item => item.group === 'lata').map(item => [item.productName,item.flavor,item.price]), [
     ['Coca-Cola','Original',600],['Coca-Cola','Zero',600],['Guaraná','Original',600],['Guaraná','Zero',600],['Pepsi','Original',600],['Fanta','Original',600],
   ]);
-  assert.deepEqual(menu.filter(item => item.group === 'sucos-fruta').map(item => [item.flavor,item.price]), [
+  assert.deepEqual(menu.filter(item => item.productName === 'Suco da fruta').map(item => [item.flavor,item.price]), [
     ['Laranja',800],['Maracujá',700],['Cajá',600],['Cupuaçu',600],['Acerola',600],['Graviola',600],['Goiaba',600],
   ]);
-  assert.deepEqual(menu.filter(item => item.group === 'sucos-prontos').map(item => item.flavor), ['Laranja','Laranja']);
+  assert.deepEqual(menu.filter(item => ['Del Valle','Skinka'].includes(item.productName)).map(item => item.flavor), ['Laranja','Laranja']);
+});
+test('fruit, pulp and packaged juices share the Sucos category without changing product prices or identity', () => {
+  for (const productName of ['Suco da fruta', 'Suco de polpa', 'Del Valle', 'Skinka']) {
+    const item = validateAccompaniment({ id: 'suco-teste', extraType: 'suco', productName, flavor: 'Laranja', size: '300 ml', price: 600, stock: 10, lowStock: 5, maxQty: 4 });
+    assert.equal(beverageGroup(item), 'sucos');
+    assert.equal(item.name, `${productName} · Laranja · 300 ml`);
+    assert.equal(item.price, 600);
+  }
 });
 test("beverage migration retains existing balances and history and new variants reserve independent stock", async t => {
   const db = await postgresFixture(t);

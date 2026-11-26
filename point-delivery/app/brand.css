@@ -1,0 +1,52 @@
+@font-face {
+  font-family: 'Lilita One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/lilita-one/lilita-one-regular.ttf') format('truetype');
+}
+
+.point-logo { display: block; max-width: 100%; object-fit: contain; flex-shrink: 0; }
+.point-logo--full { width: 172px; height: auto; aspect-ratio: 16 / 9; background: transparent; }
+.point-logo--icon { width: 48px; height: 48px; background: transparent; }
+.point-brand { display: inline-flex; flex-shrink: 0; line-height: 0; gap: 0; }
+.point-brand-name { display: block; color: #2c211b; font-family: 'Lilita One', 'Poppins', sans-serif; font-size: 32px; font-weight: 400; letter-spacing: -.35px; line-height: 1; white-space: nowrap; }
+.point-brand-name strong, .point-brand-name > span { display: block; font: inherit; }
+.point-brand-name strong { font-size: .78em; }
+.point-brand-name > span { margin-top: 3px; color: #cf4e17; }
+.storefront .site-header.point-header { height: 104px; }
+.storefront .header-inner { gap: 30px; }
+.storefront .site-header .point-brand { align-items: center; gap: 4px; }
+.storefront .site-header .point-logo--icon { width: 96px; height: 96px; }
+.storefront .footer-inner .point-logo--full { width: 190px; }
+.login-card .login-brand-logo { width: 230px; margin: 0 auto 25px; }
+.tracking-header .point-logo--full { width: 155px; }
+.workspace-brand-icon.point-logo { width: 48px; height: 48px; background: transparent; border-radius: 0; }
+.storefront .install-app-icon { background: transparent; }
+.install-app-icon .point-logo { width: 100%; height: 100%; }
+@media (min-width: 761px) and (max-width: 1050px) {
+  .storefront .site-header.point-header { height: 96px; }
+  .storefront .site-header .point-logo--icon { width: 80px; height: 80px; }
+  .storefront .point-brand-name { font-size: 28px; }
+  .storefront .header-inner { gap: 16px; }
+  .storefront .site-header .desktop-nav { gap: 16px; }
+  .storefront .site-header .desktop-nav a { font-size: 11px; }
+}
+@media (max-width: 760px) {
+  .storefront .site-header.point-header { height: 104px; }
+  .storefront .header-inner { justify-content: space-between; gap: 12px; }
+  .storefront .site-header .point-brand { gap: 4px; }
+  .storefront .site-header .point-logo--icon { width: 80px; height: 80px; }
+  .storefront .point-brand-name { font-size: 28px; letter-spacing: -.35px; }
+  .storefront .site-header .bag-button { min-height: 44px; padding: 10px; gap: 7px; }
+  .storefront .site-header .bag-button > span { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+  .storefront .footer-inner .point-logo--full { width: 172px; }
+  .tracking-header .point-logo--full { width: 130px; }
+  .workspace-mobile-title .workspace-brand-icon.point-logo { width: 40px; height: 40px; }
+}
+@media (max-width: 350px) {
+  .storefront .site-header.point-header { height: 96px; }
+  .storefront .site-header .point-logo--icon { width: 64px; height: 64px; }
+  .storefront .point-brand-name { font-size: 24px; letter-spacing: -.3px; }
+  .storefront .header-inner { gap: 8px; }
+}

@@ -1,0 +1,4 @@
+Bebas Neue Regular. Official Google Fonts subset for O MELHOR DA CIDADE.
+Asset: https://fonts.gstatic.com/l/font?kit=JTUSjIg69CK48gW7PXooxW5zxS6iuJIw7GLv5iNs&skey=6bd981f07b300212&v=v16
+License: https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/OFL.txt
+Downloaded 2026-11-24. Served locally; no runtime Google Fonts request.

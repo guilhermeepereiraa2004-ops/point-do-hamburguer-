@@ -94,6 +94,8 @@ Cada porção tem preço e estoque independentes, tamanho “Porção” e descr
 - O estoque de frango é medido em porções, conforme o cardápio; não em gramas sem uma conversão cadastrada.
 
 ## Pedido com vários hambúrgueres — 21/10/2026
+Pedidos também podem conter somente acompanhamentos, sem hambúrguer e sem exigir disponibilidade de pão. Os acessos Ver cardápio na hero, Cardápio no menu e Quero só batata ou bebida no seletor de quantidade levam diretamente aos produtos. Pelo menos um produto com quantidade positiva é obrigatório. Uma montagem não finalizada permanece como rascunho ao acessar o cardápio direto e fica fora desse pedido; Adicionar hambúrguer retoma a montagem. A entrega é cobrada uma única vez, junto dos preços dos produtos escolhidos. Estoque, disponibilidade, loja aberta, pagamento, notificações e financeiro seguem o mesmo fluxo dos demais pedidos.
+
 Um pedido pode conter de 1 a 10 montagens independentes. Cada lanche exige um pão e usa sua própria faixa da tabela pela soma das quantidades dos recheios. Acompanhamentos são compartilhados no pedido e a taxa de entrega é cobrada uma única vez. O servidor calcula o total e verifica a soma de todos os ingredientes antes da reserva atômica. O limite por ingrediente vale por hambúrguer; estoque considera o pedido completo.
 Receita e preço de cada lanche são guardados no histórico em orders.burgers; pedidos antigos continuam legíveis. As linhas de estoque de cada lanche são reservadas juntas, repetição continua idempotente e cancelamento devolve a soma das porções uma vez. O financeiro continua com uma receita por pedido concluído.
 Acompanhamentos do cliente aparecem juntos, com filtros Todos, Bebidas (refrigerantes e sucos) e Batata frita. A estrela e a disponibilidade do cadastro administrativo permanecem vigentes. Nenhum sabor, preço ou estoque foi inventado.
@@ -143,3 +145,13 @@ A seleção de bebidas passa a usar grupos expansíveis na sequência refrigeran
 Del Valle e Skinka são produtos separados, ambos de laranja por enquanto, a R$ 6,00 cada. As novas opções começam com dez unidades, com movimento de cadastro auditado. Os saldos de produtos já existentes são preservados. As embalagens sem volume informado usam Lata, Mini PET ou Unidade. Os sucos da fruta mantêm o copo de 300 ml já configurado. Cacau sai dos acompanhamentos da lista atual e permanece no cadastro administrativo com seu saldo e histórico.
 
 A migração 0011_beverage_menu cria as novas variantes e atualiza os preços e nomes dos registros existentes. A repetição da migração não repõe estoque nem duplica movimentos. Pedidos anteriores preservam os nomes e valores registrados na compra.
+
+## Sucos em uma única seção — 26/11/2026
+
+Todos os produtos do tipo suco aparecem no grupo único Sucos, após refrigerantes mini PET, sem divisões por fruta, polpa ou marca. Del Valle/Skinka e os sete sabores em copo conservam seus nomes, fotos, preços, estoques e IDs. O agrupamento usa o tipo do produto cadastrado no admin; novos sucos de polpa também entram no mesmo grupo. Mudança de apresentação e metadados do manifesto, sem migração ou alteração do banco.
+
+## Sacola editável — 26/11/2026
+
+Clicar na sacola flutuante ou no pedido da navbar abre um resumo em painel lateral, em tela inteira no celular. Lista receitas finalizadas e acompanhamentos, quantidades, preço unitário, total por produto, subtotal e uma única entrega. Quantidades podem aumentar/diminuir ou o produto inteiro pode ser removido. Hambúrgueres com a mesma receita se agrupam; as cópias são independentes e não herdam o nome da pessoa. Em pedidos com vários lanches, os nomes podem ser informados diretamente na sacola antes de seguir para entrega. Diminuir mantém as primeiras cópias e seus nomes; remover uma receita não altera os outros lanches.
+
+Receitas incompletas ficam como Em montagem, sem cobrança, com opções continuar/remover. É necessário finalizá-las ou removê-las para continuar com os demais itens. O último hambúrguer removido vira apenas um rascunho vazio, sem pão cobrado, permitindo pedido só de acompanhamentos. Estoque agregado, produtos pausados e limite de dez hambúrgueres são verificados antes de aumentar quantidades. Reduções e remoções continuam disponíveis para corrigir produtos esgotados. Nada é reservado ou movimentado antes de enviar o pedido pelo fluxo existente.

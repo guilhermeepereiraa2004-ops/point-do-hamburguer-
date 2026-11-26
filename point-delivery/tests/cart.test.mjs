@@ -6,10 +6,67 @@ import { burgerPriceForCount, ingredientNames, InsufficientStockError } from '..
 import { reserveOrder } from '../db/order-reservation.ts';
 import { postgresFixture } from './postgres-fixture.mjs';
 import { resizeBurgerDrafts, nextUnfinishedBurger, burgerIsFinished, repeatBurgerRecipe } from '../domain/assembly-flow.ts';
+import { groupBagBurgers, changeBagBurgerQuantity, removeBagBurger } from '../domain/order-bag.ts';
 
 const item = (id, category, extra = {}) => ({ id, name: id, category, unit: 'unidade', stock: 30, maxQty: 4, active: true, price: null, ...extra });
 const catalog = { ingredients: [item('pao','Pães',{maxQty:1}),item('carne','Proteínas'),item('queijo','Queijos'),item('bacon','Extras'),item('refri','Complementos',{featured:true,extraType:'refrigerante',price:700})], prices:{3:1300,4:1400,6:1600},deliveryFee:500 };
 const first = {pao:1,carne:1,queijo:1,bacon:1}, second = {pao:1,carne:2,queijo:2}, heavy = {pao:1,carne:4,queijo:2};
+
+test('bag groups only completed recipes, independent of ingredient insertion order and recipient names',()=>{
+ const reordered={bacon:1,queijo:1,carne:1,pao:1,unused:0};
+ const state={burgers:[first,second,reordered,{pao:1,carne:1}],recipients:['Ana','Bia','',''],signatures:[JSON.stringify(first),JSON.stringify(second),JSON.stringify(reordered),''],active:3};
+ const groups=groupBagBurgers(state);
+ assert.deepEqual(groups.map(group=>group.indices),[[0,2],[1]]);
+ assert.equal(summarizeCart(groups.flatMap(group=>group.indices.map(index=>state.burgers[index])),{refri:2},catalog).subtotal,5400);
+});
+
+test('bag quantity adds independent finished recipes and empty recipient slots, with aggregate stock and ten-burger limits',()=>{
+ const state={burgers:[{...first}],recipients:['Ana'],signatures:[JSON.stringify(first)],active:0};
+ const copies=changeBagBurgerQuantity(state,0,3,catalog);
+ assert.deepEqual(copies.recipients,['Ana','','']);
+ assert.equal(copies.burgers.length,3);
+ assert.ok(copies.burgers.every((recipe,index)=>burgerIsFinished(recipe,copies.signatures[index])));
+ copies.burgers[1].carne=2;
+ assert.equal(copies.burgers[0].carne,1);
+ assert.equal(copies.burgers[2].carne,1);
+ assert.deepEqual(state.burgers,[first]);
+ const scarce={...catalog,ingredients:catalog.ingredients.map(item=>item.id==='pao'?{...item,stock:2}:item)};
+ assert.throws(()=>changeBagBurgerQuantity(state,0,3,scarce),InsufficientStockError);
+ const paused={...catalog,ingredients:catalog.ingredients.map(item=>item.id==='queijo'?{...item,active:false}:item)};
+ assert.throws(()=>changeBagBurgerQuantity(state,0,2,paused));
+ for(const quantity of [-1,11,1.5,NaN])assert.throws(()=>changeBagBurgerQuantity(state,0,quantity,catalog));
+ const mixed={burgers:[first,second],recipients:['Ana','Bia'],signatures:[JSON.stringify(first),JSON.stringify(second)],active:0};
+ assert.throws(()=>changeBagBurgerQuantity(mixed,0,10,catalog),/até 10/);
+ const unavailableExtra={...catalog,ingredients:catalog.ingredients.map(item=>item.id==='refri'?{...item,stock:0}:item)};
+ assert.throws(()=>changeBagBurgerQuantity(state,0,2,unavailableExtra,{refri:1}),InsufficientStockError);
+});
+
+test('reducing or removing a bag recipe keeps other recipes, recipient names and active index aligned',()=>{
+ const state={burgers:[first,second,{...first}],recipients:['Ana','Bia','Caio'],signatures:[JSON.stringify(first),JSON.stringify(second),JSON.stringify(first)],active:2};
+ const reduced=changeBagBurgerQuantity(state,0,1,catalog);
+ assert.deepEqual(reduced.burgers,[first,second]);
+ assert.deepEqual(reduced.recipients,['Ana','Bia']);
+ assert.equal(reduced.active,1);
+ const removed=changeBagBurgerQuantity(state,0,0,catalog);
+ assert.deepEqual(removed.burgers,[second]);
+ assert.deepEqual(removed.recipients,['Bia']);
+ assert.equal(removed.active,0);
+ const removedDraft=removeBagBurger({...state,signatures:[...state.signatures.slice(0,2),'']},2);
+ assert.deepEqual(removedDraft.recipients,['Ana','Bia']);
+ const paused={...catalog,ingredients:catalog.ingredients.map(item=>({...item,active:false,stock:0}))};
+ assert.deepEqual(changeBagBurgerQuantity(state,0,1,paused).recipients,['Ana','Bia']);
+ assert.deepEqual(state.recipients,['Ana','Bia','Caio']);
+});
+
+test('removing the last bag burger leaves an uncharged draft and preserves standalone accompaniments',()=>{
+ const state={burgers:[first],recipients:['Ana'],signatures:[JSON.stringify(first)],active:0};
+ const empty=removeBagBurger(state,0);
+ assert.deepEqual(empty,{burgers:[{pao:1}],recipients:[''],signatures:[''],active:0});
+ assert.deepEqual(groupBagBurgers(empty),[]);
+ assert.equal(summarizeCart([],{refri:2},catalog).subtotal,1400);
+ assert.equal(validateCart([],{refri:2},catalog).selection.pao,undefined);
+ assert.throws(()=>removeBagBurger(state,2));
+});
 test('burger prices start at fourteen for three items and keep increasing beyond thirty reais',()=>{
  const prices=Object.fromEntries(Array.from({length:17},(_,index)=>[index+3,(index+14)*100]));
  for(const [count,expected] of [[3,1400],[4,1500],[19,3000],[20,3100],[21,3200],[60,7100]]) assert.equal(burgerPriceForCount(count,prices),expected);
@@ -123,6 +180,55 @@ test('combined stock shortages include every burger and side before reserving',(
  assert.throws(()=>validateCart([first,second],{refri:1},scarce),e=>e instanceof InsufficientStockError&&e.shortages.length===3&&e.shortages.find(i=>i.id==='carne').requested===3);
  const paused={...catalog,ingredients:catalog.ingredients.map(i=>({...i,active:i.id!=='queijo'}))};
  assert.throws(()=>validateCart([first,second],{},paused),e=>e instanceof InsufficientStockError&&e.shortages[0].requested===3);
+});
+
+test('standalone fries, soda and juice need no burger, bread, recipe price or recipient',()=>{
+ const sidesCatalog={...catalog,prices:{},ingredients:[item('fries','Complementos',{featured:true,price:2500}),item('refri','Complementos',{featured:true,price:600}),item('juice','Complementos',{featured:true,price:800})]};
+ for(const [extras,subtotal] of [[{fries:1},2500],[{refri:2},1200],[{juice:1},800],[{fries:1,refri:2,juice:1},4500]]){
+  const cart=validateCart([],extras,sidesCatalog,[]);
+  assert.equal(cart.valid,true);
+  assert.equal(cart.subtotal,subtotal);
+  assert.equal(cart.subtotal+sidesCatalog.deliveryFee,subtotal+500);
+  assert.deepEqual(cart.snapshots,[]);
+  assert.deepEqual(cart.selection,extras);
+  assert.equal(cart.lines.length,Object.keys(extras).length);
+ }
+ const noBread={...catalog,ingredients:catalog.ingredients.map(i=>({...i,stock:i.id==='pao'?0:i.stock}))};
+ assert.equal(validateCart([],{refri:1},noBread).subtotal,700);
+ for(const extras of [{},{refri:0},{refri:-1},{refri:1.5},{refri:5},{carne:1},{unknown:1}]){
+  assert.throws(()=>validateCart([],extras,sidesCatalog));
+  assert.equal(summarizeCart([],extras,sidesCatalog).valid,false);
+ }
+ for(const patch of [{active:false},{featured:false},{stock:0}]){
+  const blocked={...catalog,ingredients:catalog.ingredients.map(i=>i.id==='refri'?{...i,...patch}:i)};
+  assert.throws(()=>validateCart([],{refri:1},blocked),InsufficientStockError);
+ }
+ const noPrice={...catalog,ingredients:catalog.ingredients.map(i=>i.id==='refri'?{...i,price:null}:i)};
+ assert.throws(()=>validateCart([],{refri:1},noPrice),/preço/);
+});
+
+test('standalone orders reserve only products, roll back shortages, cancel once and record completed revenue once',async t=>{
+ const db=await fixture(t),cart=validateCart([],{refri:2},catalog,[]),input=order(cart);
+ await reserveOrder(db,input,cart.lines);
+ assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='refri'").first()).stock,28);
+ assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='pao'").first()).stock,30);
+ assert.deepEqual(JSON.parse((await db.prepare('SELECT burgers FROM orders WHERE id=?').bind(input.id).first()).burgers),[]);
+ assert.equal((await db.prepare('SELECT count(*) AS count FROM order_items WHERE order_id=?').bind(input.id).first()).count,1);
+ await assert.rejects(reserveOrder(db,input,cart.lines),/unique/i);
+ assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='refri'").first()).stock,28);
+ for(let i=0;i<2;i++)await db.prepare("UPDATE orders SET status='cancelado' WHERE id=?").bind(input.id).run();
+ assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='refri'").first()).stock,30);
+ assert.equal((await db.prepare('SELECT count(*) AS count FROM finance').first()).count,0);
+ const completed=order(cart);await reserveOrder(db,completed,cart.lines);
+ await db.prepare("UPDATE ingredients SET price=9999 WHERE id='refri'").run();
+ for(const status of ['preparo','entrega','concluido','concluido'])await db.prepare('UPDATE orders SET status=? WHERE id=?').bind(status,completed.id).run();
+ assert.equal((await db.prepare('SELECT value FROM finance WHERE order_id=?').bind(completed.id).first()).value,1900);
+ assert.equal((await db.prepare('SELECT count(*) AS count FROM finance').first()).count,1);
+ const failed=order(cart);await db.prepare("UPDATE ingredients SET stock=1 WHERE id='refri'").run();
+ await assert.rejects(reserveOrder(db,failed,cart.lines),/constraint/i);
+ assert.equal(await db.prepare('SELECT id FROM orders WHERE id=?').bind(failed.id).first(),null);
+ assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='refri'").first()).stock,1);
+ assert.equal((await db.prepare("SELECT stock FROM ingredients WHERE id='pao'").first()).stock,30);
 });
 
 test('multi-burger reservations preserve recipes and historical prices, cancel all portions once and never duplicate revenue',async t=>{

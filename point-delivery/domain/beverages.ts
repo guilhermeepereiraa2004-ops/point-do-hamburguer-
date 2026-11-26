@@ -7,8 +7,7 @@ export const beverageGroups = [
   { id: "lata", title: "Refrigerante lata" },
   { id: "aguas", title: "Água" },
   { id: "mini-pet", title: "Refrigerante mini PET" },
-  { id: "sucos-prontos", title: "Sucos Del Valle e Skinka" },
-  { id: "sucos-fruta", title: "Sucos da fruta" },
+  { id: "sucos", title: "Sucos" },
   { id: "outras-bebidas", title: "Outras bebidas" },
 ] as const;
 export type BeverageGroup = typeof beverageGroups[number]["id"];
@@ -17,10 +16,7 @@ export function beverageGroup(item: Ingredient): BeverageGroup | null {
   const type = item.extraType || item.id;
   if (type === "agua") return "aguas";
   if (type === "energetico") return "energeticos";
-  if (type === "suco") {
-    const brand = (item.productName || item.name).toLocaleLowerCase("pt-BR");
-    return /del\s*valle|skinka/.test(brand) ? "sucos-prontos" : "sucos-fruta";
-  }
+  if (type === "suco") return "sucos";
   if (type !== "refrigerante") return null;
   const size = (item.size || "").toLocaleLowerCase("pt-BR").replace(/\s/g, "");
   if (["1l", "1litro", "1000ml"].includes(size)) return "litro";

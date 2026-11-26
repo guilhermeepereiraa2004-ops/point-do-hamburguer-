@@ -47,3 +47,26 @@ test("hero has smaller responsive WebP variants without changing its aspect rati
     assert.ok(statSync(file).size<original*.2);
   }
 });
+
+test("every configured beverage has a local transparent product photo within the transfer budget", async () => {
+  const beverages = JSON.parse(readFileSync(new URL("../data/beverages-menu.json", import.meta.url), "utf8"));
+  const photos = JSON.parse(readFileSync(new URL("../components/beverage-photos.json", import.meta.url), "utf8"));
+  let totalBytes = 0;
+  for (const item of beverages) {
+    assert.ok(photos[item.id], `missing photo for ${item.id}`);
+    assert.ok(photos[item.id].startsWith("/images/accompaniments/"));
+    const file = path(photos[item.id]);
+    const meta = await sharp(file).metadata();
+    assert.equal(meta.format, "webp");
+    assert.equal(meta.width, meta.height, `non-square canvas for ${item.id}`);
+    assert.ok(meta.width <= 512);
+    assert.equal(meta.hasAlpha, true, `missing alpha for ${item.id}`);
+    const { data, info } = await sharp(file).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    let clear = 0;
+    for (let i = 3; i < data.length; i += info.channels) if (data[i] === 0) clear++;
+    assert.ok(clear / (info.width * info.height) > .1, `opaque backdrop for ${item.id}`);
+    assert.ok(statSync(file).size < 150_000, `oversized photo for ${item.id}`);
+    totalBytes += statSync(file).size;
+  }
+  assert.ok(totalBytes < 3_000_000);
+});

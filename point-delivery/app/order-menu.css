@@ -1,0 +1,68 @@
+.storefront .builder-layout.is-menu-step { grid-template-columns: minmax(0, 1fr); }
+.storefront .is-menu-step .builder-controls { padding: 0; border: 0; background: transparent; box-shadow: none; }
+.storefront .is-menu-step .builder-controls { scroll-margin-top: 24px; }
+.storefront .order-menu-filters { display: flex; flex-wrap: wrap; gap: 9px; margin: 0 0 22px; }
+.storefront .order-menu-filters button { min-height: 44px; padding: 11px 22px; border: 1px solid #eaded1; border-radius: 50px; background: #fff; color: #826a58; font-size: 12px; font-weight: 600; transition: background .18s, color .18s, border-color .18s; }
+.storefront .order-menu-filters button[aria-pressed=true] { background: #2d231d; color: white; border-color: #2d231d; }
+.storefront .order-menu-filters button:focus-visible { outline: 2px solid #db641f; outline-offset: 4px; }
+.storefront .order-burger-card { display: grid; grid-template-columns: minmax(250px, .9fr) minmax(0, 1.4fr); grid-template-rows: 1fr auto; border: 1px solid #efd7c1; border-radius: 24px; overflow: hidden; background: white; box-shadow: 0 10px 32px #6f3d1310; }
+.storefront .order-burger-photo { grid-row: 1 / 3; position: relative; display: grid; place-items: center; padding: 24px; background: radial-gradient(ellipse at center, #ffe7c5, #fff5e8 70%); }
+.storefront .order-burger-photo img { display: block; width: 100%; max-width: 320px; height: auto; object-fit: contain; filter: drop-shadow(0 14px 10px #93420d16); }
+.storefront .order-burger-photo>span { position: absolute; bottom: 16px; left: 18px; padding: 6px 10px; border: 1px solid #f3cc9b; border-radius: 30px; background: #fffaf2; color: #ad4a1a; font-size: 10px; font-weight: 600; }
+.storefront .order-burger-info { padding: 28px 30px 18px; }
+.storefront .order-burger-info>small { color: #b1602e; font-size: 9px; font-weight: 600; letter-spacing: 1.4px; }
+.storefront .order-burger-info h3 { margin: 9px 0; color: #2e241d; font-size: clamp(21px, 2.2vw, 29px); line-height: 1.2; letter-spacing: -.9px; }
+.storefront .order-burger-info>p { margin: 0; max-width: 370px; color: #977b64; font-size: 12px; line-height: 1.8; }
+.storefront .order-burger-price { margin-top: 17px; }
+.storefront .order-burger-price>span { display: block; color: #9f8067; font-size: 10px; }
+.storefront .order-burger-price strong { display: block; margin-top: 3px; color: #c94d16; font-size: 29px; font-weight: 750; line-height: 1.2; letter-spacing: -.8px; }
+.storefront .order-burger-price small { display: block; margin-top: 5px; color: #a68b73; font-size: 9px; }
+.storefront .order-burger-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 0 30px 27px; }
+.storefront .order-burger-quantity { display: flex; align-items: center; gap: 14px; }
+.storefront .order-burger-quantity>span { font-size: 10px; color: #72543e; font-weight: 600; }
+.storefront .order-burger-quantity small { display: block; margin-top: 5px; color: #a99079; font-size: 8px; font-weight: 400; }
+.storefront .order-burger-actions .quantity-counter { padding: 3px; border-radius: 12px; }
+.storefront .order-burger-actions .quantity-counter button { width: 36px; height: 40px; }
+.storefront .order-burger-actions .quantity-counter output { min-width: 35px; font-size: 19px; }
+.storefront .order-burger-actions>.button { flex: 1; min-height: 48px; padding: 13px 16px; font-size: 11px; gap: 12px; white-space: nowrap; }
+.storefront .order-burger-stock { width: 100%; margin: -6px 0 0; color: #a3542e; font-size: 10px; }
+.storefront .order-menu-category-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin: 34px 0 19px; }
+.storefront .order-menu-category-heading h3 { margin: 0; font-size: 23px; letter-spacing: -.6px; color: #38281e; }
+.storefront .order-menu-category-heading p { margin: 6px 0 0; color: #9c8069; font-size: 11px; line-height: 1.7; }
+.storefront .order-menu-category-heading>span { color: #ac8d73; font-size: 8px; letter-spacing: 1px; white-space: nowrap; }
+.storefront .order-menu-summary { position: sticky; top: 12px; z-index: 25; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 15px 20px; margin-bottom: 20px; border: 1px solid #edc3a1; border-radius: 17px; background: #fff7ec; box-shadow: 0 8px 24px #6d3e1510; }
+.storefront .order-menu-summary small { display: flex; align-items: center; gap: 6px; color: #8f6d50; font-size: 10px; }
+.storefront .order-menu-summary strong { display: block; margin-top: 3px; font-size: 25px; line-height: 1.25; letter-spacing: -.7px; color: #37261c; }
+.storefront .order-menu-summary span { display: block; margin-top: 3px; font-size: 9px; color: #a28267; }
+.storefront .order-menu-summary .button { min-height: 44px; padding: 12px 17px; font-size: 11px; }
+@media (max-width: 760px) {
+  .storefront .order-menu-filters { gap: 6px; margin-bottom: 16px; }
+  .storefront .order-menu-filters button { flex: 1; padding: 10px 9px; font-size: 10px; white-space: nowrap; }
+  .storefront .order-burger-card { grid-template-columns: 120px minmax(0, 1fr); border-radius: 20px; }
+  .storefront .order-burger-photo { grid-row: 1; padding: 6px; }
+  .storefront .order-burger-photo>span { left: 9px; bottom: 9px; font-size: 8px; padding: 4px 7px; }
+  .storefront .order-burger-info { padding: 20px 15px 19px; }
+  .storefront .order-burger-info>small { font-size: 7px; letter-spacing: .65px; }
+  .storefront .order-burger-info h3 { margin: 8px 0; font-size: 20px; line-height: 1.25; letter-spacing: -.6px; }
+  .storefront .order-burger-info>p { font-size: 10px; line-height: 1.65; }
+  .storefront .order-burger-price { margin-top: 12px; }
+  .storefront .order-burger-price strong { font-size: 24px; }
+  .storefront .order-burger-price small { font-size: 8px; }
+  .storefront .order-burger-actions { grid-column: 1 / -1; border-top: 1px solid #f1e3d4; padding: 15px; gap: 12px; }
+  .storefront .order-burger-quantity { justify-content: space-between; width: 100%; }
+  .storefront .order-burger-quantity>span { font-size: 11px; }
+  .storefront .order-burger-actions>.button { width: 100%; font-size: 12px; min-height: 48px; }
+  .storefront .order-menu-category-heading { margin: 29px 0 15px; }
+  .storefront .order-menu-category-heading h3 { font-size: 21px; }
+  .storefront .order-menu-category-heading p { font-size: 10px; }
+  .storefront .order-menu-category-heading>span { display: none; }
+  .storefront .order-menu-summary { padding: 12px 14px; gap: 10px; top: 8px; }
+  .storefront .order-menu-summary strong { font-size: 22px; }
+  .storefront .order-menu-summary .button { padding: 11px 12px; font-size: 10px; }
+}
+@media (max-width: 350px) {
+  .storefront .order-burger-card { grid-template-columns: 100px minmax(0, 1fr); }
+  .storefront .order-burger-info { padding: 17px 12px; }
+  .storefront .order-burger-info h3 { font-size: 18px; }
+  .storefront .order-burger-info>small { display: none; }
+}

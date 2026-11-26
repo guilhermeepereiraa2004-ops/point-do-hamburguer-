@@ -1,0 +1,4 @@
+Bungee Regular. Official Google Fonts subset for O MELHOR DA CIDADE.
+Asset: https://fonts.gstatic.com/l/font?kit=N0bU2SZBIuF2PU_ECmZ7AZ-U3ZKZKN0ES24&skey=2e93db42ee6e0e28&v=v17
+License: https://raw.githubusercontent.com/google/fonts/main/ofl/bungee/OFL.txt
+Downloaded 2026-11-24. Served locally; no runtime Google Fonts request.

@@ -1,6 +1,7 @@
 "use client";
+import { BrandLogo } from "@/components/brand-logo";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
-import { ArrowRight, Bell, Check, Hamburger, LayoutDashboard, Pause, Play, Pencil, X } from 'lucide-react';
+import { ArrowRight, Bell, Check, LayoutDashboard, Pause, Play, Pencil, X } from 'lucide-react';
 import { money, type Catalog, type Order } from '@/domain/menu';
 import { AdminApiError, readAdminResponse } from '@/lib/admin-api-response';
 import "./availability.css";
@@ -107,7 +108,7 @@ export default function AdminPanel(){
  <main className="admin-main">
   <header className="admin-topbar">
    <span className="workspace-breadcrumb"><span className="admin-topbar-icon"><LayoutDashboard size={17} aria-hidden="true"/></span> Gestão <span className="admin-breadcrumb-divider">/</span><b>{adminSectionLabel(tab)}</b></span>
-   <div className="workspace-mobile-title"><span className="workspace-brand-icon"><Hamburger size={21} aria-hidden="true"/></span><span><small>Point do Hambúrguer</small><strong>{adminSectionLabel(tab)}</strong></span></div>
+   <div className="workspace-mobile-title"><BrandLogo variant="icon" className="workspace-brand-icon" decorative eager/><span><small>Point do Hambúrguer</small><strong>{adminSectionLabel(tab)}</strong></span></div>
    <div className="admin-topbar-actions"><span className={connection?"admin-status is-connected":"admin-status"}><i/>{connection?"Atualizado ao vivo":"Reconectando"}</span></div>
   </header>
   <div className="admin-content"><div className="admin-page-title"><div className="eyebrow">POINT DO HAMBÚRGUER</div><h1 ref={headingRef} tabIndex={-1}>{pageHeadings[tab].title}</h1><p>{pageHeadings[tab].description}</p></div>

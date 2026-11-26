@@ -177,7 +177,7 @@
     "size": "Unidade",
     "extraType": "suco",
     "price": 600,
-    "group": "sucos-prontos"
+    "group": "sucos"
   },
   {
     "id": "suco-skinka-laranja",
@@ -186,7 +186,7 @@
     "size": "Unidade",
     "extraType": "suco",
     "price": 600,
-    "group": "sucos-prontos"
+    "group": "sucos"
   },
   {
     "id": "suco-laranja-300ml",
@@ -195,7 +195,7 @@
     "size": "300 ml",
     "extraType": "suco",
     "price": 800,
-    "group": "sucos-fruta"
+    "group": "sucos"
   },
   {
     "id": "suco-maracuja-300ml",
@@ -204,7 +204,7 @@
     "size": "300 ml",
     "extraType": "suco",
     "price": 700,
-    "group": "sucos-fruta"
+    "group": "sucos"
   },
   {
     "id": "suco-caja-300ml",
@@ -213,7 +213,7 @@
     "size": "300 ml",
     "extraType": "suco",
     "price": 600,
-    "group": "sucos-fruta"
+    "group": "sucos"
   },
   {
     "id": "suco-cupuacu-300ml",
@@ -222,7 +222,7 @@
     "size": "300 ml",
     "extraType": "suco",
     "price": 600,
-    "group": "sucos-fruta"
+    "group": "sucos"
   },
   {
     "id": "suco-acerola-300ml",
@@ -231,7 +231,7 @@
     "size": "300 ml",
     "extraType": "suco",
     "price": 600,
-    "group": "sucos-fruta"
+    "group": "sucos"
   },
   {
     "id": "suco-graviola-300ml",
@@ -240,7 +240,7 @@
     "size": "300 ml",
     "extraType": "suco",
     "price": 600,
-    "group": "sucos-fruta"
+    "group": "sucos"
   },
   {
     "id": "suco-goiaba-300ml",
@@ -249,6 +249,6 @@
     "size": "300 ml",
     "extraType": "suco",
     "price": 600,
-    "group": "sucos-fruta"
+    "group": "sucos"
   }
 ]

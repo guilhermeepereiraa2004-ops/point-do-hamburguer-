@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight, Bell, BookOpen, ClipboardList, Ellipsis, Hamburger, LayoutDashboard, Package, Settings2, TrendingUp, Users, X } from "lucide-react";
+import { ArrowUpRight, Bell, BookOpen, ClipboardList, Ellipsis, LayoutDashboard, Package, Settings2, TrendingUp, Users, X } from "lucide-react";
+import { BrandLogo } from "@/components/brand-logo";
 import { AdminAccount } from "@/components/admin-account";
 import "./admin-navigation.css";
 
@@ -74,7 +75,7 @@ export function AdminNavigation({ current, pending, onNavigate, connected }: Nav
   return <>
     <aside className="workspace-sidebar">
       <a className="workspace-brand" href="/" aria-label="Point do Hambúrguer, início da loja">
-        <span className="workspace-brand-icon"><Hamburger size={25} aria-hidden="true"/></span>
+        <BrandLogo variant="icon" className="workspace-brand-icon" decorative eager/>
         <span><strong>Point do Hambúrguer</strong><small>Painel administrativo</small></span>
       </a>
       <nav className="workspace-navigation" aria-label="Navegação administrativa">

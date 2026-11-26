@@ -1,38 +1,42 @@
-import { ArrowRight, Hamburger, Minus, Plus } from "lucide-react";
+import { ArrowRight, Minus, Plus } from "lucide-react";
 import { MAX_BURGERS } from "@/domain/cart";
+import { money } from "@/domain/menu";
+import imageAssets from "./menu-image-assets.json";
 
 type Props = {
   quantity: number;
   available: number;
   onChange: (quantity: number) => void;
   onStart: () => void;
+  price: number | undefined;
+  disabled: boolean;
 };
 
-export function BurgerQuantity({ quantity, available, onChange, onStart }: Props) {
+export function BurgerQuantity({ quantity, available, price, disabled, onChange, onStart }: Props) {
   return (
-    <div className="quantity-stage">
-      <span className="quantity-emblem" aria-hidden="true"><Hamburger size={36} /></span>
-      <p>Cada hambúrguer tem sua própria montagem.<br />O pão já está incluído em todos eles.</p>
-      <div className="quantity-presets" role="group" aria-label="Quantidade de hambúrgueres">
-        {[1, 2, 3, 4].map(value => (
-          <button key={value} type="button" aria-pressed={quantity === value} disabled={value > available} onClick={() => onChange(value)}>
-            <Hamburger size={23} aria-hidden="true" />
-            <strong>{value}</strong>
-            <span>{value === 1 ? "hambúrguer" : "hambúrgueres"}</span>
-          </button>
-        ))}
+    <article className={`order-burger-card${available === 0 ? " is-unavailable" : ""}`} aria-labelledby="menu-burger-title">
+      <div className="order-burger-photo">
+        <img src={imageAssets.hero.src} srcSet={imageAssets.hero.srcSet} sizes="(max-width: 760px) 130px, 360px" width={imageAssets.hero.width} height={imageAssets.hero.height} alt="Sugestão de hambúrguer com carne, queijo, bacon e salada" loading="lazy" decoding="async" />
+        <span>Você monta</span>
       </div>
-      <div className="quantity-custom">
-        <span>Quantos vão ser?<small>De 1 a {MAX_BURGERS} por pedido</small></span>
-        <div className="quantity-counter">
-          <button type="button" aria-label="Diminuir quantidade de hambúrgueres" disabled={quantity <= 1} onClick={() => onChange(quantity - 1)}><Minus size={18} /></button>
-          <output aria-live="polite" aria-label="Quantidade escolhida">{quantity}</output>
-          <button type="button" aria-label="Aumentar quantidade de hambúrgueres" disabled={quantity >= available} onClick={() => onChange(quantity + 1)}><Plus size={18} /></button>
+      <div className="order-burger-info">
+        <small>O SEU CLÁSSICO, DO SEU JEITO</small>
+        <h3 id="menu-burger-title" tabIndex={-1}>Monte seu hambúrguer</h3>
+        <p>Escolha a quantidade aqui. Depois, os recheios de cada lanche.</p>
+        <div className="order-burger-price"><span>A partir de</span><strong>{price === undefined ? "Preço a configurar" : money(price)}</strong><small>Pão incluso · mínimo de 3 itens</small></div>
+      </div>
+      <div className="order-burger-actions">
+        <div className="order-burger-quantity">
+          <span>Quantidade<small>Até {MAX_BURGERS} por pedido</small></span>
+          <div className="quantity-counter">
+            <button type="button" aria-label="Diminuir quantidade de hambúrgueres" disabled={disabled || quantity <= 1} onClick={() => onChange(quantity - 1)}><Minus size={18} /></button>
+            <output aria-live="polite" aria-label="Quantidade de hambúrgueres escolhida">{quantity}</output>
+            <button type="button" aria-label="Aumentar quantidade de hambúrgueres" disabled={disabled || quantity >= available} onClick={() => onChange(quantity + 1)}><Plus size={18} /></button>
+          </div>
         </div>
+        <button type="button" className="button primary" disabled={disabled || quantity > available || price === undefined} onClick={onStart}>Montar {quantity} {quantity === 1 ? "hambúrguer" : "hambúrgueres"}<ArrowRight size={18} /></button>
+        {available < MAX_BURGERS && <p className="order-burger-stock" role="status">{available > 0 ? `Disponível para até ${available} ${available === 1 ? "hambúrguer" : "hambúrgueres"} agora.` : "Hambúrguer indisponível no momento."}</p>}
       </div>
-      {available < MAX_BURGERS && <p className="quantity-stock" role="status">{available > 0 ? `Disponibilidade para até ${available} hambúrgueres neste momento.` : "Os hambúrgueres estão indisponíveis no momento."}</p>}
-      <button type="button" className="button primary quantity-start" disabled={quantity > available} onClick={onStart}>Montar {quantity} {quantity === 1 ? "hambúrguer" : "hambúrgueres"}<ArrowRight size={18} /></button>
-      <small className="quantity-footnote">Pode voltar aqui para alterar a quantidade. Ao reduzir, as últimas montagens serão removidas.</small>
-    </div>
+    </article>
   );
 }
