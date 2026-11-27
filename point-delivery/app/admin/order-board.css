@@ -67,8 +67,12 @@
 .board-card-details[open] summary svg { transform: rotate(180deg); }
 .board-card-details > a { color: #9a3d17; font-size: 12px; text-decoration: underline; }
 .board-card-details .order-address { overflow-wrap: anywhere; }
-.board-cancel { min-height: 42px; padding: 6px 0; color: #9d392f; font-size: 11px; text-decoration: underline; }
-.admin-app .board-card .board-advance { width: 100%; min-height: 39px; margin-top: 5px; padding: 7px; justify-content: center; gap: 6px; font-size: 10px; white-space: normal; }
+.board-card-actions { display: grid; gap: 7px; margin-top: 7px; }
+.admin-app .board-card .board-cancel { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 44px; padding: 9px; border: 1px solid #eed1ca; border-radius: 10px; background: #fff8f6; color: #a54134; font-size: 11px; font-weight: 600; }
+.admin-app .board-card .board-cancel:hover:not(:disabled) { background: #ffede7; border-color: #dca99c; }
+.admin-app .board-card .board-cancel:focus-visible { outline: 2px solid #c65b42; outline-offset: 3px; }
+.admin-app .board-card .board-cancel:disabled { opacity: .5; cursor: not-allowed; }
+.admin-app .board-card .board-advance { width: 100%; min-height: 44px; margin-top: 0; padding: 7px; justify-content: center; gap: 6px; font-size: 10px; white-space: normal; }
 .board-advance svg { flex-shrink: 0; }
 @media (max-width: 1180px), (pointer: coarse) {
   .board-stage-switch { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-bottom: 12px; padding: 4px; background: #eee8e2; border-radius: 11px; }
@@ -85,6 +89,7 @@
   .board-card-customer h4, .board-card-customer strong { font-size: 14px; }
   .board-card-details summary, .board-cancel { min-height: 44px; font-size: 12px; }
   .admin-app .board-card .board-advance { min-height: 46px; font-size: 13px; }
+  .admin-app .board-card .board-cancel { min-height: 44px; font-size: 12px; }
 }
 @media (max-width: 370px) {
   .board-stage-switch { grid-template-columns: repeat(2, minmax(0, 1fr)); }

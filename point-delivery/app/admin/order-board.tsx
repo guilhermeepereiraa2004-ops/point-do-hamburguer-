@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import { ArrowRight, ChevronDown, ClipboardList, CreditCard, GripVertical } from "lucide-react";
+import { ArrowRight, ChevronDown, ClipboardList, CreditCard, GripVertical, X } from "lucide-react";
 import { paymentLabel } from "@/domain/payment";
 import { money, statusLabels, type Order, type Status } from "@/domain/menu";
 import { OrderContents } from "./order-contents";
@@ -49,11 +49,13 @@ function OrderCard({ order, busy, dragging, grip, onAdvance, onCancel }: {
       <a href={`tel:${order.phone}`}>{order.phone}</a>
       <OrderContents order={order}/>
       <div className="order-address"><strong>Entrega · {money(order.deliveryFee)}</strong><p>{order.address}</p><small>Referência: {order.reference}</small>{order.notes && <p className="order-note">Obs.: {order.notes}</p>}</div>
-      {next && <button type="button" className="board-cancel" disabled={busy} onClick={onCancel}>Cancelar pedido</button>}
     </details>
-    {next && <button type="button" className="button primary board-advance" disabled={busy} onClick={onAdvance}>
-      {actionLabel[order.status]} <ArrowRight size={15} aria-hidden="true"/>
-    </button>}
+    {next && <div className="board-card-actions">
+      <button type="button" className="button primary board-advance" disabled={busy} onClick={onAdvance}>
+        {actionLabel[order.status]} <ArrowRight size={15} aria-hidden="true"/>
+      </button>
+      <button type="button" className="board-cancel" disabled={busy} aria-haspopup="dialog" onClick={onCancel}><X size={15} aria-hidden="true"/>Cancelar pedido</button>
+    </div>}
   </article>;
 }
 

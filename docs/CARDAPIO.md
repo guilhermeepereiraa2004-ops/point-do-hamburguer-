@@ -175,3 +175,7 @@ A sacola flutuante só aparece quando a hero saiu completamente pela parte super
 Seu pedido usa cabeçalho e rodapé compactos para priorizar a lista rolável de produtos, inclusive em janelas baixas. Acompanhamentos exibem foto, nome, preço da linha e controles de quantidade juntos; o preço por unidade aparece quando há várias unidades. Hambúrgueres preservam ingredientes, edição e nomes individuais. Produtos, entrega e total permanecem visíveis no rodapé, ao lado do botão Continuar, que abre a mesma revisão de entrega. Adicionar mais itens fica no fim da lista. Ao abrir ou reabrir o resumo, a lista começa no primeiro item.
 
 O cabeçalho do acompanhamento usa o ícone PH e o nome Point do Hambúrguer com a mesma fonte, cores e proporções da navbar principal. Em telas estreitas o acesso de volta ao cardápio mostra a seta, mantendo seu nome acessível. A identificação e proteção do acompanhamento não foram alteradas.
+
+## Cancelamento visível no quadro de pedidos — 26/11/2026
+
+Nos pedidos ativos, Cancelar pedido aparece diretamente abaixo do botão de avançar a etapa, inclusive abaixo de Aceitar e preparar nos recebidos, sem precisar abrir Detalhes do pedido. A ação tem identificação vermelha e mantém a confirmação antes de cancelar. Pedidos concluídos e cancelados não oferecem a ação. Autorização no servidor e devolução idempotente do estoque permanecem no fluxo existente.
