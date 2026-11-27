@@ -3,6 +3,8 @@ import { StoreClosedError } from "@/domain/store-status";
 import { validateCashChange, validatePaymentMethod } from "@/domain/payment";
 import { validateCart, validateBurgerRecipients } from "@/domain/cart";
 import { reserveOrder } from "@/db/order-reservation";
+import { readBoardOrders } from "@/db/board-orders";
+import { adjustIngredientStock } from "@/db/stock-adjustment";
 import { getTrackingSecret, orderConfirmation } from "@/lib/order-tracking";
 import { ingredients, prices, settings, orders, orderItems, movements, finance, manualFinance } from "@/db/pg-schema";
 import { eq, desc, and, gte, lt } from "drizzle-orm";
@@ -26,7 +28,7 @@ export async function placeOrder(input: Record<string, unknown>) {
   const fingerprint = JSON.stringify({ selection: input.selection, burgers: input.burgers, recipients: input.recipients, extras: input.extras, customer: input.customer, phone: input.phone, address: input.address, reference: input.reference, notes: input.notes, expectedTotal: input.expectedTotal, paymentMethod: input.paymentMethod, needsChange: input.needsChange, changeFor: input.changeFor });
   const db = getDb();
   const existing = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
-  if (existing[0]) { if (existing[0].fingerprint !== fingerprint) throw new Error("Este identificador já pertence a outro pedido. Recarregue a página."); return orderConfirmation(existing[0], trackingSecret); }
+  if (existing[0]) { if (existing[0].fingerprint !== fingerprint) throw new Error("Este identificador já pertence a outro pedido. Recarregue a página."); return { ...orderConfirmation(existing[0], trackingSecret), orderId: existing[0].id }; }
   const paymentMethod = validatePaymentMethod(input.paymentMethod);
   const catalog = await getCatalog();
   if (!catalog.storeOpen) throw new StoreClosedError();
@@ -48,20 +50,20 @@ export async function placeOrder(input: Record<string, unknown>) {
     await reserveOrder(raw, { id, idempotencyKey, fingerprint, code, customer, phone, address, reference, notes, paymentMethod, ...cashChange, subtotal: summary.subtotal, deliveryFee: catalog.deliveryFee, total, createdAt, ...(cart ? { burgers: JSON.stringify(cart.snapshots) } : {}) }, cart?.lines ?? catalog.ingredients.filter(item => selection[item.id]).map(item => ({ id: item.id, name: item.name, quantity: selection[item.id] })));
   } catch (error) {
     const duplicate = await db.select().from(orders).where(eq(orders.idempotencyKey, idempotencyKey));
-    if (duplicate[0]?.fingerprint === fingerprint) return orderConfirmation(duplicate[0], trackingSecret);
+    if (duplicate[0]?.fingerprint === fingerprint) return { ...orderConfirmation(duplicate[0], trackingSecret), orderId: duplicate[0].id };
     if (String(error).includes("POINT_STORE_CLOSED")) throw new StoreClosedError();
     const shortages = getStockShortages(selection, await getCatalog());
     if (shortages.length) throw new InsufficientStockError(shortages);
     console.error("[orders] reservation persistence failed");
     throw new Error("Não conseguimos confirmar seu pedido agora. Tente novamente em instantes.");
   }
-  return orderConfirmation({ id, code }, trackingSecret);
+  return { ...orderConfirmation({ id, code }, trackingSecret), orderId: id };
 }
 export async function getDashboard() {
   const db = getDb();
   const now = Date.now(), month = currentMonth(now);
   const [list, lines, receipts, manual, history, catalog, monthOrders] = await Promise.all([
-    db.select().from(orders).orderBy(desc(orders.createdAt)).limit(200), db.select().from(orderItems),
+    readBoardOrders(getStore()), db.select().from(orderItems),
     db.select({ orderId: finance.orderId, value: finance.value, createdAt: finance.createdAt, customer: orders.customer, phone: orders.phone, code: orders.code, address: orders.address, orderedAt: orders.createdAt }).from(finance).innerJoin(orders, eq(finance.orderId, orders.id)),
     db.select().from(manualFinance).orderBy(desc(manualFinance.occurredAt)),
     db.select().from(movements).orderBy(desc(movements.createdAt)).limit(30), getCatalog(),
@@ -112,10 +114,8 @@ export async function updateCatalog(input: Record<string, unknown>) {
   if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 0 || value > 1000000) throw new Error("Informe um valor válido, maior ou igual a zero.");
   if (kind === "stock") {
     const id = String(input.id);
-    const [item] = await getDb().select().from(ingredients).where(eq(ingredients.id, id));
-    if (!item) throw new Error("Ingrediente não encontrado.");
     const reason = stringField(input.reason, "motivo do ajuste", 3, 200);
-    await raw.batch([raw.prepare("INSERT INTO movements (ingredient_id,delta,reason,created_at) SELECT id, ?-stock, ?, ? FROM ingredients WHERE id=?").bind(value, reason, Date.now(), id), raw.prepare("UPDATE ingredients SET stock=? WHERE id=?").bind(value, id)]);
+    await adjustIngredientStock(raw, id, value, reason);
   } else if (kind === "price") {
     const count = Number(input.id); if (!Number.isInteger(count) || count < 3 || count > 19) throw new Error("Faixa inválida.");
     await raw.prepare("INSERT INTO prices (count,value) VALUES (?,?) ON CONFLICT(count) DO UPDATE SET value=excluded.value").bind(count, value).run();

@@ -3,13 +3,13 @@ import { placeOrder } from "@/actions/store";
 import { InsufficientStockError } from "@/domain/menu";
 import { hasValidRequestOrigin } from "@/lib/request-origin";
 import { after } from "next/server";
-import { dispatchOrderPush } from "@/lib/order-push";
+import { scheduleAndDispatchOrderPush } from "@/lib/order-push-queue";
 export const maxDuration = 120;
 export async function POST(request: Request) {
   try { if (!hasValidRequestOrigin(request)) return Response.json({ error: "Origem inválida." }, { status: 403 });
     if (Number(request.headers.get("content-length") || 0) > 20000) return Response.json({ error: "Pedido muito grande." }, { status: 413 });
-    const result = await placeOrder(await request.json());
-    after(dispatchOrderPush);
+    const { orderId, ...result } = await placeOrder(await request.json());
+    after(() => scheduleAndDispatchOrderPush(orderId));
     return Response.json(result);
   } catch (e) {
     if (e instanceof StoreClosedError) return Response.json({ error: e.message, code: "STORE_CLOSED" }, { status: 409 });

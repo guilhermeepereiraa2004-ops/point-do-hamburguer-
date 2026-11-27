@@ -61,7 +61,7 @@ export type PushDelivery = {
   order_id: string; subscription_id: string; code: string; endpoint: string; p256dh: string; auth: string; claim_token: string;
 };
 
-export async function claimPushDeliveries(db: Database, now = Date.now()) {
+export async function claimPushDeliveries(db: Database, now = Date.now(), orderId?: string) {
   const token = randomUUID();
   await db.prepare(`
     UPDATE push_deliveries d SET claim_token=?,locked_until=?
@@ -72,15 +72,28 @@ export async function claimPushDeliveries(db: Database, now = Date.now()) {
       JOIN orders o ON o.id=p.order_id AND o.status='recebido'
       WHERE p.confirmed_at IS NULL AND (p.sent_at IS NULL OR p.confirmation_required=1)
         AND p.next_attempt<=? AND p.locked_until<=? AND p.created_at>=?
+        ${orderId ? "AND o.id=?" : ""}
       ORDER BY p.created_at LIMIT 50 FOR UPDATE OF p SKIP LOCKED
     )
-  `).bind(token, now + 60000, now, now, now - PUSH_RETENTION_MS).run();
+  `).bind(token, now + 60000, now, now, now - PUSH_RETENTION_MS, ...(orderId ? [orderId] : [])).run();
   const { results } = await db.prepare(`
     SELECT d.order_id,d.subscription_id,d.claim_token,o.code,s.endpoint,s.p256dh,s.auth
     FROM push_deliveries d JOIN orders o ON o.id=d.order_id
     JOIN push_subscriptions s ON s.id=d.subscription_id WHERE d.claim_token=?
   `).bind(token).all<PushDelivery>();
   return results;
+}
+
+/** Includes leases and future attempts: those deliveries still need recovery. */
+export async function hasPendingOrderPush(db: Database, orderId: string, now = Date.now()) {
+  return !!await db.prepare(`
+    SELECT 1 FROM push_deliveries p
+    JOIN push_subscriptions s ON s.id=p.subscription_id
+    JOIN admin_access a ON a.user_id=s.user_id AND a.active=1 AND a.must_change_password=0
+    JOIN orders o ON o.id=p.order_id AND o.status='recebido'
+    WHERE p.order_id=? AND p.confirmed_at IS NULL
+      AND (p.sent_at IS NULL OR p.confirmation_required=1) AND p.created_at>=? LIMIT 1
+  `).bind(orderId, now - PUSH_RETENTION_MS).first();
 }
 
 export async function finishPushDelivery(db: Database, delivery: PushDelivery, status: "sent" | "retry" | "expired", now = Date.now()) {

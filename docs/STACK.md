@@ -168,3 +168,7 @@ Próxima etapa após aprovação: aplicar iniciar-projeto-agentes nesta decisão
 ## Decisão vigente — migração solicitada para Vercel em 21/10/2026
 A pedido do usuário, a implantação passa a Next.js 16 no runtime Node da Vercel, com PostgreSQL Neon Free já provisionado na equipe Guilherme Pereira. O backend Cloudflare/Sites anterior foi substituído; regras de domínio e interface preservadas. Banco compartilhado persistente; transações SQL e bloqueios de linha preservam estoque e histórico.
 O usuário recusou Clerk e domínio próprio. Login próprio com Better Auth/username, tabelas de sessão no PostgreSQL, cadastro público desativado e autorização por admin_access. Segredo configurado fora do código, senha inicial forte fora do Git, troca obrigatória e recuperação operacional pelo responsável via CLI. Não há dependência de domínio próprio, serviço de e-mail ou identidade Sites.
+
+
+## Recuperação de notificações — 27/11/2026
+Adicionada dependência fixada `@vercel/queue` 0.11.0 e trigger privado Vercel Queues para tentativas autônomas por pedido, com recibos existentes e janela de 24 horas. Mensagens só com UUID/versão; credencial OIDC da hospedagem. Local não registra consumidor remoto. Detalhes e limites em docs/arquitetura.md. Integração requer o próximo deploy; validação local não comprova recebimento físico no Android.

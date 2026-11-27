@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "app/api/queues/order-notifications/route.ts": {
+      "experimentalTriggers": [{ "type": "queue/v2beta", "topic": "point-order-notifications" }]
+    }
+  }
+}

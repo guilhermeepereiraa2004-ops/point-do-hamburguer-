@@ -1,0 +1,4 @@
+.storefront .checkout-dialog { position: fixed; inset: 0; width: 100vw; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 28px; border: 0; background: transparent; overflow: hidden; color: inherit; }
+.storefront .checkout-dialog[open] { display: flex; align-items: center; justify-content: center; }
+.storefront .checkout-dialog::backdrop { background: #2f1b1080; backdrop-filter: blur(9px); }
+@media (max-width: 760px) { .storefront .checkout-dialog { padding: 10px; } .storefront .checkout-dialog[open] { align-items: flex-end; } }

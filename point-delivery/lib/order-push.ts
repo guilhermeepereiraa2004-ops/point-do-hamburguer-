@@ -23,13 +23,14 @@ export async function sendPushTest(userId: string, endpoint: string) {
     { vapidDetails: config, TTL: 60, urgency: "high", timeout: 7000 });
 }
 
-export async function dispatchOrderPush() {
+export async function dispatchOrderPush(options: { orderId?: string; rounds?: number } = {}) {
   const config = getPushConfig();
   if (!config) return;
   try {
     const db = getStore();
-    for (let round = 0; round < 3; round++) {
-      const deliveries = await claimPushDeliveries(db);
+    const rounds = options.rounds ?? 3;
+    for (let round = 0; round < rounds; round++) {
+      const deliveries = await claimPushDeliveries(db, Date.now(), options.orderId);
       if (!deliveries.length) return;
       const results = await Promise.allSettled(deliveries.map(async delivery => {
         try {
@@ -48,7 +49,7 @@ export async function dispatchOrderPush() {
         await finishPushDelivery(db, delivery, "sent");
       }));
       if (results.some(result => result.status === "rejected")) console.error("[push] delivery state update failed");
-      if (round < 2) await new Promise(resolve => setTimeout(resolve, PUSH_ACK_WAIT_MS + 1000));
+      if (round < rounds - 1) await new Promise(resolve => setTimeout(resolve, PUSH_ACK_WAIT_MS + 1000));
     }
   } catch {
     console.error("[push] notification dispatch unavailable");
