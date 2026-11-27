@@ -179,3 +179,7 @@ O cabeçalho do acompanhamento usa o ícone PH e o nome Point do Hambúrguer com
 ## Cancelamento visível no quadro de pedidos — 26/11/2026
 
 Nos pedidos ativos, Cancelar pedido aparece diretamente abaixo do botão de avançar a etapa, inclusive abaixo de Aceitar e preparar nos recebidos, sem precisar abrir Detalhes do pedido. A ação tem identificação vermelha e mantém a confirmação antes de cancelar. Pedidos concluídos e cancelados não oferecem a ação. Autorização no servidor e devolução idempotente do estoque permanecem no fluxo existente.
+
+## Chave Pix no checkout — 26/11/2026
+
+Ao selecionar Pix na entrega, o cliente vê a chave informada pela hamburgueria e o botão Copiar chave Pix. A cópia bem-sucedida é confirmada na própria seção. Se a área de transferência estiver bloqueada, a chave é selecionada e há orientação para copiar manualmente. O campo permite selecionar o texto, sem editar a chave. Ao escolher outra forma de pagamento, a seção desaparece. A interface apenas apresenta a chave: não confirma pagamento nem modifica o fluxo de envio, estoque ou financeiro.
